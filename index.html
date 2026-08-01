@@ -18,7 +18,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--text);font-family:'Archivo',system-ui,sans-serif}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+.wrap{max-width:1720px;margin:0 auto;padding:20px 16px 48px}
 header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
 h1{font-size:26px;font-weight:800;letter-spacing:-.01em;margin-top:4px}
@@ -84,6 +84,25 @@ h1 .range{color:var(--gold)}
 .offplan span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);
   transform:rotate(-90deg);white-space:nowrap;letter-spacing:.2em;text-transform:uppercase;opacity:.7}
 footer{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+@media (min-width:1280px){
+  .wrap{padding:24px 28px 56px}
+  h1{font-size:30px}
+  .eyebrow{font-size:12px}
+  .sun,.stats{font-size:12px}
+  .chip{font-size:12px}
+  .chip i{width:11px;height:11px}
+  .legend .hint{font-size:11px}
+  .day-head .dow{font-size:11px}
+  .day-head .dt{font-size:19px}
+  .badge{font-size:11px}
+  .pill{font-size:10px}
+  .hlabel{font-size:11px}
+  .blk{font-size:12px;left:5px;right:5px;padding:3px 8px}
+  .blk .t{font-size:10px}
+  .blk.tiny{font-size:10.5px;padding:0 8px}
+  .mark{width:22px;height:22px;font-size:13px}
+  footer{font-size:11px}
+}
 @media (max-width:640px){ h1{font-size:20px} .wrap{padding:14px 10px 40px} }
 </style>
 </head>

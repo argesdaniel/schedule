@@ -142,6 +142,16 @@ const SEQ=["C","D","A","B","OFF"];
 const MUSC={C:"legs",D:"shoulders",A:"chest",B:"back"};
 const TRL_HOLS=new Set([U(2026,8,3),U(2026,9,7),U(2026,9,30),U(2026,10,12)]);
 const GYM_LATE=new Set([U(2026,8,3)]); // Avant holiday hours: opens 6:00
+const EVENTS={
+  [U(2026,8,6)]:{txt:"Register: TCS Waterfront · Buy: Electric Island Sep 6",warn:true},
+  [U(2026,8,31)]:{txt:"TIFF public tickets · 12:00",warn:true},
+  [U(2026,9,6)]:{txt:"Electric Island · PAWSA · Fort York · 14:30-22:00",warn:true},
+  [U(2026,9,10)]:{txt:"TIFF ’26 begins (to Sep 20)"},
+  [U(2026,9,20)]:{txt:"TIFF ’26 final day"},
+  [U(2026,10,3)]:{txt:"Nuit Blanche · 19:00-07:00 · free"},
+  [U(2026,10,17)]:{txt:"TCS 5K (option) · 8:00"},
+  [U(2026,10,18)]:{txt:"TCS Half Marathon (option) · 8:00",warn:true}
+};
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
 const OBRAS=U(2026,8,15);
 const mm=(h,m)=>h*60+(m||0);
@@ -301,6 +311,7 @@ function notesFor(t,tl,repo){
   if(d===7&&f==="OFF") out.push({txt:repo.has(t)?"free + make-up long run":"100% free day"});
   if(TRL_HOLS.has(t)) out.push({txt:"TRL closed",warn:true});
   if(GYM_LATE.has(t)) out.push({txt:"Avant opens 6:00 (holiday)",warn:true});
+  if(EVENTS[t]) out.push(EVENTS[t]);
   if(B3_HOLS.has(t)) out.push({txt:"B3 closed"});
   if(t===OBRAS) out.push({txt:"TRL renovation starts",warn:true});
   if(t===PLAN_END) out.push({txt:"return flight",warn:true});

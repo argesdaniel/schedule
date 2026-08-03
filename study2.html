@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFA Study Plan v2 · Full Season</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F1;
+  --card:#EBEEE5;
+  --ink:#182740;
+  --dim:#5A6577;
+  --line:#CBD2C4;
+  --gold:#9C7412;
+  --gold-ink:#7A5A0C;
+  --red:#B0392E;
+  --pass:#2F7A4D;
+  --warn:#B4640A;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:'Archivo',-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+a{color:var(--gold-ink)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- masthead ---------- */
+.mast{padding:46px 0 0;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-weight:600;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-ink)}
+h1{font-weight:800;font-size:clamp(2.05rem,5vw,3.05rem);letter-spacing:-.02em;line-height:1.05;margin:.4rem 0 .35rem}
+h1 .thin{font-weight:500;color:var(--dim)}
+.sub{color:var(--dim);font-size:.92rem;margin:0 0 20px;max-width:62ch}
+.counters{display:flex;flex-wrap:wrap;gap:12px 34px;font-family:var(--mono);padding:14px 0;border-top:1px solid var(--line)}
+.counters b{display:block;font-size:1.18rem;font-weight:600;color:var(--ink);white-space:nowrap}
+.counters span{font-size:.66rem;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
+.notice{margin:0 0 14px;padding:10px 12px;border:1.5px dashed var(--warn);border-radius:3px;color:var(--warn);font-family:var(--mono);font-size:.78rem}
+.notice[hidden]{display:none}
+
+/* ---------- sections ---------- */
+section{padding:36px 0;border-bottom:1px solid var(--line)}
+h2{font-size:1.18rem;font-weight:700;letter-spacing:.01em;margin:.3rem 0 1rem}
+.lede{max-width:66ch;margin:0 0 1.1rem;font-size:.95rem}
+.cap{font-family:var(--mono);font-size:.7rem;color:var(--dim);margin:.7rem 0 0}
+
+/* ---------- audit table ---------- */
+.audit{width:100%;border-collapse:collapse;font-size:.9rem}
+.audit th{font-family:var(--mono);font-weight:600;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.audit td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:baseline}
+.audit td.num{font-family:var(--mono);font-size:.82rem;white-space:nowrap}
+.audit tr.attack td{background:var(--card)}
+.audit .sep td{background:transparent;border-bottom:1px solid var(--line);padding:3px}
+.chip{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.chip-attack{border:1.5px solid var(--red);color:var(--red)}
+.chip-hold{border:1.5px solid var(--dim);color:var(--dim)}
+
+/* ---------- season strip (signature) ---------- */
+.strip-wrap{position:relative;margin:26px 0 10px}
+.strip{display:flex;height:36px;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden;background:var(--paper)}
+.seg{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;transform:scaleX(0);transform-origin:left center}
+.strip.go .seg{transform:scaleX(1);transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.seg span{font-family:var(--mono);font-weight:600;font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;white-space:nowrap;pointer-events:none}
+.seg.lt span{color:var(--ink)}
+.seg.dm span{color:var(--dim)}
+.p-nav1{background:#22345A}
+.p-nav2{background:#31497B}
+.p-gold{background:#9C7412}
+.p-ramp{background:#C9A54A}
+.p-off{background:repeating-linear-gradient(-45deg,#E4E8DD 0 6px,#F4F6F1 6px 12px)}
+.p-red{background:var(--red)}
+.seg.now{box-shadow:inset 0 0 0 2px var(--gold)}
+.needle{position:absolute;top:-8px;bottom:-8px;width:2px;background:var(--red);z-index:2}
+.needle i{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-style:normal;font-weight:700;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);white-space:nowrap}
+.needle.edge-l i{left:0;transform:none}
+
+/* ---------- season legend ---------- */
+.legend{list-style:none;margin:16px 0 0;padding:0}
+.legend li{display:grid;grid-template-columns:36px 158px 1fr auto;gap:6px 14px;align-items:baseline;padding:9px 8px;border-bottom:1px dashed var(--line);font-size:.88rem}
+.legend li.now{background:var(--card);border-left:3px solid var(--gold);padding-left:5px}
+.pc{font-family:var(--mono);font-weight:700;font-size:.66rem;color:#fff;background:var(--ink);text-align:center;border-radius:3px;padding:3px 0;align-self:center}
+.pc.p-ramp,.pc.p-off{color:var(--ink)}
+.pd{font-family:var(--mono);font-size:.73rem;color:var(--dim);white-space:nowrap}
+.pn{font-weight:600}
+.pm{color:var(--ink)}
+.pl{font-family:var(--mono);font-weight:500;font-size:.71rem;color:var(--dim);white-space:nowrap;text-align:right}
+
+/* ---------- standing rules ---------- */
+.rules h3{font-family:var(--mono);font-weight:700;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-ink);margin:24px 0 8px}
+.rules h3:first-of-type{margin-top:8px}
+.rules ul{margin:0;padding:0;list-style:none}
+.rules li{position:relative;padding:5px 0 5px 20px;max-width:76ch;font-size:.92rem}
+.rules li::before{content:'—';position:absolute;left:0;color:var(--gold)}
+
+/* ---------- milestones ---------- */
+.hint{font-family:var(--mono);font-size:.74rem;color:var(--dim);margin:-.4rem 0 1.1rem}
+.msgroup{margin:0 0 20px}
+.msgroup h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-weight:700;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 2px;padding-bottom:6px;border-bottom:1.5px solid var(--ink)}
+.gcount{font-weight:500;letter-spacing:.06em}
+.mslist{list-style:none;margin:0;padding:0}
+.ms{display:grid;grid-template-columns:26px 116px 1fr;gap:12px;align-items:start;padding:9px 6px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
+.ms:hover{background:var(--card)}
+.ms.done{opacity:.5}
+.tick{width:20px;height:20px;margin-top:2px;padding:0;border:1.5px solid var(--ink);border-radius:3px;background:transparent;cursor:pointer;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.72rem;color:#fff}
+.ms.done .tick{background:var(--gold);border-color:var(--gold)}
+.ms.done .tick::after{content:'✓'}
+.msdate{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--dim);padding-top:4px;white-space:nowrap}
+.mslabel b{font-weight:600}
+.msnote{display:block;color:var(--dim);font-size:.8rem;margin-top:2px;max-width:60ch}
+.tag{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-left:8px;vertical-align:1px}
+.tag-gate{border:1.5px solid var(--red);color:var(--red)}
+.tag-cp{border:1.5px solid var(--ink);color:var(--ink)}
+.tag-mock{background:var(--gold);color:#fff}
+.tag-off{border:1.5px dashed var(--dim);color:var(--dim)}
+.tag-exam{background:var(--red);color:#fff}
+
+/* ---------- scoreboard ---------- */
+.score{width:100%;border-collapse:collapse;font-size:.9rem}
+.score th{font-family:var(--mono);font-weight:600;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.score td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.score td.num{font-family:var(--mono);font-size:.8rem;color:var(--dim);white-space:nowrap}
+.sc{width:64px;font-family:var(--mono);font-weight:600;font-size:.92rem;text-align:right;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);border-radius:0;padding:3px 4px}
+.schip{display:inline-block;min-width:58px;text-align:center;font-family:var(--mono);font-weight:700;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:3px;border:1.5px solid var(--line);color:var(--dim)}
+.schip.pass{border-color:var(--pass);color:var(--pass)}
+.schip.edge{border-color:var(--warn);color:var(--warn)}
+.schip.low{border-color:var(--red);color:var(--red)}
+
+/* ---------- io + footer ---------- */
+.io{display:flex;flex-wrap:wrap;gap:10px;padding:28px 0;border-bottom:1px solid var(--line)}
+.btn{font-family:var(--mono);font-weight:600;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:10px 14px;border:1.5px solid var(--ink);border-radius:3px;background:transparent;color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--ink);color:#fff}
+footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:500;font-size:.73rem;line-height:1.7}
+
+/* ---------- responsive / motion / print ---------- */
+@media (max-width:640px){
+  .counters{gap:10px 22px}
+  .legend li{grid-template-columns:34px 1fr}
+  .legend .pc{grid-row:1}
+  .legend .pd{grid-column:2;grid-row:1}
+  .legend .pm{grid-column:1/-1;grid-row:2;font-size:.84rem}
+  .legend .pl{grid-column:1/-1;grid-row:3;text-align:left}
+  .ms{grid-template-columns:24px 92px 1fr;gap:8px}
+  .msdate{font-size:.68rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .seg,.strip.go .seg{transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+@media print{
+  .io,.notice,.hint{display:none}
+  body{background:#fff}
+  .needle i{display:none}
+  .ms,.msgroup,.legend li{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="eyebrow">CFA Level I &middot; Fri Feb 26, 2027 &middot; Belo Horizonte</div>
+    <h1>Study Plan v2 <span class="thin">&middot; full season</span></h1>
+    <p class="sub">Aug 3, 2026 &rarr; Feb 26, 2027 &middot; Toronto &rarr; Belo Horizonte &middot; Kaplan Schweser Essential + CFAI mocks &middot; supersedes study.html for planning. Same engine in both cities.</p>
+    <p id="storage-note" class="notice" hidden>No storage available: marks last only for this session &mdash; export before you leave.</p>
+    <div class="counters">
+      <div><b id="c-days">&mdash;</b><span>days to exam</span></div>
+      <div><b id="c-dayn">&mdash;</b><span>season day</span></div>
+      <div><b id="c-ms">&mdash;</b><span>milestones</span></div>
+      <div><b id="c-next">&mdash;</b><span>next target</span></div>
+    </div>
+  </div>
+</header>
+<main>
+
+<section id="verdict">
+  <div class="wrap">
+    <div class="eyebrow">The 2023 audit</div>
+    <h2>Four topics decide 2027</h2>
+    <p class="lede">2023 finished a statistical tie &mdash; the confidence interval crossed the passing line. The gap lived in four topics, and they carried the heaviest weights. 2027 is not a broader effort; it is a targeted campaign: attack four, hold six, keep everything alive with cumulative question practice.</p>
+    <table class="audit">
+      <thead>
+        <tr><th>Topic</th><th>2027 weight</th><th>2023 exam</th><th>Orders</th></tr>
+      </thead>
+      <tbody>
+        <tr class="attack"><td><b>Financial Statement Analysis</b> &mdash; priority one</td><td class="num">11&ndash;14%</td><td class="num">below 50%</td><td><span class="chip chip-attack">Attack</span></td></tr>
+        <tr class="attack"><td>Ethical &amp; Professional Standards</td><td class="num">15&ndash;20%</td><td class="num">50&ndash;70%</td><td><span class="chip chip-attack">Attack</span></td></tr>
+        <tr class="attack"><td>Equity Investments</td><td class="num">11&ndash;14%</td><td class="num">50&ndash;70%</td><td><span class="chip chip-attack">Attack</span></td></tr>
+        <tr class="attack"><td>Corporate Issuers</td><td class="num">6&ndash;9%</td><td class="num">50&ndash;70%</td><td><span class="chip chip-attack">Attack</span></td></tr>
+        <tr><td>Quantitative Methods</td><td class="num">6&ndash;9%</td><td class="num">above 70%</td><td><span class="chip chip-hold">Hold</span></td></tr>
+        <tr><td>Economics</td><td class="num">6&ndash;9%</td><td class="num">above 70%</td><td><span class="chip chip-hold">Hold</span></td></tr>
+        <tr><td>Fixed Income</td><td class="num">11&ndash;14%</td><td class="num">above 70%</td><td><span class="chip chip-hold">Hold</span></td></tr>
+        <tr><td>Derivatives</td><td class="num">5&ndash;8%</td><td class="num">above 70%</td><td><span class="chip chip-hold">Hold</span></td></tr>
+        <tr><td>Alternative Investments</td><td class="num">7&ndash;10%</td><td class="num">above 70%</td><td><span class="chip chip-hold">Hold</span></td></tr>
+        <tr><td>Portfolio Management</td><td class="num">8&ndash;12%</td><td class="num">above 70%</td><td><span class="chip chip-hold">Hold</span></td></tr>
+      </tbody>
+    </table>
+    <p class="cap">2023 column: CFA result letter, Aug 2023. Weights: official CFA Institute topic-weight table for the 2027 exam. Where a prep-provider slide differs, the official table governs.</p>
+    <p class="lede" style="margin-top:1rem">Hold &ne; neglect. Every topic gets full notes, every masterclass, every quiz. The 60/40 cumulative engine keeps the six strong topics above 70% &mdash; together they are still half the exam.</p>
+  </div>
+</section>
+
+<section id="season">
+  <div class="wrap">
+    <div class="eyebrow">The season</div>
+    <h2>208 days, one line</h2>
+    <div class="strip-wrap" id="strip-wrap">
+      <div class="strip" id="strip" aria-label="Season timeline from Aug 3, 2026 to Feb 26, 2027"></div>
+    </div>
+    <ul class="legend" id="legend"></ul>
+    <p class="cap">By design: &asymp;75:25 initial-to-review hours and &asymp;50:50 study-to-questions mix &mdash; the split Kaplan's own method prescribes.</p>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="wrap">
+    <div class="eyebrow">Standing rules &middot; v2</div>
+    <h2>The operating system</h2>
+    <p class="lede">Same engine in both cities. These supersede study.html.</p>
+    <div class="rules">
+
+      <h3>The daily engine (Mon&ndash;Fri, both cities)</h3>
+      <ul>
+        <li><b>08:00&ndash;09:00</b> &middot; Retrieval hour: yesterday's cards + the spaced deck. Never new content. A card is graded by recall, never by feel.</li>
+        <li><b>09:00&ndash;13:00</b> &middot; The day's Kaplan activities, 50 min on / 10 off. Every reading is backed by questions inside 24 h: module quiz the same day, re-test next morning.</li>
+        <li><b>OFF days</b> of the C&middot;D&middot;A&middot;B&middot;OFF cycle, 5:15&ndash;7:30 &middot; 35 cumulative QBank questions, timed &mdash; 60% current topic, 40% closed topics. From Nov 16 the 40% always includes Ethics.</li>
+        <li><b>Saturday 10:00&ndash;13:00</b> &middot; Topic quiz, checkpoint, mock or repair. No new content. Saturday absorbs the week's debt.</li>
+        <li><b>Sunday</b> &middot; Zero. Part of the method.</li>
+      </ul>
+
+      <h3>Masterclass policy v2 (supersedes &ldquo;selective&rdquo;)</h3>
+      <ul>
+        <li>Every masterclass gets watched. What varies is order and speed &mdash; never coverage.</li>
+        <li>Strong-2023 topics (Quant &middot; Econ &middot; Fixed Income &middot; Derivatives &middot; Alternatives &middot; Portfolio): notes &rarr; module quiz &rarr; masterclass. Walk in knowing what you missed and the video becomes a filter. 1.25&ndash;1.5&times; allowed.</li>
+        <li>FSA, the Equity valuation block (R43&ndash;46) and 2027-new material (R11 Financial Data Science, the rebuilt Equity readings): notes &rarr; masterclass &rarr; quiz, at 1&times;.</li>
+        <li>Anything that exists only in the video becomes a flashcard on the spot.</li>
+        <li>Review phase: re-watching is a repair tool, released by the error log only &mdash; the mix stays &asymp;90:10 questions to video.</li>
+      </ul>
+
+      <h3>Flashcards &mdash; the only permitted note</h3>
+      <ul>
+        <li>Atomic. &le;8 per module; FSA gets 12 (journal entries, IFRS &times; US GAAP, ratios).</li>
+        <li>A card is written only after you can explain the point aloud in your own words. If you can't, that's a re-study signal, not a card.</li>
+        <li>Wrong QBank answers become cards too &mdash; briefest possible form.</li>
+        <li>No transcription. Ever.</li>
+      </ul>
+
+      <h3>FSA protocol &mdash; the &lt;50% topic</h3>
+      <ul>
+        <li>Full masterclasses at 1&times;, video before quiz.</li>
+        <li>Exam FSA questions assume IFRS unless US GAAP is named &mdash; drill the differences from the IFRS side.</li>
+        <li>Exit gate: FSA Topic Quiz &ge;70% before Equity (R39) opens. Below 70 &rarr; Saturdays become FSA repair until it passes.</li>
+        <li>The whole block runs inside Toronto &mdash; the deepest-capacity phase of the season.</li>
+      </ul>
+
+      <h3>Ethics architecture &mdash; top weight, never last again</h3>
+      <ul>
+        <li>Pass 1: Nov 2&ndash;14, the readaptation weeks. Reading-heavy, no calculator &mdash; built for a move. Reorder the topic in the Activity Feed; the platform supports it.</li>
+        <li>Drip: Nov 16 &rarr; exam day. Ethics in every OFF-block mix + ~30 min each Saturday.</li>
+        <li>Pass 2: Feb 1&ndash;12, mornings, alongside repair.</li>
+      </ul>
+
+      <h3>Mock rules &mdash; non-negotiable</h3>
+      <ul>
+        <li>Five full mocks in exam conditions: two 135-min sessions, real start time, approved calculator, nothing else on the desk.</li>
+        <li>Answer everything &mdash; there is no penalty for guessing. Flag every guess during the sit; debrief wrong AND lucky answers. Both feed the error log.</li>
+        <li>Repair priority = weakness &times; topic weight, executed as SchweserPro custom quizzes built from the log.</li>
+        <li>Target: &ge;70%, consistently. Kaplan calibrates hard; CFAI (Learning Ecosystem) is the truest ruler.</li>
+        <li>Last full mock Feb 20. Nothing full-length after it. Kaplan Mock 4 becomes a question bank for the Feb 15&ndash;18 repair days, not a sitting.</li>
+      </ul>
+
+      <h3>Priority hierarchy &mdash; decided now, not in a December squeeze</h3>
+      <ul>
+        <li>Cut first: masterclass videos of strong topics. Cut never: module quizzes, cumulative QBank, mocks, either Ethics pass.</li>
+        <li>Debt slides to Saturday &rarr; then to the buffer week (Dec 7&ndash;11) &rarr; never into the recess, the mocks, or a Sunday.</li>
+      </ul>
+
+      <h3>Recess and taper</h3>
+      <ul>
+        <li>Dec 24&ndash;25 off. Dec 26 optional.</li>
+        <li>Dec 28 &ndash; Jan 3: full recess. No Kaplan, no QBank, no desk. Optional: 15 min of phone flashcards with coffee.</li>
+        <li>Jan 4&ndash;8: reactivation ramp &mdash; cumulative QBank in rising volume, zero new readings. Optional refresher: masterclasses of the two weakest topics.</li>
+        <li>February runs at ~18&ndash;20 h/wk. Taper Feb 22&ndash;25: &le;2 h/day &mdash; error-log greatest hits, formula sheet, Ethics skim, logistics, sleep anchored to exam start time.</li>
+      </ul>
+
+    </div>
+  </div>
+</section>
+
+<section id="milestones">
+  <div class="wrap">
+    <div class="eyebrow">Targets</div>
+    <h2>Every Saturday has a name</h2>
+    <p class="hint">Tap a row to mark it done. Dates are targets, with elasticity built in: debt slides to Saturday, then to the buffer week &mdash; never into the recess or the mocks.</p>
+
+    <div class="msgroup">
+      <h3>Toronto &middot; Content I <span class="gcount">&mdash;</span></h3>
+      <ul class="mslist">
+        <li class="ms" data-id="quant" data-date="2026-08-22" data-short="Aug 22 &middot; Quant">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Aug 22</span>
+          <span class="mslabel"><b>Quantitative Methods closed</b> &mdash; Topic Quiz (1 h 25)<span class="msnote">R1&ndash;11 &middot; R11 (Financial Data Science) is new 2027 material: treat as first contact, 1&times;</span></span>
+        </li>
+        <li class="ms" data-id="econ" data-date="2026-09-05" data-short="Sep 05 &middot; Economics">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Sep 05</span>
+          <span class="mslabel"><b>Economics closed</b> &mdash; Topic Quiz (50 m)<span class="msnote">R12&ndash;19</span></span>
+        </li>
+        <li class="ms" data-id="corp" data-date="2026-09-12" data-short="Sep 12 &middot; Corporate">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Sep 12</span>
+          <span class="mslabel"><b>Corporate Issuers closed</b> &mdash; Topic Quiz (50 m)<span class="msnote">R20&ndash;26</span></span>
+        </li>
+        <li class="ms" data-id="fsa" data-date="2026-10-03" data-short="Oct 03 &middot; FSA gate">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Oct 03</span>
+          <span class="mslabel"><b>FSA closed</b> &mdash; Topic Quiz &ge;70%<span class="tag tag-gate">Gate</span><span class="msnote">R27&ndash;38 &middot; below 70 &rarr; Saturdays become repair; Equity stays shut until this passes</span></span>
+        </li>
+        <li class="ms" data-id="cp1" data-date="2026-10-10" data-short="Oct 10 &middot; Checkpoint 1">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Oct 10</span>
+          <span class="mslabel"><b>Checkpoint 1</b> &mdash; R1&ndash;38, 2 h<span class="tag tag-cp">CP</span></span>
+        </li>
+        <li class="ms" data-id="equity" data-date="2026-10-17" data-short="Oct 17 &middot; Equity">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Oct 17</span>
+          <span class="mslabel"><b>Equity closed</b> &mdash; Topic Quiz (1 h 40)<span class="msnote">R39&ndash;50 &middot; rebuilt for 2027 &middot; full attention on the valuation block (R43&ndash;46)</span></span>
+        </li>
+        <li class="ms" data-id="fi" data-date="2026-10-24" data-short="Oct 24 &middot; Fixed Income">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Oct 24</span>
+          <span class="mslabel"><b>Fixed Income closed</b> &mdash; Topic Quiz (50 m)<span class="msnote">R51&ndash;69 &middot; Mon&ndash;Wed Oct 26&ndash;28 clear any debt</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="msgroup">
+      <h3>The move <span class="gcount">&mdash;</span></h3>
+      <ul class="mslist">
+        <li class="ms" data-id="move" data-date="2026-10-29" data-short="Oct 29 &middot; The move">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Oct 29 &ndash; Nov 1</span>
+          <span class="mslabel"><b>Pack, fly, land</b><span class="tag tag-off">Off</span><span class="msnote">Toronto &rarr; Belo Horizonte &middot; maintenance only if it feels good</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="msgroup">
+      <h3>Belo Horizonte &middot; Content II <span class="gcount">&mdash;</span></h3>
+      <ul class="mslist">
+        <li class="ms" data-id="lightwk" data-date="2026-11-02" data-short="Nov 02 &middot; Ethics week">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Nov 2&ndash;7</span>
+          <span class="mslabel"><b>Light week (~10 h)</b> &mdash; Ethics R93&ndash;96, mornings only<span class="msnote">routine re-setup in BH &middot; reorder Ethics forward in the Activity Feed</span></span>
+        </li>
+        <li class="ms" data-id="eth1" data-date="2026-11-14" data-short="Nov 14 &middot; Ethics pass 1">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Nov 14</span>
+          <span class="mslabel"><b>Ethics closed (pass 1)</b> &mdash; Topic Quiz (1 h)<span class="msnote">R93&ndash;102 &middot; the weekly Ethics drip begins now and never stops</span></span>
+        </li>
+        <li class="ms" data-id="deriv" data-date="2026-11-21" data-short="Nov 21 &middot; Derivatives">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Nov 21</span>
+          <span class="mslabel"><b>Derivatives closed</b> &mdash; Topic Quiz (55 m)<span class="msnote">R70&ndash;79</span></span>
+        </li>
+        <li class="ms" data-id="alts" data-date="2026-11-28" data-short="Nov 28 &middot; Alternatives">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Nov 28</span>
+          <span class="mslabel"><b>Alternatives closed</b> &mdash; Topic Quiz (30 m)<span class="msnote">R80&ndash;86</span></span>
+        </li>
+        <li class="ms" data-id="pm" data-date="2026-12-05" data-short="Dec 05 &middot; Portfolio">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Dec 05</span>
+          <span class="mslabel"><b>Portfolio closed</b> &mdash; Topic Quiz (35 m) &middot; content 100%<span class="msnote">R87&ndash;92 &middot; every reading of the season now behind you</span></span>
+        </li>
+        <li class="ms" data-id="buffer" data-date="2026-12-07" data-short="Dec 07 &middot; Buffer week">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Dec 7&ndash;11</span>
+          <span class="mslabel"><b>Buffer week</b> &mdash; debts + error logs<span class="msnote">if clean: cumulative QBank + start the PSM (Practical Skills Module)</span></span>
+        </li>
+        <li class="ms" data-id="cp2" data-date="2026-12-12" data-short="Dec 12 &middot; Checkpoint 2">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Dec 12</span>
+          <span class="mslabel"><b>Checkpoint 2</b> &mdash; R39&ndash;79, 2 h<span class="tag tag-cp">CP</span></span>
+        </li>
+        <li class="ms" data-id="cp3" data-date="2026-12-19" data-short="Dec 19 &middot; Checkpoint 3">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Dec 19</span>
+          <span class="mslabel"><b>Checkpoint 3</b> &mdash; R80&ndash;102, 2 h<span class="tag tag-cp">CP</span><span class="msnote">the content phase closes here</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="msgroup">
+      <h3>Recess and ramp <span class="gcount">&mdash;</span></h3>
+      <ul class="mslist">
+        <li class="ms" data-id="cleanup" data-date="2026-12-21" data-short="Dec 21 &middot; Debrief">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Dec 21&ndash;23</span>
+          <span class="mslabel"><b>Checkpoint debrief</b> &mdash; error-log cleanup + light QBank</span>
+        </li>
+        <li class="ms" data-id="xmas" data-date="2026-12-24" data-short="Dec 24 &middot; Christmas">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Dec 24&ndash;25</span>
+          <span class="mslabel"><b>Christmas</b><span class="tag tag-off">Off</span><span class="msnote">Dec 26 optional</span></span>
+        </li>
+        <li class="ms" data-id="recess" data-date="2026-12-28" data-short="Dec 28 &middot; Recess">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Dec 28 &ndash; Jan 3</span>
+          <span class="mslabel"><b>Full recess</b><span class="tag tag-off">Off</span><span class="msnote">optional: 15 min of phone cards with coffee &mdash; nothing else</span></span>
+        </li>
+        <li class="ms" data-id="ramp" data-date="2027-01-04" data-short="Jan 04 &middot; Ramp">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Jan 4&ndash;8</span>
+          <span class="mslabel"><b>Reactivation ramp</b> &mdash; QBank, rising volume<span class="msnote">zero new readings &middot; optional masterclass refresher on the two weakest topics</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="msgroup">
+      <h3>Mock season &middot; all in exam conditions <span class="gcount">&mdash;</span></h3>
+      <ul class="mslist">
+        <li class="ms" data-id="m1" data-date="2027-01-09" data-short="Jan 09 &middot; Mock 1">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Jan 09</span>
+          <span class="mslabel"><b>Mock 1 &middot; Kaplan</b> &mdash; the diagnostic<span class="tag tag-mock">Mock</span><span class="msnote">a post-recess dip is expected &mdash; it measures durable memory, which is the point</span></span>
+        </li>
+        <li class="ms" data-id="rep1" data-date="2027-01-11" data-short="Jan 11 &middot; Repair 1">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Jan 11&ndash;22</span>
+          <span class="mslabel"><b>Repair cycle 1</b> &mdash; error log &times; weight<span class="msnote">SchweserPro custom quizzes built from the log</span></span>
+        </li>
+        <li class="ms" data-id="m2" data-date="2027-01-23" data-short="Jan 23 &middot; Mock 2">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Jan 23</span>
+          <span class="mslabel"><b>Mock 2 &middot; Kaplan</b><span class="tag tag-mock">Mock</span></span>
+        </li>
+        <li class="ms" data-id="rep2" data-date="2027-01-25" data-short="Jan 25 &middot; Repair 2">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Jan 25 &ndash; Feb 5</span>
+          <span class="mslabel"><b>Repair cycle 2</b><span class="msnote">Ethics pass 2 starts Feb 1, mornings</span></span>
+        </li>
+        <li class="ms" data-id="psm" data-date="2027-01-29" data-short="Jan 29 &middot; PSM done">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">by Fri Jan 29</span>
+          <span class="mslabel"><b>PSM complete</b> &mdash; Practical Skills Module<span class="msnote">required by CFA Institute to release your result &middot; done inside the Learning Ecosystem</span></span>
+        </li>
+        <li class="ms" data-id="m3" data-date="2027-02-06" data-short="Feb 06 &middot; Mock 3">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Feb 06</span>
+          <span class="mslabel"><b>Mock 3 &middot; Kaplan</b><span class="tag tag-mock">Mock</span></span>
+        </li>
+        <li class="ms" data-id="rep2b" data-date="2027-02-08" data-short="Feb 08 &middot; Repair">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Feb 8&ndash;12</span>
+          <span class="mslabel"><b>Repair</b> &mdash; Ethics pass 2 closes Feb 12</span>
+        </li>
+        <li class="ms" data-id="m4" data-date="2027-02-13" data-short="Feb 13 &middot; Mock 4">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Feb 13</span>
+          <span class="mslabel"><b>Mock 4 &middot; CFAI</b><span class="tag tag-mock">Mock</span><span class="msnote">Learning Ecosystem &mdash; the truest calibration</span></span>
+        </li>
+        <li class="ms" data-id="rep3" data-date="2027-02-15" data-short="Feb 15 &middot; Final repair">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Feb 15&ndash;18</span>
+          <span class="mslabel"><b>Final repair</b><span class="msnote">Kaplan Mock 4 as question bank, by topic</span></span>
+        </li>
+        <li class="ms" data-id="m5" data-date="2027-02-20" data-short="Feb 20 &middot; Mock 5">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Sat Feb 20</span>
+          <span class="mslabel"><b>Mock 5 &middot; CFAI</b> &mdash; last full mock<span class="tag tag-mock">Mock</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="msgroup">
+      <h3>Finale <span class="gcount">&mdash;</span></h3>
+      <ul class="mslist">
+        <li class="ms" data-id="taper" data-date="2027-02-22" data-short="Feb 22 &middot; Taper">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Feb 22&ndash;25</span>
+          <span class="mslabel"><b>Taper</b> &mdash; &le;2 h/day<span class="msnote">greatest-hits cards &middot; formula sheet &middot; Ethics skim &middot; logistics: passport, approved calculator (BA II Plus / HP 12C), batteries, route &middot; sleep at exam schedule</span></span>
+        </li>
+        <li class="ms" data-id="exam" data-date="2027-02-26" data-short="Feb 26 &middot; THE EXAM">
+          <button class="tick" type="button" aria-pressed="false" aria-label="Mark done"></button>
+          <span class="msdate">Fri Feb 26</span>
+          <span class="mslabel"><b>THE EXAM</b> &mdash; 180 questions, two 135-min sessions<span class="tag tag-exam">Exam</span><span class="msnote">Belo Horizonte &middot; answer everything &mdash; no penalty for guessing</span></span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+<section id="scoreboard">
+  <div class="wrap">
+    <div class="eyebrow">Scores</div>
+    <h2>Checkpoints and mocks</h2>
+    <table class="score">
+      <thead>
+        <tr><th>Sit</th><th>Date</th><th>Scope</th><th>Source</th><th>Score %</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Checkpoint 1</b></td><td class="num">Oct 10</td><td class="num">R1&ndash;38</td><td class="num">Kaplan</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="cp1" aria-label="Checkpoint 1 score percent"></td><td><span class="schip" data-for="cp1">&mdash;</span></td></tr>
+        <tr><td><b>Checkpoint 2</b></td><td class="num">Dec 12</td><td class="num">R39&ndash;79</td><td class="num">Kaplan</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="cp2" aria-label="Checkpoint 2 score percent"></td><td><span class="schip" data-for="cp2">&mdash;</span></td></tr>
+        <tr><td><b>Checkpoint 3</b></td><td class="num">Dec 19</td><td class="num">R80&ndash;102</td><td class="num">Kaplan</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="cp3" aria-label="Checkpoint 3 score percent"></td><td><span class="schip" data-for="cp3">&mdash;</span></td></tr>
+        <tr><td><b>Mock 1</b></td><td class="num">Jan 09</td><td class="num">full exam</td><td class="num">Kaplan</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="m1" aria-label="Mock 1 score percent"></td><td><span class="schip" data-for="m1">&mdash;</span></td></tr>
+        <tr><td><b>Mock 2</b></td><td class="num">Jan 23</td><td class="num">full exam</td><td class="num">Kaplan</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="m2" aria-label="Mock 2 score percent"></td><td><span class="schip" data-for="m2">&mdash;</span></td></tr>
+        <tr><td><b>Mock 3</b></td><td class="num">Feb 06</td><td class="num">full exam</td><td class="num">Kaplan</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="m3" aria-label="Mock 3 score percent"></td><td><span class="schip" data-for="m3">&mdash;</span></td></tr>
+        <tr><td><b>Mock 4</b></td><td class="num">Feb 13</td><td class="num">full exam</td><td class="num">CFAI</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="m4" aria-label="Mock 4 score percent"></td><td><span class="schip" data-for="m4">&mdash;</span></td></tr>
+        <tr><td><b>Mock 5</b></td><td class="num">Feb 20</td><td class="num">full exam</td><td class="num">CFAI</td><td><input class="sc" type="number" min="0" max="100" step="0.1" inputmode="decimal" data-sc="m5" aria-label="Mock 5 score percent"></td><td><span class="schip" data-for="m5">&mdash;</span></td></tr>
+      </tbody>
+    </table>
+    <p class="cap">Target: &ge;70%, consistently &mdash; the bar for mocks and topic quizzes at close, not for first-pass QBank (early low scores are the system working). Kaplan calibrates hard; CFAI is the truest ruler. Expect a dip at Mock 1: it measures durable memory, which is the point.</p>
+  </div>
+</section>
+
+</main>
+
+<div class="wrap">
+  <div class="io">
+    <button class="btn" id="btn-export" type="button">Export marks (JSON)</button>
+    <button class="btn" id="btn-import" type="button">Import marks</button>
+    <button class="btn" id="btn-clear" type="button">Clear marks</button>
+    <input type="file" id="file-in" accept="application/json,.json" hidden>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">study2.html &middot; full season &middot; sibling of the weekly calendar &middot; supersedes study.html for planning &middot; marks live in this browser (localStorage) &mdash; export for backup</div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var KEY='study2.v1';
+  var canStore=true;
+  try{localStorage.setItem('__s2t','1');localStorage.removeItem('__s2t');}catch(e){canStore=false;}
+
+  var state={ms:{},sc:{}};
+  if(canStore){
+    try{
+      var raw=localStorage.getItem(KEY);
+      if(raw){var p=JSON.parse(raw);if(p&&typeof p==='object'){state.ms=p.ms||{};state.sc=p.sc||{};}}
+    }catch(e){}
+  }else{
+    document.getElementById('storage-note').hidden=false;
+  }
+  function save(){
+    if(!canStore)return;
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+  }
+
+  function pd(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]);}
+  var DAY=86400000;
+  var START=pd('2026-08-03'), EXAM=pd('2027-02-26');
+  var now=new Date();
+  var today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  var TOTAL=Math.round((EXAM-START)/DAY)+1;
+
+  /* ---------- season strip + legend ---------- */
+  var PHASES=[
+    {c:'T1',n:'Toronto \u00b7 Content I',s:'2026-08-03',e:'2026-10-28',cls:'p-nav1',m:'Quant \u2192 Econ \u2192 Corporate \u2192 FSA \u2192 Equity \u2192 Fixed Income',l:'~24 h/wk net'},
+    {c:'MV',n:'The move',s:'2026-10-29',e:'2026-11-01',cls:'p-off',m:'Pack, fly, land. Off.',l:'0'},
+    {c:'B2',n:'Belo Horizonte \u00b7 Content II',s:'2026-11-02',e:'2026-12-19',cls:'p-nav2',m:'Ethics pass 1 \u2192 Derivatives \u2192 Alternatives \u2192 Portfolio \u2192 buffer \u2192 Checkpoints 2 and 3',l:'~24 h/wk \u00b7 wk 1 ~10'},
+    {c:'RC',n:'Recess',s:'2026-12-20',e:'2027-01-03',cls:'p-off',m:'Debrief, Christmas, full stop',l:'~0'},
+    {c:'RA',n:'Reactivation ramp',s:'2027-01-04',e:'2027-01-08',cls:'p-ramp',m:'Cumulative QBank in rising volume \u00b7 zero new readings',l:'ramp'},
+    {c:'MK',n:'Mock season',s:'2027-01-09',e:'2027-02-21',cls:'p-gold',m:'Five full mocks \u00b7 repair = error log \u00d7 weight \u00b7 Ethics pass 2',l:'24 \u2192 18\u201320 h/wk'},
+    {c:'TP',n:'Taper',s:'2027-02-22',e:'2027-02-25',cls:'p-off',m:'\u22642 h/day \u00b7 logistics \u00b7 sleep at exam schedule',l:'\u22642 h/day'},
+    {c:'EX',n:'Exam day',s:'2027-02-26',e:'2027-02-26',cls:'p-red',m:'180 questions \u00b7 two 135-min sessions \u00b7 Belo Horizonte',l:'\u2014'}
+  ];
+  var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtRange(p){
+    var a=pd(p.s),b=pd(p.e);
+    var s1=MO[a.getMonth()]+' '+a.getDate();
+    if(p.s===p.e)return s1;
+    return s1+' \u2013 '+MO[b.getMonth()]+' '+b.getDate();
+  }
+
+  var strip=document.getElementById('strip');
+  var legend=document.getElementById('legend');
+  PHASES.forEach(function(p,i){
+    var a=pd(p.s),b=pd(p.e);
+    var w=(Math.round((b-a)/DAY)+1)/TOTAL*100;
+    var seg=document.createElement('div');
+    seg.className='seg '+p.cls+(p.cls==='p-ramp'?' lt':'')+(p.cls==='p-off'?' dm':'');
+    seg.style.width=w+'%';
+    seg.style.transitionDelay=(i*70)+'ms';
+    seg.title=p.n+' \u00b7 '+fmtRange(p);
+    if(w>10){
+      var sp=document.createElement('span');
+      sp.textContent=p.n.split(' \u00b7')[0];
+      seg.appendChild(sp);
+    }
+    var isNow=(today>=a&&today<=b);
+    if(isNow)seg.classList.add('now');
+    strip.appendChild(seg);
+
+    var li=document.createElement('li');
+    if(isNow)li.className='now';
+    li.innerHTML='<span class="pc '+p.cls+'">'+p.c+'</span>'+
+      '<span class="pd">'+fmtRange(p)+'</span>'+
+      '<span class="pm"><span class="pn">'+p.n+'</span> \u2014 '+p.m+'</span>'+
+      '<span class="pl">'+p.l+'</span>';
+    legend.appendChild(li);
+  });
+  requestAnimationFrame(function(){requestAnimationFrame(function(){strip.classList.add('go');});});
+
+  if(today>=START&&today<=EXAM){
+    var off=((today-START)/DAY+0.5)/TOTAL*100;
+    var nd=document.createElement('div');
+    nd.className='needle'+(off<5?' edge-l':'');
+    nd.style.left=off+'%';
+    nd.innerHTML='<i>today</i>';
+    document.getElementById('strip-wrap').appendChild(nd);
+  }
+
+  /* ---------- header counters ---------- */
+  var daysLeft=Math.round((EXAM-today)/DAY);
+  document.getElementById('c-days').textContent=
+    daysLeft>0?String(daysLeft):(daysLeft===0?'exam day':'done');
+  var dayN=Math.round((today-START)/DAY)+1;
+  document.getElementById('c-dayn').textContent=
+    (dayN>=1&&dayN<=TOTAL)?(dayN+' / '+TOTAL):(dayN<1?'starts Aug 3':'season over');
+
+  /* ---------- milestones ---------- */
+  var items=[].slice.call(document.querySelectorAll('.ms'));
+  function syncItem(el){
+    var done=!!state.ms[el.getAttribute('data-id')];
+    el.classList.toggle('done',done);
+    var t=el.querySelector('.tick');
+    if(t)t.setAttribute('aria-pressed',done?'true':'false');
+  }
+  function groupCounts(){
+    [].forEach.call(document.querySelectorAll('.msgroup'),function(g){
+      var list=g.querySelectorAll('.ms'),d=0;
+      [].forEach.call(list,function(el){if(state.ms[el.getAttribute('data-id')])d++;});
+      var gc=g.querySelector('.gcount');
+      if(gc)gc.textContent=d+' / '+list.length;
+    });
+  }
+  function updateHeader(){
+    var done=items.filter(function(el){return state.ms[el.getAttribute('data-id')];}).length;
+    document.getElementById('c-ms').textContent=done+' / '+items.length;
+    var next=null,i;
+    for(i=0;i<items.length;i++){
+      if(state.ms[items[i].getAttribute('data-id')])continue;
+      if(pd(items[i].getAttribute('data-date'))>=today){next=items[i];break;}
+    }
+    if(!next){
+      for(i=0;i<items.length;i++){
+        if(!state.ms[items[i].getAttribute('data-id')]){next=items[i];break;}
+      }
+    }
+    document.getElementById('c-next').textContent=next?next.getAttribute('data-short'):'all clear';
+  }
+  items.forEach(function(el){
+    el.addEventListener('click',function(){
+      var id=el.getAttribute('data-id');
+      if(state.ms[id]){delete state.ms[id];}else{state.ms[id]=true;}
+      save();syncItem(el);groupCounts();updateHeader();
+    });
+  });
+
+  /* ---------- scoreboard ---------- */
+  var inputs=[].slice.call(document.querySelectorAll('.sc'));
+  function chipFor(n){
+    if(n===undefined||n===null||isNaN(n))return{t:'\u2014',c:''};
+    if(n>=70)return{t:'pass',c:'pass'};
+    if(n>=65)return{t:'edge',c:'edge'};
+    return{t:'below',c:'low'};
+  }
+  function paintChip(id){
+    var chip=document.querySelector('.schip[data-for="'+id+'"]');
+    if(!chip)return;
+    var r=chipFor(state.sc[id]);
+    chip.textContent=r.t;
+    chip.className='schip'+(r.c?' '+r.c:'');
+  }
+  function syncScores(){
+    inputs.forEach(function(inp){
+      var id=inp.getAttribute('data-sc');
+      inp.value=(state.sc[id]!==undefined)?state.sc[id]:'';
+      paintChip(id);
+    });
+  }
+  inputs.forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var id=inp.getAttribute('data-sc');
+      var v=inp.value.trim();
+      if(v===''){delete state.sc[id];}
+      else{
+        var n=parseFloat(v);
+        if(isNaN(n)){delete state.sc[id];}
+        else{state.sc[id]=Math.max(0,Math.min(100,n));}
+      }
+      save();paintChip(id);
+    });
+  });
+
+  function syncAll(){items.forEach(syncItem);groupCounts();updateHeader();syncScores();}
+
+  /* ---------- export / import / clear ---------- */
+  document.getElementById('btn-export').addEventListener('click',function(){
+    var payload={v:2,app:'study2',exported:new Date().toISOString(),ms:state.ms,sc:state.sc};
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='study2-marks.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+  });
+  var fileIn=document.getElementById('file-in');
+  document.getElementById('btn-import').addEventListener('click',function(){fileIn.click();});
+  fileIn.addEventListener('change',function(){
+    var f=fileIn.files&&fileIn.files[0];
+    if(!f)return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      try{
+        var p=JSON.parse(rd.result);
+        if(p&&typeof p==='object'){
+          state.ms=p.ms||{};state.sc=p.sc||{};
+          save();syncAll();
+        }
+      }catch(e){alert('Could not read that file \u2014 expected a study2 marks JSON.');}
+      fileIn.value='';
+    };
+    rd.readAsText(f);
+  });
+  document.getElementById('btn-clear').addEventListener('click',function(){
+    if(confirm('Clear all marks and scores? Export first if in doubt.')){
+      state={ms:{},sc:{}};
+      save();syncAll();
+    }
+  });
+
+  syncAll();
+})();
+</script>
+</body>
+</html>

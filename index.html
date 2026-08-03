@@ -153,20 +153,17 @@ const RUN_KM={
   [U(2026,9,22)]:4,[U(2026,9,24)]:4,[U(2026,9,26)]:9,[U(2026,9,27)]:4,
   [U(2026,9,29)]:4.5,[U(2026,10,2)]:4.5,[U(2026,10,3)]:18,[U(2026,10,4)]:4,
   [U(2026,10,7)]:5,[U(2026,10,9)]:4,[U(2026,10,10)]:12,
-  [U(2026,10,12)]:3,[U(2026,10,14)]:2,[U(2026,10,17)]:2,
-  [U(2026,10,19)]:0,[U(2026,10,22)]:4,[U(2026,10,24)]:8,
-  [U(2026,10,27)]:4.5,[U(2026,10,29)]:4.5,[U(2026,10,31)]:8
+  [U(2026,10,12)]:5,[U(2026,10,14)]:5,[U(2026,10,17)]:16,
+  [U(2026,10,19)]:5,[U(2026,10,22)]:5,[U(2026,10,24)]:18,
+  [U(2026,10,27)]:5,[U(2026,10,29)]:5,[U(2026,10,31)]:8
 };
-const RACE_DAY=U(2026,10,18);
 const EVENTS={
   [U(2026,8,6)]:{txt:"Register: TCS Waterfront · Buy: Electric Island Sep 6",warn:true},
   [U(2026,8,31)]:{txt:"TIFF public tickets · 12:00",warn:true},
   [U(2026,9,6)]:{txt:"Electric Island · PAWSA · Fort York · 14:30-22:00",warn:true},
   [U(2026,9,10)]:{txt:"TIFF ’26 begins (to Sep 20)"},
   [U(2026,9,20)]:{txt:"TIFF ’26 final day"},
-  [U(2026,10,3)]:{txt:"Nuit Blanche · 19:00-07:00 · free"},
-  [U(2026,10,17)]:{txt:"Race kit pickup (expo) · shakeout 3 km"},
-  [U(2026,10,18)]:{txt:"RACE: TCS Half Marathon · start 8:00",warn:true}
+  [U(2026,10,3)]:{txt:"Nuit Blanche · 19:00-07:00 · free"}
 };
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
 const OBRAS=U(2026,8,15);
@@ -240,7 +237,7 @@ function blocksFor(t,tl,repo,marks){
         B(mm(4,45)+late,mm(5,0)+late,"Dressing + Prep + Transit","rotina"),
         Object.assign(markable(B(mm(5,0)+late,mm(6,30)+late,"Workout "+f+" · "+MUSC[f]+" (AVANT)","treino"),"w",t),{done:!!info.done}));
       if(f==="D"||f==="B"){
-        const b=markable(B(mm(6,30)+late,mm(7,15)+late,(RUN_KM[t]===0?"Recovery Walk 30 min (no run)":"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km (AVANT)"),"corrida"),"short",t);
+        const b=markable(B(mm(6,30)+late,mm(7,15)+late,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km (AVANT)","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b,B(mm(7,15)+late,mm(7,30)+late,"Shower","rotina"));
       } else {
@@ -269,7 +266,7 @@ function blocksFor(t,tl,repo,marks){
         Object.assign(markable(B(mm(6,0),mm(7,30),"Workout "+f+" · "+MUSC[f]+" (AVANT)","treino"),"w",t),{done:!!info.done}));
     }
     const isC=(!info.missed&&f==="C");
-    const lb=markable(B(mm(7,30),mm(9,0),t===U(2026,10,17)?"Shakeout Run · "+(RUN_KM[t]??2)+" km + strides":(isC?"Long Run (easy) · "+(RUN_KM[t]??"8-10")+" km":"Street Long Run · target "+(RUN_KM[t]??"10-12")+" km"),"corrida",
+    const lb=markable(B(mm(7,30),mm(9,0),(isC?"Long Run (easy) · "+(RUN_KM[t]??"8-10")+" km":"Street Long Run · target "+(RUN_KM[t]??"10-12")+" km"),"corrida",
       isC?"legs + long run":(f==="OFF"?"fresh legs":null)),"long",t);
     const st=rs(lb.mark.k); if(st===1)lb.done=true; if(st===2)lb.missed=true;
     blocks.push(lb,
@@ -281,18 +278,6 @@ function blocksFor(t,tl,repo,marks){
       B(mm(14,0),mm(22,0),"Free Time","livre"));
   } else {
     const hasRepo=repo.has(t);
-    if(t===RACE_DAY){
-      const rb=markable(B(mm(8,0),mm(10,15),"TCS Waterfront Half Marathon · 21.1 km","corrida","race day"),"long",t);
-      const st=rs(rb.mark.k); if(st===1)rb.done=true; if(st===2)rb.missed=true;
-      blocks.push(B(mm(5,45),mm(6,0),"Wake-up","rotina"),
-        B(mm(6,0),mm(6,30),"Pre-race Breakfast","refeicao"),
-        B(mm(6,30),mm(7,15),"Transit to start (City Hall)","rotina"),
-        B(mm(7,15),mm(8,0),"Warm-up + corrals","rotina"),
-        rb,
-        B(mm(10,15),mm(11,0),"Recovery + medal photos","rotina"),
-        B(mm(11,0),mm(19,30),"Free / celebrate","livre"));
-      return blocks;
-    }
     if(f==="OFF"){
       if(hasRepo){
         const lb=markable(B(mm(7,30),mm(9,0),"Street Long Run 10-12 km (make-up)","corrida","fresh legs"),"long",t);

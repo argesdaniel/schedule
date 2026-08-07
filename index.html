@@ -134,7 +134,7 @@ footer{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;colo
     <div class="cal-head" id="calHead"></div>
     <div class="cal-body" id="calBody"></div>
   </div></div>
-  <footer>tap the button on workouts and runs: 1 tap = done · 2 = not done (the workout slides to the next day) · 3 = clear · a missed Saturday long run reappears on Sunday only if Sunday is OFF · AVANT opens 5 AM weekdays / 6 AM weekends · TRL opens 9 AM</footer>
+  <footer>tap the button on workouts and runs: 1 tap = done · 2 = not done (the workout slides to the next day) · 3 = clear · a missed Saturday long run reappears on Sunday only if Sunday is OFF · AVANT opens 5 AM weekdays / 6 AM weekends</footer>
 </div>
 <script>
 /*__LOGIC_START__*/
@@ -161,11 +161,13 @@ const RUN_KM={
   [U(2026,10,27)]:5,[U(2026,10,29)]:5,[U(2026,10,31)]:8
 };
 const EVENTS={
-  [U(2026,8,6)]:{txt:"Register: TCS Waterfront · Buy: Electric Island Sep 6",warn:true},
+  [U(2026,8,6)]:{txt:"Buy: Electric Island · Sep 6",warn:true},
   [U(2026,8,31)]:{txt:"TIFF public tickets · 12:00",warn:true},
   [U(2026,9,6)]:{txt:"Electric Island · PAWSA · Fort York · 14:30-22:00",warn:true},
   [U(2026,9,10)]:{txt:"TIFF ’26 begins (to Sep 20)"},
-  [U(2026,9,20)]:{txt:"TIFF ’26 final day"},
+  [U(2026,9,18)]:{txt:"Kensington Jazz Fest begins (to Sep 20)"},
+  [U(2026,9,19)]:{txt:"Kensington Jazz Fest · Kensington Market"},
+  [U(2026,9,20)]:{txt:"TIFF ’26 final day · Kensington Jazz Fest final day"},
   [U(2026,10,3)]:{txt:"Nuit Blanche · 19:00-07:00 · free"}
 };
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
@@ -209,11 +211,7 @@ function eveningWeekday(){ return [
   B(mm(19,30),mm(19,45),"Shower","rotina"),
   B(mm(19,45),mm(20,0),"Go to Bed","rotina"),
   B(mm(20,0),mm(22,0),"Sleep","sono")];}
-function studyWeekday(t){ const hol=TRL_HOLS.has(t)||t>=OBRAS;
-  return hol?[B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo",TRL_HOLS.has(t)?"TRL closed":undefined)]
-  :[B(mm(8,0),mm(9,0),"CFA Study (Home)","estudo"),
-    B(mm(9,0),mm(9,15),"Transit to TRL","rotina"),
-    B(mm(9,15),mm(13,0),"CFA Study (TRL)","estudo")];}
+function studyWeekday(t){ return [B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo")];}
 function workBlock(t){ return B3_HOLS.has(t)
   ? Object.assign(B(mm(14,30),mm(18,0),"Optional Work","trabalho","B3 closed"),{dashed:true})
   : B(mm(14,30),mm(18,0),"Work Window (Home or Coworking)","trabalho");}
@@ -250,7 +248,7 @@ function blocksFor(t,tl,repo,marks){
       blocks.push(B(mm(7,30)+late,mm(8,0)+late,"Breakfast","refeicao"));
     }
     const lateStudy=GYM_LATE.has(t)&&f!=="OFF"&&!info.missed;
-    blocks.push(...(lateStudy?[B(mm(9,0),mm(13,0),"CFA Study (Home)","estudo","TRL closed")]:studyWeekday(t)),
+    blocks.push(...(lateStudy?[B(mm(9,0),mm(13,0),"CFA Study (Home)","estudo")]:studyWeekday(t)),
       B(mm(13,0),mm(14,30),"Lunch Break","refeicao"),
       workBlock(t), ...eveningWeekday());
   } else if(d===6){
@@ -320,11 +318,9 @@ function notesFor(t,tl,repo){
   if(d===6&&f==="C"&&!info.missed) out.push({txt:"legs + long run",warn:true});
   if(d===6&&f==="OFF") out.push({txt:"long run · fresh legs"});
   if(d===7&&f==="OFF") out.push({txt:repo.has(t)?"free + make-up long run":"100% free day"});
-  if(TRL_HOLS.has(t)) out.push({txt:"TRL closed",warn:true});
   if(GYM_LATE.has(t)) out.push({txt:"Avant opens 6:00 (holiday)",warn:true});
   if(EVENTS[t]) out.push(EVENTS[t]);
   if(B3_HOLS.has(t)) out.push({txt:"B3 closed"});
-  if(t===OBRAS) out.push({txt:"TRL renovation starts",warn:true});
   if(t===PLAN_END) out.push({txt:"return flight",warn:true});
   return out;
 }

@@ -28,6 +28,13 @@ h1{font-size:26px;font-weight:800;letter-spacing:-.01em;margin-top:4px}
 h1 .range{color:var(--gold)}
 .sun{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px}
 .stats{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:3px}
+.prog{display:grid;grid-template-columns:repeat(4,minmax(120px,190px));gap:8px 16px;margin-top:10px}
+.pg .pl{display:flex;justify-content:space-between;align-items:baseline;font-family:'IBM Plex Mono',monospace;
+  font-size:10px;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.pg .pl b{color:var(--text);font-weight:600;font-size:11px}
+.pg .pb{height:6px;border-radius:4px;background:rgba(148,170,210,.12);overflow:hidden}
+.pg .pb i{display:block;height:100%;border-radius:4px;transition:width .4s ease}
+@media (max-width:640px){ .prog{grid-template-columns:repeat(2,1fr)} }
 .stats b{color:var(--ok);font-weight:600}.stats i{color:var(--miss);font-style:normal}
 .nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .nav button{background:var(--panel);border:1px solid var(--line);color:var(--text);
@@ -116,7 +123,7 @@ footer{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;colo
       <div class="eyebrow">Toronto · CFA Feb 2027 · C D A B OFF cycle</div>
       <h1 id="weekTitle"></h1>
       <div class="sun" id="sunInfo"></div>
-      <div class="stats" id="stats"></div>
+      <div class="prog" id="stats"></div>
     </div>
     <div class="nav">
       <button id="prevBtn" aria-label="Previous week">&#8249; previous</button>
@@ -353,10 +360,54 @@ function statsFor(marks){
   const w=c(marks.w), r=c(marks.r);
   return {wOk:w[1]||0,wMiss:w[2]||0,rOk:r[1]||0,rMiss:r[2]||0};
 }
+function plannedCounts(){
+  let wk=0, rn=0;
+  const seq=["C","D","A","B","OFF"]; let idx=0;
+  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
+    const f=seq[idx%5]; idx++;
+    const d=dow(t);
+    if(f!=="OFF") wk++;
+    if(d===6) rn++;                       // long run every Saturday
+    else if(f==="D"||f==="B") rn++;       // short runs on D and B
+  }
+  return {wk,rn};
+}
+function studyProgress(){
+  let n=0, seen=false;
+  try{
+    const raw=localStorage.getItem(KAPLAN_KEY);
+    if(raw){ seen=true;
+      const dn=(JSON.parse(raw)||{}).done||{};
+      for(const k in dn){ if(!dn[k]) continue;
+        const num=parseInt(String(k).replace(/[^0-9]/g,""),10);
+        if(num>=1&&num<=KAPLAN_TOR) n++; } }
+  }catch(e){}
+  return {done:n,total:KAPLAN_TOR,seen};
+}
+function progressBars(marks){
+  const today=todayUTC();
+  const totalDays=Math.round((PLAN_END-ANCHOR)/DAY)+1;
+  const elapsed=Math.min(totalDays,Math.max(0,Math.round((today-ANCHOR)/DAY)+1));
+  const pl=plannedCounts(), st=statsFor(marks), sp=studyProgress();
+  const bars=[
+    {lab:"season",   v:elapsed,   n:totalDays, c:"var(--gold)",       txt:elapsed+"/"+totalDays+" d"},
+    {lab:"study",    v:sp.done, n:sp.total, c:"var(--c-estudo)",
+     txt:sp.done+"/"+sp.total+(sp.seen?"":" \u00b7 tick in kaplan.html")},
+    {lab:"workouts", v:st.wOk,    n:pl.wk, c:"var(--c-treino)",  txt:st.wOk+"/"+pl.wk},
+    {lab:"running",  v:st.rOk,    n:pl.rn, c:"var(--c-corrida)", txt:st.rOk+"/"+pl.rn}
+  ];
+  return bars.map(b=>{
+    const pct=b.n?Math.min(100,Math.round(b.v/b.n*1000)/10):0;
+    return "<div class='pg'><div class='pl'><span>"+b.lab+"</span><b>"+pct.toFixed(0)+"%</b></div>"+
+      "<div class='pb'><i style='width:"+pct+"%;background:"+b.c+"'></i></div>"+
+      "<div class='pl' style='margin:3px 0 0'><span>"+b.txt+"</span></div></div>";
+  }).join("");
+}
 /*__LOGIC_END__*/
 
 const FIRST_MON=U(2026,7,27), LAST_MON=U(2026,10,26);
 const STORE_KEY="toronto_rotina_marks";
+const KAPLAN_KEY="kaplan.v1", KAPLAN_TOR=493; // a0001-a0493 = Toronto phase
 const CATS=[["treino","Workout"],["corrida","Running"],["sauna","Sauna"],["estudo","CFA Study"],
   ["trabalho","Work"],["refeicao","Meals"],["rotina","Routine"],["sono","Sleep"]];
 const DOWS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -397,9 +448,7 @@ function render(){
   const range=String(d0.getUTCDate()).padStart(2,"0")+" "+MESES[d0.getUTCMonth()]+" - "+String(d6.getUTCDate()).padStart(2,"0")+" "+MESES[d6.getUTCMonth()];
   document.getElementById("weekTitle").innerHTML=(wknum===0?"Week 0 · arrival":"Week "+wknum)+" <span class='range'>"+range+"</span>";
   document.getElementById("sunInfo").textContent="daylight (approx.): "+hhmm(sr)+" - "+hhmm(ss);
-  const st=statsFor(marks);
-  document.getElementById("stats").innerHTML=
-    "workouts <b>"+st.wOk+"&#10003;</b> <i>"+st.wMiss+"&#10007;</i> · runs <b>"+st.rOk+"&#10003;</b> <i>"+st.rMiss+"&#10007;</i>";
+  document.getElementById("stats").innerHTML=progressBars(marks);
   head.insertAdjacentHTML("beforeend","<div class='day-head' style='border:0'></div>");
   const tUTC=todayUTC();
   for(let i=0;i<7;i++){

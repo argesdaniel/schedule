@@ -144,13 +144,15 @@ const ANCHOR=U(2026,8,2), PLAN_END=U(2026,10,31);
 const SEQ=["C","D","A","B","OFF"];
 const MUSC={C:"legs",D:"shoulders",A:"chest",B:"back"};
 const TRL_HOLS=new Set([U(2026,8,3),U(2026,9,7),U(2026,9,30),U(2026,10,12)]);
-const GYM_LATE=new Set([U(2026,8,3)]); // Avant holiday hours: opens 6:00
+const GYM_LATE=new Set([U(2026,8,3)]);
+const NEWSCHED=U(2026,8,10);
+const LIB_DOW=new Set([2,4]); // Tue & Thu: study morning at Yorkville Branch // Avant holiday hours: opens 6:00
 const RUN_KM={
   [U(2026,8,3)]:4,[U(2026,8,5)]:4,[U(2026,8,8)]:8,
-  [U(2026,8,10)]:4.5,[U(2026,8,13)]:4.5,[U(2026,8,15)]:10,
+  [U(2026,8,10)]:4.5,[U(2026,8,13)]:4.5,[U(2026,8,15)]:8,
   [U(2026,8,18)]:4,[U(2026,8,20)]:4,[U(2026,8,22)]:8,[U(2026,8,23)]:4,
-  [U(2026,8,25)]:4,[U(2026,8,28)]:4,[U(2026,8,29)]:12,[U(2026,8,30)]:4,
-  [U(2026,9,2)]:5,[U(2026,9,4)]:5,[U(2026,9,5)]:13,
+  [U(2026,8,25)]:4,[U(2026,8,28)]:4,[U(2026,8,29)]:10,[U(2026,8,30)]:4,
+  [U(2026,9,2)]:5,[U(2026,9,4)]:5,[U(2026,9,5)]:12,
   [U(2026,9,7)]:5.5,[U(2026,9,9)]:5.5,[U(2026,9,12)]:14,
   [U(2026,9,14)]:5.5,[U(2026,9,17)]:5.5,[U(2026,9,19)]:16,
   [U(2026,9,22)]:4,[U(2026,9,24)]:4,[U(2026,9,26)]:9,[U(2026,9,27)]:4,
@@ -205,40 +207,49 @@ function longRepo(marks,tl){
 }
 const B=(s,e,label,cat,sub)=>({s,e,label,cat,sub:sub||null});
 function markable(b,type,t){ b.mark={type,k:key(t)+(type==="w"?"":type==="short"?"_short":"_long")}; return b; }
-function eveningWeekday(){ return [
+function eveningWeekday(t){ return t>=NEWSCHED ? [
+  B(mm(18,0),mm(20,0),"CFA Study \u00b7 QBank & Review","estudo"),
+  B(mm(20,0),mm(21,0),"Dinner (Main Meal)","refeicao"),
+  B(mm(21,0),mm(21,30),"Reading / Other","rotina"),
+  B(mm(21,30),mm(21,45),"Shower","rotina"),
+  B(mm(21,45),mm(22,0),"Go to Bed","rotina"),
+  B(mm(22,0),mm(24,0),"Sleep","sono")] : [
   B(mm(18,0),mm(19,0),"Dinner (Main Meal)","refeicao"),
   B(mm(19,0),mm(19,30),"Reading / Other","rotina"),
   B(mm(19,30),mm(19,45),"Shower","rotina"),
   B(mm(19,45),mm(20,0),"Go to Bed","rotina"),
   B(mm(20,0),mm(22,0),"Sleep","sono")];}
-function studyWeekday(t){ return [B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo")];}
+function studyWeekday(t){ if(t<NEWSCHED) return [B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo")];
+  const lib=LIB_DOW.has(dow(t));
+  return [B(mm(10,0),mm(13,30),lib?"CFA Study (Yorkville Branch)":"CFA Study (Home)","estudo")];}
 function workBlock(t){ return B3_HOLS.has(t)
   ? Object.assign(B(mm(14,30),mm(18,0),"Optional Work","trabalho","B3 closed"),{dashed:true})
-  : B(mm(14,30),mm(18,0),"Work Window (Home or Coworking)","trabalho");}
+  : B(mm(14,30),mm(18,0),"Work Window","trabalho");}
 function blocksFor(t,tl,repo,marks){
   const info=tl[t]; if(!info) return null;
   const f=info.ficha, d=dow(t), blocks=[];
   const rs=k2=>marks.r[k2]||0;
+  const sh=(t>=NEWSCHED?120:0);
   if(d<=5){
     if(f==="OFF"){
-      blocks.push(B(mm(4,0),mm(4,15),"Wake-up","rotina"),
-        B(mm(4,15),mm(4,45),"Breakfast","refeicao"),
-        B(mm(4,45),mm(5,0),"Shower","rotina"),
-        B(mm(5,0),mm(5,15),"Dressing + Prep","rotina"),
-        B(mm(5,15),mm(7,30),"Extra CFA Study (Home)","estudo"),
-        B(mm(7,30),mm(8,0),"Breakfast","refeicao"));
+      blocks.push(B(mm(4,0)+sh,mm(4,15)+sh,"Wake-up","rotina"),
+        B(mm(4,15)+sh,mm(4,45)+sh,"Breakfast","refeicao"),
+        B(mm(4,45)+sh,mm(5,0)+sh,"Shower","rotina"),
+        B(mm(5,0)+sh,mm(5,15)+sh,"Dressing + Prep","rotina"),
+        B(mm(5,15)+sh,mm(7,30)+sh,"Extra CFA Study (Home)","estudo"),
+        B(mm(7,30)+sh,mm(8,0)+sh,"Breakfast","refeicao"));
     } else if(info.missed){
-      blocks.push(Object.assign(markable(B(mm(5,0),mm(7,30),"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}),
-        B(mm(7,30),mm(8,0),"Breakfast","refeicao"));
+      blocks.push(Object.assign(markable(B(mm(5,0)+sh,mm(7,30)+sh,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}),
+        B(mm(7,30)+sh,mm(8,0)+sh,"Breakfast","refeicao"));
     } else {
-      const late=GYM_LATE.has(t)?60:0;
+      const late=GYM_LATE.has(t)?60:sh;
       blocks.push(B(mm(4,0)+late,mm(4,15)+late,"Wake-up","rotina"),
         B(mm(4,15)+late,mm(4,30)+late,"Pre-training","refeicao"),
         B(mm(4,30)+late,mm(4,45)+late,"Shower","rotina"),
         B(mm(4,45)+late,mm(5,0)+late,"Dressing + Prep + Transit","rotina"),
         Object.assign(markable(B(mm(5,0)+late,mm(6,30)+late,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
       if(f==="D"||f==="B"){
-        const b=markable(B(mm(6,30)+late,mm(7,15)+late,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km","corrida"),"short",t);
+        const b=markable(B(mm(6,30)+late,mm(7,15)+late,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b,B(mm(7,15)+late,mm(7,30)+late,"Shower","rotina"));
       } else {
@@ -249,65 +260,63 @@ function blocksFor(t,tl,repo,marks){
     }
     const lateStudy=GYM_LATE.has(t)&&f!=="OFF"&&!info.missed;
     blocks.push(...(lateStudy?[B(mm(9,0),mm(13,0),"CFA Study (Home)","estudo")]:studyWeekday(t)),
-      B(mm(13,0),mm(14,30),"Lunch Break","refeicao"),
-      workBlock(t), ...eveningWeekday());
+      B(mm(13,0)+(t>=NEWSCHED?30:0),mm(14,30),"Lunch Break","refeicao"),
+      workBlock(t), ...eveningWeekday(t));
   } else if(d===6){
+    const ws=(t>=NEWSCHED?180:0);
     if(f==="OFF"){
-      blocks.push(B(mm(5,0),mm(6,45),"Sleep in / Free","sono"),
-        B(mm(6,45),mm(7,0),"Wake-up","rotina"),
-        B(mm(7,0),mm(7,30),"Coffee + Prep","refeicao"));
+      blocks.push(B(mm(6,45)+ws,mm(7,0)+ws,"Wake-up","rotina"),
+        B(mm(7,0)+ws,mm(7,30)+ws,"Coffee + Prep","refeicao"));
     } else if(info.missed){
-      blocks.push(B(mm(5,0),mm(6,0),"Sleep in / Free","sono"),
-        Object.assign(markable(B(mm(6,0),mm(7,30),"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
+      blocks.push(Object.assign(markable(B(mm(6,0)+ws,mm(7,30)+ws,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
     } else {
-      blocks.push(B(mm(5,0),mm(5,15),"Wake-up","rotina"),
-        B(mm(5,15),mm(5,30),"Pre-training","refeicao"),
-        B(mm(5,30),mm(5,45),"Shower","rotina"),
-        B(mm(5,45),mm(6,0),"Dressing + Prep + Transit","rotina"),
-        Object.assign(markable(B(mm(6,0),mm(7,30),"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
+      blocks.push(B(mm(5,0)+ws,mm(5,15)+ws,"Wake-up","rotina"),
+        B(mm(5,15)+ws,mm(5,30)+ws,"Pre-training","refeicao"),
+        B(mm(5,30)+ws,mm(5,45)+ws,"Shower","rotina"),
+        B(mm(5,45)+ws,mm(6,0)+ws,"Dressing + Prep + Transit","rotina"),
+        Object.assign(markable(B(mm(6,0)+ws,mm(7,30)+ws,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
     }
     const isC=(!info.missed&&f==="C");
-    const lb=markable(B(mm(7,30),mm(9,0),(isC?"Long Run (easy) · "+(RUN_KM[t]??"8-10")+" km":"Street Long Run · target "+(RUN_KM[t]??"10-12")+" km"),"corrida",
+    const lb=markable(B(mm(7,30)+ws,mm(9,0)+ws,(isC?"Long Run (easy) · "+(RUN_KM[t]??"8-10")+" km @ 9 km/h":"Street Long Run · "+(RUN_KM[t]??"10-12")+" km @ 9-9.6 km/h"),"corrida",
       isC?"legs + long run":(f==="OFF"?"fresh legs":null)),"long",t);
     const st=rs(lb.mark.k); if(st===1)lb.done=true; if(st===2)lb.missed=true;
     blocks.push(lb,
-      B(mm(9,0),mm(9,30),"Breakfast","refeicao"),
-      B(mm(9,30),mm(9,45),"Shower","rotina"),
-      B(mm(9,45),mm(10,0),"Dressing + Prep","rotina"),
+      B(mm(9,0)+ws,mm(9,30)+ws,"Breakfast","refeicao"),
+      B(mm(9,30)+ws,mm(9,45)+ws,"Shower","rotina"));
+    if(t<NEWSCHED) blocks.push(B(mm(9,45),mm(10,0),"Dressing + Prep","rotina"),
       B(mm(10,0),mm(13,0),"CFA Study (Home)","estudo"),
       B(mm(13,0),mm(14,30),"Lunch Break","refeicao"));
   } else {
+    const ws=(t>=NEWSCHED?60:0);
     const hasRepo=repo.has(t);
     if(f==="OFF"){
       if(hasRepo){
-        const lb=markable(B(mm(7,30),mm(9,0),"Street Long Run 10-12 km (make-up)","corrida","fresh legs"),"long",t);
+        const lb=markable(B(mm(7,30)+ws,mm(9,0)+ws,"Street Long Run · make-up @ 9-9.6 km/h","corrida","fresh legs"),"long",t);
         const st=rs(lb.mark.k); if(st===1)lb.done=true; if(st===2)lb.missed=true;
-        blocks.push(B(mm(5,0),mm(7,0),"Sleep in / Free","sono"),
-          B(mm(7,0),mm(7,30),"Coffee + Prep","refeicao"),
+        blocks.push(B(mm(7,0)+ws,mm(7,30)+ws,"Coffee + Prep","refeicao"),
           lb);
       } else {
         }
     } else if(info.missed){
-      blocks.push(B(mm(5,0),mm(6,0),"Sleep in / Free","sono"),
-        Object.assign(markable(B(mm(6,0),mm(8,15),"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
+      blocks.push(Object.assign(markable(B(mm(6,0)+ws,mm(8,15)+ws,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
     } else {
-      blocks.push(B(mm(5,0),mm(5,15),"Wake-up","rotina"),
-        B(mm(5,15),mm(5,30),"Pre-training","refeicao"),
-        B(mm(5,30),mm(5,45),"Shower","rotina"),
-        B(mm(5,45),mm(6,0),"Dressing + Prep + Transit","rotina"),
-        Object.assign(markable(B(mm(6,0),mm(7,30),"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
+      blocks.push(B(mm(5,0)+ws,mm(5,15)+ws,"Wake-up","rotina"),
+        B(mm(5,15)+ws,mm(5,30)+ws,"Pre-training","refeicao"),
+        B(mm(5,30)+ws,mm(5,45)+ws,"Shower","rotina"),
+        B(mm(5,45)+ws,mm(6,0)+ws,"Dressing + Prep + Transit","rotina"),
+        Object.assign(markable(B(mm(6,0)+ws,mm(7,30)+ws,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
       if(f==="D"||f==="B"){
-        const b=markable(B(mm(7,30),mm(8,15),"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km","corrida"),"short",t);
+        const b=markable(B(mm(7,30)+ws,mm(8,15)+ws,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
       } else {
-        blocks.push(B(mm(7,30),mm(8,15),"Dry Sauna","sauna"));
+        blocks.push(B(mm(7,30)+ws,mm(8,15)+ws,"Dry Sauna","sauna"));
       }
-      blocks.push(B(mm(8,15),mm(8,45),"Breakfast","refeicao"));
+      blocks.push(B(mm(8,15)+ws,mm(8,45)+ws,"Breakfast","refeicao"));
     }
-    blocks.push(B(mm(19,30),mm(19,45),"Shower","rotina"),
-      B(mm(19,45),mm(20,0),"Go to Bed","rotina"),
-      B(mm(20,0),mm(22,0),"Sleep","sono"));
+    blocks.push(B(mm(19,30)+sh,mm(19,45)+sh,"Shower","rotina"),
+      B(mm(19,45)+sh,mm(20,0)+sh,"Go to Bed","rotina"),
+      B(mm(20,0)+sh,mm(22,0)+sh,"Sleep","sono"));
   }
   return blocks;
 }
@@ -319,6 +328,8 @@ function notesFor(t,tl,repo){
   if(d===6&&f==="OFF") out.push({txt:"long run · fresh legs"});
   if(d===7&&f==="OFF") out.push({txt:repo.has(t)?"free + make-up long run":"100% free day"});
   if(GYM_LATE.has(t)) out.push({txt:"Avant opens 6:00 (holiday)",warn:true});
+  if(t>=NEWSCHED&&d<=5&&LIB_DOW.has(d)) out.push({txt:"library morning"});
+  if(t>=NEWSCHED&&d===6) out.push({txt:"CFA study · 3h · your call"});
   if(EVENTS[t]) out.push(EVENTS[t]);
   if(B3_HOLS.has(t)) out.push({txt:"B3 closed"});
   if(t===PLAN_END) out.push({txt:"return flight",warn:true});
@@ -368,8 +379,8 @@ async function saveMarks(){
 }
 function todayUTC(){ const n=new Date(); return U(n.getFullYear(),n.getMonth()+1,n.getDate()); }
 function hhmm(min){ return String(Math.floor(min/60)).padStart(2,"0")+":"+String(Math.round(min%60)).padStart(2,"0"); }
-function skyGradient(sr,ss){
-  const p=min=>((min-240)/1080*100).toFixed(2)+"%";
+function skyGradient(sr,ss,h0){
+  const p=min=>((min-h0*60)/1080*100).toFixed(2)+"%";
   return `linear-gradient(180deg,#0A1020 0%,#0A1020 ${p(sr-50)},#E9975A ${p(sr)},#F5D98B ${p(sr+40)},#BFD9F2 ${p(sr+110)},#BFD9F2 ${p(ss-110)},#F5C06A ${p(ss-40)},#D96A4E ${p(ss)},#0A1020 ${p(ss+50)},#0A1020 100%)`;
 }
 function cycleMark(store,k){
@@ -401,10 +412,11 @@ function render(){
     head.insertAdjacentHTML("beforeend",
       "<div class='day-head"+(isToday?" today":"")+"'><div class='dow'>"+DOWS[i]+"</div><div class='dt'>"+fmt(t)+"</div>"+badge+"<div class='pills'>"+pills+"</div></div>");
   }
-  let g="<div class='gutter'><div class='skyband' style='background:"+skyGradient(sr,ss)+"'></div>";
-  for(let h=4;h<=22;h++){
-    const tr=h===4?"translateY(0)":(h===22?"translateY(-100%)":"translateY(-50%)");
-    g+="<div class='hlabel' style='top:"+((h-4)*4*15)+"px;transform:"+tr+"'>"+String(h).padStart(2,"0")+":00</div>";
+  const H0=(monday>=NEWSCHED?6:4);
+  let g="<div class='gutter'><div class='skyband' style='background:"+skyGradient(sr,ss,H0)+"'></div>";
+  for(let h=H0;h<=H0+18;h++){
+    const tr=h===H0?"translateY(0)":(h===H0+18?"translateY(-100%)":"translateY(-50%)");
+    g+="<div class='hlabel' style='top:"+((h-H0)*4*15)+"px;transform:"+tr+"'>"+String(h%24).padStart(2,"0")+":00</div>";
   }
   g+="</div>";
   body.insertAdjacentHTML("beforeend",g);
@@ -417,7 +429,7 @@ function render(){
       col.innerHTML="<div class='offplan'><span>"+offPlanLabel(t)+"</span></div>";
     } else {
       for(const b of blocks){
-        const top=b.s-240, h=b.e-b.s;
+        const top=b.s-H0*60, h=b.e-b.s;
         const c="var(--c-"+b.cat+")";
         const tiny=h<=15;
         const el=document.createElement("div");

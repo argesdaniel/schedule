@@ -23,8 +23,10 @@
   --c-rotina:#B4B4AE; --c-sono:#C9C9C3; --c-livre:#BEEA32;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--paper);color:var(--text);font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1720px;margin:0 auto;padding:0 0 48px}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--text);font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+.wrap{max-width:1720px;margin:0 auto;padding:0;height:100%;display:flex;flex-direction:column;min-height:0}
+header.top,.progband,#banner,footer{flex:none}
 header.top{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;
   background:var(--ink);color:#fff;padding:11px 24px}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.18em;color:var(--acc);text-transform:uppercase}
@@ -52,10 +54,11 @@ h1 .range{color:#8E8E88;font-weight:500}
 .nav button.ghost{font-size:9.5px;color:#8E8E88;border-color:#2B2B29;font-weight:500;padding:4px 8px}
 #banner{display:none;margin:0;padding:9px 24px;border-bottom:1px solid var(--line);
   background:var(--acc-soft);font-size:12px;color:var(--acc-deep)}
-.scroller{overflow-x:auto;border-bottom:1px solid var(--line);background:var(--paper)}
+.scroller{flex:1;min-height:0;overflow:auto;border-bottom:1px solid var(--line);background:var(--paper);
+  overscroll-behavior:contain}
 .cal{min-width:1020px}
-.cal-head{display:grid;grid-template-columns:64px repeat(7,1fr);position:sticky;top:0;z-index:5;
-  background:var(--paper);border-bottom:2px solid var(--ink)}
+.cal-head{display:grid;grid-template-columns:64px repeat(7,1fr);position:sticky;top:0;z-index:6;
+  background:var(--paper);border-bottom:2px solid var(--ink);box-shadow:0 1px 0 var(--ink)}
 .day-head{padding:12px 10px 10px;border-left:1px solid var(--line2);min-height:86px}
 .day-head .dow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
 .day-head .dt{font-size:18px;font-weight:700;margin:3px 0 7px;letter-spacing:-.02em}
@@ -97,7 +100,8 @@ h1 .range{color:#8E8E88;font-weight:500}
 .offplan{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--paper2)}
 .offplan span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted2);
   transform:rotate(-90deg);white-space:nowrap;letter-spacing:.2em;text-transform:uppercase}
-footer{margin:14px 24px 0;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted2)}
+footer{margin:0;padding:7px 24px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted2);
+  border-top:1px solid var(--line)}
 @media (min-width:1280px){
   header.top{padding:13px 32px}
   #banner{padding-left:32px;padding-right:32px}
@@ -115,9 +119,9 @@ footer{margin:14px 24px 0;font-family:'IBM Plex Mono',monospace;font-size:10px;c
   .blk .t{font-size:10px}
   .blk.tiny{font-size:10.5px;padding:0 10px}
   .mark{width:22px;height:22px;font-size:13px}
-  footer{font-size:11px}
+  footer{font-size:11px;padding-left:32px;padding-right:32px}
 }
-@media (max-width:640px){ h1{font-size:20px} header.top{padding:14px 14px} #banner,.progband{padding-left:14px;padding-right:14px} footer{margin-left:14px;margin-right:14px} }
+@media (max-width:640px){ h1{font-size:20px} header.top{padding:14px 14px} #banner,.progband,footer{padding-left:14px;padding-right:14px} }
 @media (prefers-reduced-motion:reduce){ .pg .pb i,.nav button{transition:none} }
 </style>
 </head>

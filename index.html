@@ -156,7 +156,8 @@ const MUSC={C:"legs",D:"shoulders",A:"chest",B:"back"};
 const TRL_HOLS=new Set([U(2026,8,3),U(2026,9,7),U(2026,9,30),U(2026,10,12)]);
 const GYM_LATE=new Set([U(2026,8,3)]);
 const NEWSCHED=U(2026,8,10);
-const LIB_DOW=new Set([2,4]); // Tue & Thu: study morning at Yorkville Branch // Avant holiday hours: opens 6:00
+const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
+const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
 const RUN_KM={
   [U(2026,8,3)]:4,[U(2026,8,5)]:4,[U(2026,8,8)]:8,
   [U(2026,8,10)]:4.5,[U(2026,8,13)]:4.5,[U(2026,8,15)]:8,
@@ -230,8 +231,10 @@ function eveningWeekday(t){ return t>=NEWSCHED ? [
   B(mm(19,45),mm(20,0),"Go to Bed","rotina"),
   B(mm(20,0),mm(22,0),"Sleep","sono")];}
 function studyWeekday(t){ if(t<NEWSCHED) return [B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo")];
-  const lib=LIB_DOW.has(dow(t));
-  return [B(mm(10,0),mm(13,30),lib?"CFA Study (Yorkville Branch)":"CFA Study (Home)","estudo")];}
+  const trl=(t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t));
+  return trl
+    ? [B(mm(9,45),mm(10,0),"Walk to TRL","rotina"),B(mm(10,0),mm(13,30),"CFA Study (TRL)","estudo")]
+    : [B(mm(10,0),mm(13,30),"CFA Study (Home)","estudo")];}
 function workBlock(t){ return B3_HOLS.has(t)
   ? Object.assign(B(mm(14,30),mm(18,0),"Optional Work","trabalho","B3 closed"),{dashed:true})
   : B(mm(14,30),mm(18,0),"Work Window","trabalho");}
@@ -338,7 +341,9 @@ function notesFor(t,tl,repo){
   if(d===6&&f==="OFF") out.push({txt:"long run · fresh legs"});
   if(d===7&&f==="OFF") out.push({txt:repo.has(t)?"free + make-up long run":"100% free day"});
   if(GYM_LATE.has(t)) out.push({txt:"Avant opens 6:00 (holiday)",warn:true});
-  if(t>=NEWSCHED&&d<=5&&LIB_DOW.has(d)) out.push({txt:"library morning"});
+  if(TRL_CLOSED.has(t)) out.push({txt:"TRL closed all day \u00b7 study at home",warn:true});
+  else if(t>=TRL_START&&t<=TRL_END&&d<=5) out.push({txt:"TRL \u00b7 9:00-20:30"});
+  if(t===U(2026,8,24)) out.push({txt:"TRL reduced hours from today (11:00)",warn:true});
   if(t>=NEWSCHED&&d===6) out.push({txt:"CFA study · 3h · your call"});
   if(EVENTS[t]) out.push(EVENTS[t]);
   if(B3_HOLS.has(t)) out.push({txt:"B3 closed"});

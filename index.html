@@ -156,7 +156,7 @@ const MUSC={C:"legs",D:"shoulders",A:"chest",B:"back"};
 const TRL_HOLS=new Set([U(2026,8,3),U(2026,9,7),U(2026,9,30),U(2026,10,12)]);
 const GYM_LATE=new Set([U(2026,8,3)]);
 const NEWSCHED=U(2026,8,10);
-const NS2=U(2026,8,13); // real measured durations
+const NS2=U(2026,8,17); // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
 const RUN_KM={
@@ -239,11 +239,9 @@ function eveningWeekday(t){ if(t>=NS2) return [
   B(mm(20,0),mm(22,0),"Sleep","sono")];}
 function studyWeekday(t){ if(t<NEWSCHED) return [B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo")];
   const trl=(t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t));
-  if(t>=NS2) return [B(mm(10,30),mm(13,30),trl?"CFA Study (TRL)":"CFA Study (Home)","estudo")];
-  return trl
-    ? [B(mm(9,45),mm(10,0),"Walk to TRL","rotina"),B(mm(10,0),mm(13,30),"CFA Study (TRL)","estudo")]
-    : [B(mm(10,0),mm(13,30),"CFA Study (Home)","estudo")];}
-function workBlock(t){ const a=(t>=NS2?mm(14,30):mm(14,30)), b=(t>=NS2?mm(16,30):mm(18,0));
+  if(t>=NS2) return [B(mm(10,45),mm(13,45),trl?"CFA Study (TRL)":"CFA Study (Home)","estudo")];
+  return [B(mm(10,0),mm(13,30),trl?"CFA Study (TRL)":"CFA Study (Home)","estudo")];}
+function workBlock(t){ const a=(t>=NS2?mm(14,45):mm(14,30)), b=(t>=NS2?mm(16,45):mm(18,0));
   return B3_HOLS.has(t)
   ? Object.assign(B(a,b,"Optional Work","trabalho","B3 closed"),{dashed:true})
   : B(a,b,"Work Window","trabalho");}
@@ -254,7 +252,7 @@ function blocksFor(t,tl,repo,marks){
   const sh=(t>=NEWSCHED?120:0);
   if(d<=5){
     if(f==="OFF"){
-      const o=(t>=NS2?150:sh);
+      const o=(t>=NS2?165:sh);
       blocks.push(B(mm(4,0)+o,mm(4,15)+o,"Wake-up","rotina"),
         B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
         B(mm(4,45)+o,mm(5,0)+o,"Shower","rotina"),
@@ -262,25 +260,22 @@ function blocksFor(t,tl,repo,marks){
         B(mm(5,15)+o,mm(7,30)+o,"Extra CFA Study (Home)","estudo"),
         B(mm(7,30)+o,mm(8,0)+o,"Breakfast","refeicao"));
     } else if(info.missed){
-      const ms=(t>=NS2?90:sh);
+      const ms=(t>=NS2?120:sh);
       blocks.push(Object.assign(markable(B(mm(5,0)+ms,mm(7,30)+ms,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}),
         B(mm(8,15)+ms,mm(8,45)+ms,"Breakfast","refeicao"));
     } else if(t>=NS2){
       const g=GYM_LATE.has(t)?60:0;
-      blocks.push(B(mm(5,0)+g,mm(5,15)+g,"Wake-up","rotina"),
-        B(mm(5,15)+g,mm(6,15)+g,"Prep · bed, shower, pre-workout, meds, bags","rotina"),
-        B(mm(6,15)+g,mm(6,30)+g,"Transit to AVANT","rotina"),
-        Object.assign(markable(B(mm(6,30)+g,mm(8,30)+g,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
+      blocks.push(B(mm(5,30)+g,mm(7,0)+g,"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
+        Object.assign(markable(B(mm(7,0)+g,mm(9,0)+g,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
       if(f==="D"||f==="B"){
-        const b=markable(B(mm(8,30)+g,mm(9,30)+g,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
+        const b=markable(B(mm(9,0)+g,mm(9,45)+g,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
       } else {
-        blocks.push(B(mm(8,30)+g,mm(9,30)+g,"Dry Sauna","sauna"));
+        blocks.push(B(mm(9,0)+g,mm(9,45)+g,"Dry Sauna","sauna"));
       }
-      blocks.push(B(mm(9,30)+g,mm(10,0)+g,"Shower + Skincare","rotina"),
-        B(mm(10,0)+g,mm(10,15)+g,"Breakfast (smoothie)","refeicao"),
-        B(mm(10,15)+g,mm(10,30)+g,"Walk to TRL","rotina"));
+      blocks.push(B(mm(9,45)+g,mm(10,15)+g,"Shower + Skincare","rotina"),
+        B(mm(10,15)+g,mm(10,45)+g,"Protein Smoothie + Walk to TRL","refeicao"));
     } else {
       const late=GYM_LATE.has(t)?60:sh;
       blocks.push(B(mm(4,0)+late,mm(4,15)+late,"Wake-up","rotina"),
@@ -300,7 +295,7 @@ function blocksFor(t,tl,repo,marks){
     }
     const lateStudy=GYM_LATE.has(t)&&f!=="OFF"&&!info.missed;
     blocks.push(...(lateStudy?[B(mm(9,0),mm(13,0),"CFA Study (Home)","estudo")]:studyWeekday(t)),
-      (t>=NS2?B(mm(13,30),mm(14,30),"Lunch Break","refeicao"):B(mm(13,0)+(t>=NEWSCHED?30:0),mm(14,30),"Lunch Break","refeicao")),
+      (t>=NS2?B(mm(13,45),mm(14,45),"Lunch Break","refeicao"):B(mm(13,0)+(t>=NEWSCHED?30:0),mm(14,30),"Lunch Break","refeicao")),
       workBlock(t), ...eveningWeekday(t));
   } else if(d===6){
     const ws=(t>=NEWSCHED?180:0);
@@ -311,9 +306,7 @@ function blocksFor(t,tl,repo,marks){
       blocks.push(Object.assign(markable(B(t>=NS2?mm(8,0):mm(6,0)+ws,t>=NS2?mm(9,30):mm(7,30)+ws,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
     } else {
       if(t>=NS2){
-        blocks.push(B(mm(8,0),mm(8,15),"Wake-up","rotina"),
-          B(mm(8,15),mm(9,15),"Prep · bed, shower, pre-workout, meds, bags","rotina"),
-          B(mm(9,15),mm(9,30),"Transit to AVANT","rotina"),
+        blocks.push(B(mm(8,0),mm(9,30),"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
           Object.assign(markable(B(mm(9,30),mm(11,30),"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
       } else {
       blocks.push(B(mm(5,0)+ws,mm(5,15)+ws,"Wake-up","rotina"),
@@ -351,19 +344,17 @@ function blocksFor(t,tl,repo,marks){
       blocks.push(Object.assign(markable(B(mm(6,0)+ws,mm(8,15)+ws,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
     } else {
       if(t>=NS2){
-        blocks.push(B(mm(8,0),mm(8,15),"Wake-up","rotina"),
-          B(mm(8,15),mm(9,15),"Prep · bed, shower, pre-workout, meds, bags","rotina"),
-          B(mm(9,15),mm(9,30),"Transit to AVANT","rotina"),
+        blocks.push(B(mm(8,0),mm(9,30),"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
           Object.assign(markable(B(mm(9,30),mm(11,30),"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
         if(f==="D"||f==="B"){
-          const b=markable(B(mm(11,30),mm(12,30),"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
+          const b=markable(B(mm(11,30),mm(12,15),"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
           const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
           blocks.push(b);
         } else {
-          blocks.push(B(mm(11,30),mm(12,30),"Dry Sauna","sauna"));
+          blocks.push(B(mm(11,30),mm(12,15),"Dry Sauna","sauna"));
         }
-        blocks.push(B(mm(12,30),mm(13,0),"Shower + Skincare","rotina"),
-          B(mm(13,0),mm(13,15),"Breakfast","refeicao"));
+        blocks.push(B(mm(12,15),mm(12,45),"Shower + Skincare","rotina"),
+          B(mm(12,45),mm(13,0),"Protein Smoothie","refeicao"));
       } else {
       blocks.push(B(mm(5,0)+ws,mm(5,15)+ws,"Wake-up","rotina"),
         B(mm(5,15)+ws,mm(5,30)+ws,"Pre-training","refeicao"),

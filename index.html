@@ -521,14 +521,14 @@ function render(){
     for(const b of bl){ if(b.s<mnS)mnS=b.s; if(b.e>mxE)mxE=b.e; }
   }
   if(!isFinite(mnS)){ mnS=mm(6,0); mxE=mm(22,0); }
-  const H0=Math.floor(mnS/60), H1=Math.ceil(mxE/60), HN=Math.max(1,H1-H0);
+  const Q0=Math.floor(mnS/30), Q1=Math.ceil(mxE/30);
+  const H0=Q0/2, H1=Q1/2, HN=Math.max(1,H1-H0);
   document.documentElement.style.setProperty("--rows",HN*4);
   let g="<div class='gutter'><div class='skyband' style='background:"+skyGradient(sr,ss,H0,H1)+"'></div>";
-  for(let q=0;q<=(H1-H0)*2;q++){
-    const isHalf=(q%2===1);
-    const h=H0+Math.floor(q/2), mnt=isHalf?30:0;
-    const tr=q===0?"translateY(0)":(q===(H1-H0)*2?"translateY(-100%)":"translateY(-50%)");
-    g+="<div class='hlabel"+(isHalf?" half":"")+"' style='top:"+(q*2*15)+"px;transform:"+tr+"'>"+
+  for(let q=Q0;q<=Q1;q++){
+    const isHalf=(q%2===1), h=Math.floor(q/2), mnt=isHalf?30:0;
+    const tr=q===Q0?"translateY(0)":(q===Q1?"translateY(-100%)":"translateY(-50%)");
+    g+="<div class='hlabel"+(isHalf?" half":"")+"' style='top:"+((q-Q0)*2*15)+"px;transform:"+tr+"'>"+
        String(h%24).padStart(2,"0")+":"+String(mnt).padStart(2,"0")+"</div>";
   }
   g+="</div>";
@@ -542,7 +542,7 @@ function render(){
       col.innerHTML="<div class='offplan'><span>"+offPlanLabel(t)+"</span></div>";
     } else {
       for(const b of blocks){
-        const top=b.s-H0*60, h=b.e-b.s;
+        const top=b.s-Q0*30, h=b.e-b.s;
         const c="var(--c-"+b.cat+")";
         const tiny=h<=15;
         const el=document.createElement("div");

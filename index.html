@@ -160,6 +160,7 @@ const NEWSCHED=U(2026,8,10);
 const NS2=U(2026,8,17); // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
+const MOCK_SAT=new Set([U(2027,1,9),U(2027,1,23),U(2027,2,6),U(2027,2,13),U(2027,2,20)]); // full mock: 270 min (2x135)
 const RUN_KM={
   [U(2026,8,3)]:4,[U(2026,8,5)]:4,[U(2026,8,8)]:8,
   [U(2026,8,10)]:4.5,[U(2026,8,13)]:4.5,[U(2026,8,15)]:8,
@@ -258,7 +259,7 @@ function blocksFor(t,tl,repo,marks){
         B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
         B(mm(4,45)+o,mm(5,0)+o,"Shower","rotina"),
         B(mm(5,0)+o,mm(5,15)+o,"Dressing + Prep","rotina"),
-        B(mm(5,15)+o,mm(7,30)+o,"Extra CFA Study (Home)","estudo"),
+        B(mm(5,15)+o,mm(7,30)+o,"CFA · 35 cumulative QBank, timed · 60/40","estudo"),
         B(mm(7,30)+o,mm(8,0)+o,"Breakfast","refeicao"));
     } else if(info.missed){
       const ms=(t>=NS2?120:sh);
@@ -391,7 +392,9 @@ function notesFor(t,tl,repo){
   if(TRL_CLOSED.has(t)) out.push({txt:"TRL closed all day \u00b7 study at home",warn:true});
   else if(t>=TRL_START&&t<=TRL_END&&d<=5) out.push({txt:"TRL \u00b7 9:00-20:30"});
   if(t===U(2026,8,24)) out.push({txt:"TRL reduced hours from today (11:00)",warn:true});
-  if(t>=NEWSCHED&&d===6) out.push({txt:"CFA study · 3h · your call"});
+  if(t>=NEWSCHED&&d===6) out.push(MOCK_SAT.has(t)
+    ? {txt:"MOCK EXAM · ~4h30 · exam conditions",warn:true}
+    : {txt:"CFA study · see kaplan.html (topic quiz / checkpoint / mock)"});
   if(EVENTS[t]) out.push(EVENTS[t]);
   if(B3_HOLS.has(t)) out.push({txt:"B3 closed"});
   if(t===PLAN_END) out.push({txt:"return flight",warn:true});

@@ -4,154 +4,165 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CFA Study Plan v2 · Full Season</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%2322345A'/%3E%3Ccircle cx='32' cy='34' r='17' fill='none' stroke='%23E3B63C' stroke-width='7'/%3E%3Cpath d='M32 34 L32 20' stroke='%23E3B63C' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0D0D0D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23BEEA32%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2216%22%20fill%3D%22none%22%20stroke%3D%22%230D0D0D%22%20stroke-width%3D%227%22%2F%3E%3Crect%20x%3D%2229%22%20y%3D%2213%22%20width%3D%226%22%20height%3D%2219%22%20fill%3D%22%230D0D0D%22%2F%3E%3C%2Fsvg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F4F6F1;
-  --card:#EBEEE5;
-  --ink:#182740;
-  --dim:#5A6577;
-  --line:#CBD2C4;
-  --gold:#9C7412;
-  --gold-ink:#7A5A0C;
-  --red:#B0392E;
-  --pass:#2F7A4D;
-  --warn:#B4640A;
+  --ink:#0D0D0D; --ink2:#232320; --paper:#FFFFFF; --paper2:#F7F7F5;
+  --line:#E2E2DF; --line2:#EFEFEC;
+  --dim:#7A7A75; --dim2:#9B9B95;
+  --acc:#BEEA32; --acc-soft:#F6FCE2; --acc-deep:#637A1A;
+  --red:#5A5A55; --warn:#B4640A;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
   --sans:'Archivo',-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-.wrap{max-width:920px;margin:0 auto;padding:0 20px}
-a{color:var(--gold-ink)}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+a{color:var(--acc-deep)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
-/* ---------- masthead ---------- */
-.mast{padding:46px 0 0;border-bottom:2px solid var(--ink)}
-.eyebrow{font-family:var(--mono);font-weight:600;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-ink)}
-h1{font-weight:800;font-size:clamp(2.05rem,5vw,3.05rem);letter-spacing:-.02em;line-height:1.05;margin:.4rem 0 .35rem}
-h1 .thin{font-weight:500;color:var(--dim)}
-.sub{color:var(--dim);font-size:.92rem;margin:0 0 20px;max-width:62ch}
-.counters{display:flex;flex-wrap:wrap;gap:12px 34px;font-family:var(--mono);padding:14px 0;border-top:1px solid var(--line)}
-.counters b{display:block;font-size:1.18rem;font-weight:600;color:var(--ink);white-space:nowrap}
-.counters span{font-size:.66rem;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--dim)}
-.notice{margin:0 0 14px;padding:10px 12px;border:1.5px dashed var(--warn);border-radius:3px;color:var(--warn);font-family:var(--mono);font-size:.78rem}
+/* faixa preta */
+.mast{background:var(--ink);color:#fff;padding:11px 0 12px}
+.eyebrow{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--acc-deep)}
+.mast .eyebrow{color:var(--acc)}
+h1{font-weight:700;font-size:19px;letter-spacing:-.02em;line-height:1.15;margin:2px 0;color:#fff}
+h1 .thin{font-weight:500;color:#8E8E88}
+.sub{color:#8E8E88;font-size:9.5px;font-family:var(--mono);margin:0;line-height:1.5}
+.sub a{color:var(--acc)}
+.notice{margin:8px 0 0;padding:7px 10px;border:1px solid var(--acc);color:var(--acc);font-family:var(--mono);font-size:.72rem;border-radius:0}
 .notice[hidden]{display:none}
 
-/* ---------- sections ---------- */
-section{padding:36px 0;border-bottom:1px solid var(--line)}
-h2{font-size:1.18rem;font-weight:700;letter-spacing:.01em;margin:.3rem 0 1rem}
-.lede{max-width:66ch;margin:0 0 1.1rem;font-size:.95rem}
-.cap{font-family:var(--mono);font-size:.7rem;color:var(--dim);margin:.7rem 0 0}
+/* faixa cinza escuro: contadores */
+.counters{display:flex;flex-wrap:wrap;gap:6px 34px;font-family:var(--mono);
+  padding:9px 24px;background:var(--ink2);max-width:900px;margin:0 auto;border-bottom:1px solid #2E2E2B}
+.counters b{display:block;font-size:14px;font-weight:700;white-space:nowrap;color:var(--acc)}
+.counters span{font-size:8.5px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:#8E8E88}
+.counters .pg{flex:1;min-width:150px;max-width:220px;align-self:center}
+.pg .plab{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);
+  font-size:8.5px;letter-spacing:.1em;color:#8E8E88;margin-bottom:3px;text-transform:uppercase}
+.pg .plab b{color:#fff;font-weight:700;font-size:10.5px;letter-spacing:0}
+.pg .pb{height:5px;background:#3A3A36;overflow:hidden}
+.pg .pb i{display:block;height:100%;background:var(--acc);transition:width .4s ease}
 
-/* ---------- audit table ---------- */
-.audit{width:100%;border-collapse:collapse;font-size:.9rem}
-.audit th{font-family:var(--mono);font-weight:600;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
-.audit td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:baseline}
-.audit td.num{font-family:var(--mono);font-size:.82rem;white-space:nowrap}
-.audit tr.attack td{background:var(--card)}
-.audit .sep td{background:transparent;border-bottom:1px solid var(--line);padding:3px}
-.chip{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap}
-.chip-attack{border:1.5px solid var(--red);color:var(--red)}
-.chip-hold{border:1.5px solid var(--dim);color:var(--dim)}
+section{padding:26px 0;border-bottom:1px solid var(--line)}
+h2{font-weight:700;font-size:1.25rem;letter-spacing:-.01em;margin:.15rem 0 .7rem}
+.lede{max-width:76ch;margin:0 0 1rem;font-size:.92rem;color:var(--ink)}
+.cap{font-family:var(--mono);font-size:.66rem;color:var(--dim);margin:.7rem 0 0;line-height:1.7}
 
-/* ---------- season strip (signature) ---------- */
-.strip-wrap{position:relative;margin:26px 0 10px}
-.strip{display:flex;height:36px;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden;background:var(--paper)}
+/* auditoria */
+.audit{width:100%;border-collapse:collapse;font-size:.88rem}
+.audit th{font-family:var(--mono);font-weight:700;font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:left;padding:7px 10px;border-bottom:2px solid var(--ink)}
+.audit td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:baseline}
+.audit td.num{font-family:var(--mono);font-size:.78rem;white-space:nowrap}
+.audit tr.attack td{background:var(--paper2)}
+.chip{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:0;white-space:nowrap}
+.chip-attack{background:var(--ink);color:var(--acc)}
+.chip-hold{border:1px solid var(--dim);color:var(--dim)}
+
+/* faixa da temporada */
+.strip-wrap{position:relative;margin:24px 0 10px}
+.strip{display:flex;height:32px;border:1px solid var(--ink);border-radius:0;overflow:hidden;background:var(--paper)}
 .seg{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;transform:scaleX(0);transform-origin:left center}
 .strip.go .seg{transform:scaleX(1);transition:transform .55s cubic-bezier(.2,.7,.2,1)}
-.seg span{font-family:var(--mono);font-weight:600;font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;white-space:nowrap;pointer-events:none}
-.seg.lt span{color:var(--ink)}
-.seg.dm span{color:var(--dim)}
-.p-nav1{background:#22345A}
-.p-nav2{background:#31497B}
-.p-gold{background:#9C7412}
-.p-ramp{background:#C9A54A}
-.p-off{background:repeating-linear-gradient(-45deg,#E4E8DD 0 6px,#F4F6F1 6px 12px)}
-.p-red{background:var(--red)}
-.seg.now{box-shadow:inset 0 0 0 2px var(--gold)}
-.needle{position:absolute;top:-8px;bottom:-8px;width:2px;background:var(--red);z-index:2}
-.needle i{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-style:normal;font-weight:700;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red);white-space:nowrap}
+.seg span{font-family:var(--mono);font-weight:700;font-size:.56rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;white-space:nowrap;pointer-events:none}
+.seg.lt span,.seg.dm span{color:var(--ink)}
+.p-nav1{background:#0D0D0D}
+.p-nav2{background:#4A4A46}
+.p-gold{background:var(--acc)}
+.p-gold span{color:var(--ink)}
+.p-ramp{background:#B4B4AE}
+.p-off{background:repeating-linear-gradient(-45deg,#EFEFEC 0 6px,#FFFFFF 6px 12px)}
+.p-red{background:var(--ink)}
+.p-red span{color:var(--acc)}
+.seg.now{box-shadow:inset 0 0 0 2px var(--acc)}
+.needle{position:absolute;top:-8px;bottom:-8px;width:2px;background:var(--acc-deep);z-index:2}
+.needle i{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-style:normal;font-weight:700;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--acc-deep);white-space:nowrap}
 .needle.edge-l i{left:0;transform:none}
 
-/* ---------- season legend ---------- */
-.legend{list-style:none;margin:16px 0 0;padding:0}
-.legend li{display:grid;grid-template-columns:36px 158px 1fr auto;gap:6px 14px;align-items:baseline;padding:9px 8px;border-bottom:1px dashed var(--line);font-size:.88rem}
-.legend li.now{background:var(--card);border-left:3px solid var(--gold);padding-left:5px}
-.pc{font-family:var(--mono);font-weight:700;font-size:.66rem;color:#fff;background:var(--ink);text-align:center;border-radius:3px;padding:3px 0;align-self:center}
-.pc.p-ramp,.pc.p-off{color:var(--ink)}
-.pd{font-family:var(--mono);font-size:.73rem;color:var(--dim);white-space:nowrap}
-.pn{font-weight:600}
+.legend{list-style:none;margin:14px 0 0;padding:0}
+.legend li{display:grid;grid-template-columns:34px 152px 1fr auto;gap:6px 14px;align-items:baseline;padding:8px;border-bottom:1px solid var(--line2);font-size:.86rem}
+.legend li.now{background:var(--acc-soft);border-left:3px solid var(--acc);padding-left:5px}
+.pc{font-family:var(--mono);font-weight:700;font-size:.62rem;color:#fff;background:var(--ink);text-align:center;border-radius:0;padding:3px 0;align-self:center}
+.pc.p-ramp,.pc.p-off,.pc.p-gold{color:var(--ink)}
+.pd{font-family:var(--mono);font-size:.7rem;color:var(--dim);white-space:nowrap}
+.pn{font-weight:700}
 .pm{color:var(--ink)}
-.pl{font-family:var(--mono);font-weight:500;font-size:.71rem;color:var(--dim);white-space:nowrap;text-align:right}
+.pl{font-family:var(--mono);font-weight:500;font-size:.68rem;color:var(--dim);white-space:nowrap;text-align:right}
 
-/* ---------- standing rules ---------- */
-.rules h3{font-family:var(--mono);font-weight:700;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-ink);margin:24px 0 8px}
-.rules h3:first-of-type{margin-top:8px}
+/* regras */
+.rules h3{font-family:var(--mono);font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  margin:22px 0 8px;padding-left:9px;border-left:3px solid var(--acc)}
+.rules h3:first-of-type{margin-top:6px}
 .rules ul{margin:0;padding:0;list-style:none}
-.rules li{position:relative;padding:5px 0 5px 20px;max-width:76ch;font-size:.92rem}
-.rules li::before{content:'—';position:absolute;left:0;color:var(--gold)}
+.rules li{position:relative;padding:5px 0 5px 20px;max-width:80ch;font-size:.9rem}
+.rules li::before{content:'—';position:absolute;left:0;color:var(--dim2)}
 
-/* ---------- milestones ---------- */
-.hint{font-family:var(--mono);font-size:.74rem;color:var(--dim);margin:-.4rem 0 1.1rem}
-.msgroup{margin:0 0 20px}
-.msgroup h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-weight:700;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 2px;padding-bottom:6px;border-bottom:1.5px solid var(--ink)}
-.gcount{font-weight:500;letter-spacing:.06em}
+/* marcos */
+.hint{font-family:var(--mono);font-size:.7rem;color:var(--dim);margin:-.4rem 0 1rem}
+.msgroup{margin:0 0 18px}
+.msgroup h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-weight:700;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin:0 0 2px;padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.gcount{font-weight:500;letter-spacing:.06em;color:var(--dim)}
 .mslist{list-style:none;margin:0;padding:0}
-.ms{display:grid;grid-template-columns:26px 116px 1fr;gap:12px;align-items:start;padding:9px 6px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
-.ms:hover{background:var(--card)}
-.ms.done{opacity:.5}
-.tick{width:20px;height:20px;margin-top:2px;padding:0;border:1.5px solid var(--ink);border-radius:3px;background:transparent;cursor:pointer;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.72rem;color:#fff}
-.ms.done .tick{background:var(--gold);border-color:var(--gold)}
-.ms.done .tick::after{content:'✓'}
-.msdate{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--dim);padding-top:4px;white-space:nowrap}
-.mslabel b{font-weight:600}
-.msnote{display:block;color:var(--dim);font-size:.8rem;margin-top:2px;max-width:60ch}
-.tag{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-left:8px;vertical-align:1px}
-.tag-gate{border:1.5px solid var(--red);color:var(--red)}
-.tag-cp{border:1.5px solid var(--ink);color:var(--ink)}
-.tag-mock{background:var(--gold);color:#fff}
-.tag-off{border:1.5px dashed var(--dim);color:var(--dim)}
-.tag-exam{background:var(--red);color:#fff}
+.ms{display:grid;grid-template-columns:26px 112px 1fr;gap:12px;align-items:start;padding:8px 6px;border-bottom:1px solid var(--line2);cursor:pointer;transition:background .15s}
+.ms:hover{background:var(--paper2)}
+.ms.done{opacity:1;background:var(--acc-soft)}
+.ms.done .mslabel{color:var(--acc-deep)}
+.ms.done .mslabel b{text-decoration:line-through;text-decoration-color:rgba(99,122,26,.4)}
+.ms.done .msdate{color:var(--acc-deep)}
+.tick{width:19px;height:19px;margin-top:2px;padding:0;border:1px solid var(--line);border-radius:0;background:#fff;cursor:pointer;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:.7rem;color:var(--ink)}
+.tick:hover{border-color:var(--ink)}
+.ms.done .tick{background:var(--acc);border-color:var(--acc)}
+.ms.done .tick::after{content:'\2713'}
+.msdate{font-family:var(--mono);font-size:.72rem;color:var(--dim);white-space:nowrap;padding-top:2px}
+.mslabel{font-size:.9rem}
+.msnote{display:block;font-family:var(--mono);font-size:.66rem;color:var(--dim);margin-top:3px;line-height:1.6}
+.tag{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:1px 6px;margin-left:7px;border-radius:0;vertical-align:1px}
+.tag-gate{background:var(--ink);color:var(--acc)}
+.tag-cp{background:var(--ink);color:#fff}
+.tag-mock{background:var(--acc);color:var(--ink)}
+.tag-off{border:1px dashed var(--dim);color:var(--dim)}
+.tag-exam{background:var(--ink);color:var(--acc)}
 
-/* ---------- scoreboard ---------- */
-.score{width:100%;border-collapse:collapse;font-size:.9rem}
-.score th{font-family:var(--mono);font-weight:600;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
-.score td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-.score td.num{font-family:var(--mono);font-size:.8rem;color:var(--dim);white-space:nowrap}
-.sc{width:64px;font-family:var(--mono);font-weight:600;font-size:.92rem;text-align:right;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);border-radius:0;padding:3px 4px}
-.schip{display:inline-block;min-width:58px;text-align:center;font-family:var(--mono);font-weight:700;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:3px;border:1.5px solid var(--line);color:var(--dim)}
-.schip.pass{border-color:var(--pass);color:var(--pass)}
-.schip.edge{border-color:var(--warn);color:var(--warn)}
-.schip.low{border-color:var(--red);color:var(--red)}
+/* placar */
+.score{width:100%;border-collapse:collapse;font-size:.88rem}
+.score th{font-family:var(--mono);font-weight:700;font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);text-align:left;padding:7px 8px;border-bottom:2px solid var(--ink)}
+.score td{padding:6px 8px;border-bottom:1px solid var(--line2)}
+.score td.num{font-family:var(--mono);font-size:.78rem;color:var(--dim);white-space:nowrap}
+.sc{width:74px;font-family:var(--mono);font-size:.82rem;padding:4px 6px;border:1px solid var(--line);border-radius:0;background:#fff;color:var(--ink)}
+.sc:focus{border-color:var(--ink);outline:none}
+.schip{font-family:var(--mono);font-weight:700;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:0;color:var(--dim2)}
+.schip.pass{background:var(--acc);color:var(--ink)}
+.schip.edge{border:1px solid var(--warn);color:var(--warn)}
+.schip.low{border:1px solid var(--ink);color:var(--ink)}
 
-/* ---------- io + footer ---------- */
-.io{display:flex;flex-wrap:wrap;gap:10px;padding:28px 0;border-bottom:1px solid var(--line)}
-.btn{font-family:var(--mono);font-weight:600;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:10px 14px;border:1.5px solid var(--ink);border-radius:3px;background:transparent;color:var(--ink);cursor:pointer}
-.btn:hover{background:var(--ink);color:#fff}
-footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:500;font-size:.73rem;line-height:1.7}
+.io{display:flex;flex-wrap:wrap;gap:8px;padding:20px 0}
+.btn{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 12px;border:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);cursor:pointer;
+  transition:background .15s ease,border-color .15s ease}
+.btn:hover{background:var(--acc);border-color:var(--acc);color:var(--ink)}
+footer{padding:16px 0 44px;color:var(--dim2);font-family:var(--mono);font-weight:500;font-size:.66rem;line-height:1.7}
 
-/* ---------- responsive / motion / print ---------- */
-@media (max-width:640px){
-  .counters{gap:10px 22px}
+@media (max-width:620px){
+  .wrap{padding:0 14px}
+  .counters{padding-left:14px;padding-right:14px;gap:6px 20px}
+  h1{font-size:17px}
   .legend li{grid-template-columns:34px 1fr}
   .legend .pc{grid-row:1}
   .legend .pd{grid-column:2;grid-row:1}
   .legend .pm{grid-column:1/-1;grid-row:2;font-size:.84rem}
   .legend .pl{grid-column:1/-1;grid-row:3;text-align:left}
-  .ms{grid-template-columns:24px 92px 1fr;gap:8px}
-  .msdate{font-size:.68rem}
+  .ms{grid-template-columns:24px 1fr;gap:8px}
+  .ms .msdate{grid-column:2}
+  .ms .mslabel{grid-column:2}
+  .audit,.score{font-size:.82rem}
 }
-@media (prefers-reduced-motion:reduce){
-  .seg,.strip.go .seg{transform:none;transition:none}
-  html{scroll-behavior:auto}
-}
+@media (prefers-reduced-motion:reduce){ .strip.go .seg{transition:none} .btn{transition:none} }
 @media print{
-  .io,.notice,.hint{display:none}
+  .io,.notice{display:none}
   body{background:#fff}
   .needle i{display:none}
   .ms,.msgroup,.legend li{break-inside:avoid}
@@ -164,16 +175,20 @@ footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:
   <div class="wrap">
     <div class="eyebrow">CFA Level I &middot; Fri Feb 26, 2027 &middot; Belo Horizonte</div>
     <h1>Study Plan v2 <span class="thin">&middot; full season</span></h1>
-    <p class="sub">Aug 3, 2026 &rarr; Feb 26, 2027 &middot; Toronto &rarr; Belo Horizonte &middot; Kaplan Schweser Essential + CFAI mocks &middot; supersedes study.html for planning. Same engine in both cities.</p>
+    <p class="sub">Aug 3, 2026 &rarr; Feb 26, 2027 &middot; Toronto &rarr; Belo Horizonte &middot; Kaplan Schweser Essential + CFAI mocks &middot; strategy layer of <a href="kaplan.html">kaplan.html</a>, the daily calendar.</p>
     <p id="storage-note" class="notice" hidden>No storage available: marks last only for this session &mdash; export before you leave.</p>
-    <div class="counters">
-      <div><b id="c-days">&mdash;</b><span>days to exam</span></div>
-      <div><b id="c-dayn">&mdash;</b><span>season day</span></div>
-      <div><b id="c-ms">&mdash;</b><span>milestones</span></div>
-      <div><b id="c-next">&mdash;</b><span>next target</span></div>
-    </div>
   </div>
 </header>
+<div class="counters">
+  <div><b id="c-days">&mdash;</b><span>days to exam</span></div>
+  <div><b id="c-dayn">&mdash;</b><span>season day</span></div>
+  <div><b id="c-ms">&mdash;</b><span>milestones</span></div>
+  <div><b id="c-next">&mdash;</b><span>next target</span></div>
+  <div class="pg" id="c-prog">
+    <div class="plab"><span>study (full plan)</span><b id="c-pct">0.0%</b></div>
+    <div class="pb"><i id="c-bar" style="width:0%"></i></div>
+  </div>
+</div>
 <main>
 
 <section id="verdict">
@@ -224,11 +239,11 @@ footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:
 
       <h3>The daily engine (Mon&ndash;Fri, both cities)</h3>
       <ul>
-        <li><b>08:00&ndash;09:00</b> &middot; Retrieval hour: yesterday's cards + the spaced deck. Never new content. A card is graded by recall, never by feel.</li>
-        <li><b>09:00&ndash;13:00</b> &middot; The day's Kaplan activities, 50 min on / 10 off. Every reading is backed by questions inside 24 h: module quiz the same day, re-test next morning.</li>
-        <li><b>Capacity model</b> &middot; The Kaplan stream budgets the block at 80% (&asymp;3 h 15/day, activities never split). The first hour and the OFF blocks come on top of it &mdash; kaplan.html counts the stream only.</li>
-        <li><b>OFF days</b> of the C&middot;D&middot;A&middot;B&middot;OFF cycle, 5:15&ndash;7:30 &middot; 35 cumulative QBank questions, timed &mdash; 60% current topic, 40% closed topics. From Nov 16 the 40% always includes Ethics.</li>
-        <li><b>Saturday 10:00&ndash;13:00</b> &middot; Topic quiz, checkpoint, mock or repair. No new content. Saturday absorbs the week's debt.</li>
+        <li><b>10:45&ndash;13:45</b> &middot; The day's Kaplan stream: notes &rarr; masterclass &rarr; module quiz, in Kaplan's own order. Every reading is backed by questions inside 24&nbsp;h &mdash; module quiz the same day, re-test next morning.</li>
+        <li><b>17:00&ndash;19:30</b> &middot; QBank &amp; Review. This is the retrieval block: reading QBank first, then error log, flashcards and the spaced deck. Never new content.</li>
+        <li><b>OFF days</b> of the C&middot;D&middot;A&middot;B&middot;OFF cycle, 08:00&ndash;10:15 &middot; 35 cumulative QBank questions, timed at 90&nbsp;s &mdash; 60% current topic, 40% closed topics. From Nov 16 the 40% always includes Ethics.</li>
+        <li><b>Capacity model</b> &middot; kaplan.html schedules the morning stream only (&asymp;180&nbsp;min gross, activities never split). The evening block and the OFF blocks are counted separately &mdash; on paper the stream averages 168&nbsp;min of notes+class+quiz and 25&nbsp;min of reading QBank per weekday, so the morning carries the content and the evening carries the practice.</li>
+        <li><b>Saturday</b> &middot; Topic quiz, checkpoint, mock or repair. No new content. Saturday absorbs the week's debt.</li>
         <li><b>Sunday</b> &middot; Zero. Part of the method.</li>
       </ul>
 
@@ -256,7 +271,8 @@ footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:
       <ul>
         <li>Atomic. &le;8 per module; FSA gets 12 (journal entries, IFRS &times; US GAAP, ratios).</li>
         <li>A card is written only after you can explain the point aloud in your own words. If you can't, that's a re-study signal, not a card.</li>
-        <li>Wrong QBank answers become cards too &mdash; briefest possible form.</li>
+        <li><b>Home:</b> the 17:00&ndash;19:30 block, after the error log. Notion pages are a reference layer &mdash; they do not substitute for retrieval, and rereading them is the 2023 failure mode.</li>
+        <li>The error log is the card factory: every wrong QBank answer and every lucky guess becomes a card, in the briefest possible form.</li>
         <li>No transcription. Ever.</li>
       </ul>
 
@@ -542,7 +558,7 @@ footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:
 </div>
 
 <footer>
-  <div class="wrap">study2.html &middot; full season &middot; sibling of the weekly calendar &middot; supersedes study.html for planning &middot; marks live in this browser (localStorage) &mdash; export for backup</div>
+  <div class="wrap">study2.html &middot; strategy layer &middot; sibling of kaplan.html (daily calendar) and index.html (routine) &middot; milestone marks live in this browser under study2.v1; the progress bar reads kaplan.v1 &mdash; export both for backup</div>
 </footer>
 
 <script>
@@ -654,6 +670,19 @@ footer{padding:24px 0 52px;color:var(--dim);font-family:var(--mono);font-weight:
       if(gc)gc.textContent=d+' / '+list.length;
     });
   }
+  function kaplanProgress(){
+    var done=0,total=769;
+    try{
+      var raw=localStorage.getItem('kaplan.v1');
+      if(raw){var p=JSON.parse(raw);var d=(p&&p.done)||{};for(var k in d){if(d[k])done++;}}
+    }catch(e){}
+    var pct=total?(done/total*100):0;
+    var pe=document.getElementById('c-pct'), bar=document.getElementById('c-bar');
+    if(pe)pe.textContent=pct.toFixed(1)+'%';
+    if(bar)bar.style.width=Math.max(0,Math.min(100,pct))+'%';
+  }
+  kaplanProgress();
+
   function updateHeader(){
     var done=items.filter(function(el){return state.ms[el.getAttribute('data-id')];}).length;
     document.getElementById('c-ms').textContent=done+' / '+items.length;

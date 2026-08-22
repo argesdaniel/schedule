@@ -161,6 +161,11 @@ const NS2=U(2026,8,17); // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
 const MOCK_SAT=new Set([U(2027,1,9),U(2027,1,23),U(2027,2,6),U(2027,2,13),U(2027,2,20)]); // full mock: 270 min (2x135)
+const TRL11=U(2026,8,24); // TRL opens 11:00 · weekday blocks shift +15, up to (not incl.) the 17:00 study block
+const W15=t=>(t>=TRL11?15:0);
+function studyLoc(t){ if(t>=TRL11) return TRL_HOLS.has(t)?" (Home)":" (TRL)";
+  return (t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t))?" (TRL)":" (Home)"; }
+const locSfx=t=>(t>=TRL11?studyLoc(t):"");
 const RUN_KM={
   [U(2026,8,3)]:4,[U(2026,8,5)]:4,[U(2026,8,8)]:8,
   [U(2026,8,10)]:4.5,[U(2026,8,13)]:4.5,[U(2026,8,15)]:8,
@@ -222,7 +227,7 @@ function longRepo(marks,tl){
 const B=(s,e,label,cat,sub)=>({s,e,label,cat,sub:sub||null});
 function markable(b,type,t){ b.mark={type,k:key(t)+(type==="w"?"":type==="short"?"_short":"_long")}; return b; }
 function eveningWeekday(t){ if(t>=NS2) return [
-  B(mm(17,0),mm(19,30),"CFA Study \u00b7 QBank & Review","estudo"),
+  B(mm(17,0),mm(19,30),"CFA Study \u00b7 QBank & Review"+locSfx(t),"estudo"),
   B(mm(19,30),mm(20,30),"Dinner (Main Meal)","refeicao"),
   B(mm(21,0),mm(21,15),"Shower","rotina"),
   B(mm(21,15),mm(21,30),"Go to Bed","rotina"),
@@ -240,13 +245,12 @@ function eveningWeekday(t){ if(t>=NS2) return [
   B(mm(19,45),mm(20,0),"Go to Bed","rotina"),
   B(mm(20,0),mm(22,0),"Sleep","sono")];}
 function studyWeekday(t){ if(t<NEWSCHED) return [B(mm(8,0),mm(13,0),"CFA Study (Home)","estudo")];
-  const trl=(t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t));
-  if(t>=NS2) return [B(mm(10,45),mm(13,45),trl?"CFA Study (TRL)":"CFA Study (Home)","estudo")];
-  return [B(mm(10,0),mm(13,30),trl?"CFA Study (TRL)":"CFA Study (Home)","estudo")];}
-function workBlock(t){ const a=(t>=NS2?mm(14,45):mm(14,30)), b=(t>=NS2?mm(16,45):mm(18,0));
+  if(t>=NS2) return [B(mm(10,45)+W15(t),mm(13,45)+W15(t),"CFA Study"+studyLoc(t),"estudo")];
+  return [B(mm(10,0),mm(13,30),"CFA Study"+studyLoc(t),"estudo")];}
+function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm(16,45)+W15(t):mm(18,0));
   return B3_HOLS.has(t)
-  ? Object.assign(B(a,b,"Optional Work","trabalho","B3 closed"),{dashed:true})
-  : B(a,b,"Work Window","trabalho");}
+  ? Object.assign(B(a,b,"Optional Work"+locSfx(t),"trabalho","B3 closed"),{dashed:true})
+  : B(a,b,"Work Window"+locSfx(t),"trabalho");}
 function blocksFor(t,tl,repo,marks){
   const info=tl[t]; if(!info) return null;
   const f=info.ficha, d=dow(t), blocks=[];
@@ -254,7 +258,7 @@ function blocksFor(t,tl,repo,marks){
   const sh=(t>=NEWSCHED?120:0);
   if(d<=5){
     if(f==="OFF"){
-      const o=(t>=NS2?165:sh);
+      const o=(t>=NS2?165:sh)+W15(t);
       blocks.push(B(mm(4,0)+o,mm(4,15)+o,"Wake-up","rotina"),
         B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
         B(mm(4,45)+o,mm(5,0)+o,"Shower","rotina"),
@@ -262,11 +266,11 @@ function blocksFor(t,tl,repo,marks){
         B(mm(5,15)+o,mm(7,30)+o,"CFA · 35 cumulative QBank, timed · 60/40","estudo"),
         B(mm(7,30)+o,mm(8,0)+o,"Breakfast","refeicao"));
     } else if(info.missed){
-      const ms=(t>=NS2?120:sh);
+      const ms=(t>=NS2?120:sh)+W15(t);
       blocks.push(Object.assign(markable(B(mm(5,0)+ms,mm(7,30)+ms,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}),
         B(mm(8,15)+ms,mm(8,45)+ms,"Breakfast","refeicao"));
     } else if(t>=NS2){
-      const g=GYM_LATE.has(t)?60:0;
+      const g=(GYM_LATE.has(t)?60:0)+W15(t);
       blocks.push(B(mm(5,30)+g,mm(7,0)+g,"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
         Object.assign(markable(B(mm(7,0)+g,mm(9,0)+g,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
       if(f==="D"||f==="B"){
@@ -297,7 +301,7 @@ function blocksFor(t,tl,repo,marks){
     }
     const lateStudy=GYM_LATE.has(t)&&f!=="OFF"&&!info.missed;
     blocks.push(...(lateStudy?[B(mm(9,0),mm(13,0),"CFA Study (Home)","estudo")]:studyWeekday(t)),
-      (t>=NS2?B(mm(13,45),mm(14,45),"Lunch Break","refeicao"):B(mm(13,0)+(t>=NEWSCHED?30:0),mm(14,30),"Lunch Break","refeicao")),
+      (t>=NS2?B(mm(13,45)+W15(t),mm(14,45)+W15(t),"Lunch Break","refeicao"):B(mm(13,0)+(t>=NEWSCHED?30:0),mm(14,30),"Lunch Break","refeicao")),
       workBlock(t), ...eveningWeekday(t));
   } else if(d===6){
     const ws=(t>=NEWSCHED?180:0);

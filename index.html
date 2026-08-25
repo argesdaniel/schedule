@@ -219,10 +219,15 @@ function longRepo(marks,tl){
   for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
     if(dow(t)===6 && marks.r[key(t)+"_long"]===2){
       const sun=t+DAY;
-      if(sun<=PLAN_END && tl[sun] && tl[sun].ficha==="OFF") repo.add(sun);
+      if(sun<=PLAN_END && tl[sun]) repo.add(sun);   // make-up on Sunday, any ficha
     }
   }
   return repo;
+}
+// no short run the day after a long run (or after a Sunday make-up)
+function shortBlocked(t,repo){
+  const prev=t-DAY;
+  return (dow(prev)===6 && RUN_KM[prev]!=null) || repo.has(prev);
 }
 const B=(s,e,label,cat,sub)=>({s,e,label,cat,sub:sub||null});
 function markable(b,type,t){ b.mark={type,k:key(t)+(type==="w"?"":type==="short"?"_short":"_long")}; return b; }
@@ -273,7 +278,7 @@ function blocksFor(t,tl,repo,marks){
       const g=(GYM_LATE.has(t)?60:0)+W15(t);
       blocks.push(B(mm(5,30)+g,mm(7,0)+g,"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
         Object.assign(markable(B(mm(7,0)+g,mm(9,0)+g,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-      if(f==="D"||f==="B"){
+      if((f==="D"||f==="B")&&!shortBlocked(t,repo)){
         const b=markable(B(mm(9,0)+g,mm(9,45)+g,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
@@ -289,7 +294,7 @@ function blocksFor(t,tl,repo,marks){
         B(mm(4,30)+late,mm(4,45)+late,"Shower","rotina"),
         B(mm(4,45)+late,mm(5,0)+late,"Dressing + Prep + Transit","rotina"),
         Object.assign(markable(B(mm(5,0)+late,mm(6,30)+late,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-      if(f==="D"||f==="B"){
+      if((f==="D"||f==="B")&&!shortBlocked(t,repo)){
         const b=markable(B(mm(6,30)+late,mm(7,15)+late,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b,B(mm(7,15)+late,mm(7,30)+late,"Shower","rotina"));
@@ -352,22 +357,27 @@ function blocksFor(t,tl,repo,marks){
       if(t>=NS2){
         blocks.push(B(mm(8,0),mm(9,30),"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
           Object.assign(markable(B(mm(9,30),mm(11,30),"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-        if(f==="D"||f==="B"){
+        let endR=mm(12,15);
+        if(hasRepo){
+          const lb=markable(B(mm(11,30),mm(13,0),"Street Long Run · make-up @ 9-9.6 km/h","corrida","make-up"),"long",t);
+          const stl=rs(lb.mark.k); if(stl===1)lb.done=true; if(stl===2)lb.missed=true;
+          blocks.push(lb); endR=mm(13,0);
+        } else if((f==="D"||f==="B")&&!shortBlocked(t,repo)){
           const b=markable(B(mm(11,30),mm(12,15),"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
           const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
           blocks.push(b);
         } else {
           blocks.push(B(mm(11,30),mm(12,15),"Dry Sauna","sauna"));
         }
-        blocks.push(B(mm(12,15),mm(12,45),"Shower + Skincare","rotina"),
-          B(mm(12,45),mm(13,0),"Protein Smoothie","refeicao"));
+        blocks.push(B(endR,endR+30,"Shower + Skincare","rotina"),
+          B(endR+30,endR+45,"Protein Smoothie","refeicao"));
       } else {
       blocks.push(B(mm(5,0)+ws,mm(5,15)+ws,"Wake-up","rotina"),
         B(mm(5,15)+ws,mm(5,30)+ws,"Pre-training","refeicao"),
         B(mm(5,30)+ws,mm(5,45)+ws,"Shower","rotina"),
         B(mm(5,45)+ws,mm(6,0)+ws,"Dressing + Prep + Transit","rotina"),
         Object.assign(markable(B(mm(6,0)+ws,mm(7,30)+ws,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-      if(f==="D"||f==="B"){
+      if((f==="D"||f==="B")&&!shortBlocked(t,repo)){
         const b=markable(B(mm(7,30)+ws,mm(8,15)+ws,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
@@ -430,7 +440,7 @@ function plannedCounts(){
     const d=dow(t);
     if(f!=="OFF") wk++;
     if(d===6) rn++;                       // long run every Saturday
-    else if(f==="D"||f==="B") rn++;       // short runs on D and B
+    else if((f==="D"||f==="B") && !(dow(t-DAY)===6 && RUN_KM[t-DAY]!=null)) rn++;  // short runs on D and B, not the day after a long run
   }
   return {wk,rn};
 }

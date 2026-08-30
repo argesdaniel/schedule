@@ -505,16 +505,18 @@ function progressBars(marks){
   ];
   return bars.map(b=>{
     const pct=b.n?Math.min(100,Math.round(b.v/b.n*1000)/10):0;
-    let mark="", delta="";
+    let mark="", delta="", foot=b.txt;
     if(b.exp!=null && b.n){
       const ep=Math.min(100,Math.max(0,b.exp/b.n*100));
       mark="<u style='left:"+ep+"%' title='expected today: "+b.exp+"/"+b.n+"'></u>";
+      foot=b.txt+" \u00b7 exp "+ep.toFixed(1)+"%";
       const d=b.v-b.exp;
-      if(d!==0) delta="<em class='"+(d<0?"bad":"good")+"'>"+(d>0?"+":"")+d+"</em>";
+      delta=d===0?"<em class='good'>on track</em>"
+        :"<em class='"+(d<0?"bad":"good")+"'>"+(d>0?"+":"")+d+"</em>";
     }
     return "<div class='pg'><div class='pl'><span>"+b.lab+"</span><b>"+pct.toFixed(1)+"%</b></div>"+
       "<div class='pb'><i style='width:"+pct+"%;background:"+b.c+"'></i>"+mark+"</div>"+
-      "<div class='pl' style='margin:3px 0 0'><span>"+b.txt+"</span>"+delta+"</div></div>";
+      "<div class='pl' style='margin:3px 0 0'><span>"+foot+"</span>"+delta+"</div></div>";
   }).join("");
 }
 /*__LOGIC_END__*/

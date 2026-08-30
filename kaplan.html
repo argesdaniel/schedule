@@ -236,9 +236,9 @@ var WEEKS=[{"s":"2026-08-03","e":"2026-08-09","days":[{"d":"2026-08-03","tag":nu
     var mk=document.getElementById('c-mark');
     mk.style.left=ep+'%';
     mk.title='expected today: '+exp+' / '+TOTAL;
-    document.getElementById('c-exp').textContent='expected '+exp;
+    document.getElementById('c-exp').textContent='exp '+ep.toFixed(1)+'% \u00b7 '+exp+'/'+TOTAL;
     var dv=done-exp, de=document.getElementById('c-delta');
-    de.textContent=dv===0?'on track':(dv>0?'+'+dv:String(dv));
+    de.textContent=dv===0?'on track':(dv>0?'+'+dv:String(dv))+' act';
     de.className=dv<0?'bad':'good';
     var dl=Math.round((EXAM-today)/DAY);
     document.getElementById('c-days').textContent=dl>0?String(dl):(dl===0?'exam day':'done');

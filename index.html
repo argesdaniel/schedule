@@ -40,8 +40,12 @@ h1 .range{color:#8E8E88;font-weight:500}
 .pg .pl{display:flex;justify-content:space-between;align-items:baseline;font-family:'IBM Plex Mono',monospace;
   font-size:8.5px;letter-spacing:.1em;color:#8E8E88;margin-bottom:3px;text-transform:uppercase}
 .pg .pl b{color:#fff;font-weight:700;font-size:10.5px;letter-spacing:0}
-.pg .pb{height:5px;background:#2B2B29;overflow:hidden}
+.pg .pb{height:5px;background:#2B2B29;overflow:hidden;position:relative}
 .pg .pb i{display:block;height:100%;transition:width .4s ease}
+.pg .pb u{position:absolute;top:-2px;bottom:-2px;width:1px;background:#fff;opacity:.75;text-decoration:none;transition:left .4s ease;pointer-events:auto}
+.pg .pl em{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-style:normal;letter-spacing:0}
+.pg .pl em.bad{color:#E0704F}
+.pg .pl em.good{color:var(--acc)}
 @media (max-width:640px){ .prog{grid-template-columns:repeat(2,1fr)} }
 .nav{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .nav button{background:transparent;border:1px solid #3A3A37;color:#fff;
@@ -166,6 +170,8 @@ const W15=t=>(t>=TRL11?15:0);
 function studyLoc(t){ if(t>=TRL11) return TRL_HOLS.has(t)?" (Home)":" (TRL)";
   return (t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t))?" (TRL)":" (Home)"; }
 const locSfx=t=>(t>=TRL11?studyLoc(t):"");
+// expected cumulative Kaplan activities per day, ANCHOR..PLAN_END (regenerate if kaplan.html is redistributed)
+const KAPLAN_CUM=[0,9,18,25,30,41,42,42,49,55,60,63,75,76,76,86,95,98,98,98,98,98,105,117,124,133,145,147,147,158,164,178,191,202,204,204,209,213,216,223,230,232,232,239,245,253,262,271,272,272,279,288,297,303,312,313,313,322,333,344,353,363,365,365,375,384,392,401,408,410,410,418,424,430,437,444,446,446,455,463,473,481,482,484,484,486,488,490,492,493,493];
 const RUN_KM={
   [U(2026,8,3)]:4,[U(2026,8,5)]:4,[U(2026,8,8)]:8,
   [U(2026,8,10)]:4.5,[U(2026,8,13)]:4.5,[U(2026,8,15)]:8,
@@ -447,6 +453,19 @@ function statsFor(marks){
   const w=c(marks.w), r=c(marks.r);
   return {wOk:w[1]||0,wMiss:w[2]||0,rOk:r[1]||0,rMiss:r[2]||0};
 }
+function plannedToDate(end){
+  let wk=0, rn=0;
+  const seq=["C","D","A","B","OFF"]; let idx=0;
+  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
+    const f=seq[idx%5]; idx++;
+    if(t>end) continue;
+    const d=dow(t);
+    if(f!=="OFF") wk++;
+    if(d===6) rn++;
+    else if(RUN_KM[t]!=null && !(dow(t-DAY)===6 && RUN_KM[t-DAY]!=null)) rn++;
+  }
+  return {wk,rn};
+}
 function plannedCounts(){
   let wk=0, rn=0;
   const seq=["C","D","A","B","OFF"]; let idx=0;
@@ -474,18 +493,28 @@ function progressBars(marks){
   const totalDays=Math.round((PLAN_END-ANCHOR)/DAY)+1;
   const elapsed=Math.min(totalDays,Math.max(0,Math.round((today-ANCHOR)/DAY)+1));
   const pl=plannedCounts(), st=statsFor(marks), sp=studyProgress();
+  const clamped=Math.min(PLAN_END,Math.max(ANCHOR,today));
+  const ptd=plannedToDate(clamped);
+  const ki=Math.min(KAPLAN_CUM.length-1,Math.max(0,Math.round((clamped-ANCHOR)/DAY)));
   const bars=[
     {lab:"season",   v:elapsed,   n:totalDays, c:"var(--acc)",       txt:elapsed+"/"+totalDays+" d"},
-    {lab:"study (full plan)",    v:sp.done, n:sp.total, c:"var(--acc)",
+    {lab:"study (full plan)",    v:sp.done, n:sp.total, c:"var(--acc)", exp:KAPLAN_CUM[ki],
      txt:sp.done+"/"+sp.total+(sp.seen?"":" \u00b7 tick in kaplan.html")},
-    {lab:"workouts", v:st.wOk,    n:pl.wk, c:"var(--acc)",  txt:st.wOk+"/"+pl.wk},
-    {lab:"running",  v:st.rOk,    n:pl.rn, c:"var(--acc)", txt:st.rOk+"/"+pl.rn}
+    {lab:"workouts", v:st.wOk,    n:pl.wk, c:"var(--acc)",  exp:ptd.wk, txt:st.wOk+"/"+pl.wk},
+    {lab:"running",  v:st.rOk,    n:pl.rn, c:"var(--acc)", exp:ptd.rn, txt:st.rOk+"/"+pl.rn}
   ];
   return bars.map(b=>{
     const pct=b.n?Math.min(100,Math.round(b.v/b.n*1000)/10):0;
+    let mark="", delta="";
+    if(b.exp!=null && b.n){
+      const ep=Math.min(100,Math.max(0,b.exp/b.n*100));
+      mark="<u style='left:"+ep+"%' title='expected today: "+b.exp+"/"+b.n+"'></u>";
+      const d=b.v-b.exp;
+      if(d!==0) delta="<em class='"+(d<0?"bad":"good")+"'>"+(d>0?"+":"")+d+"</em>";
+    }
     return "<div class='pg'><div class='pl'><span>"+b.lab+"</span><b>"+pct.toFixed(1)+"%</b></div>"+
-      "<div class='pb'><i style='width:"+pct+"%;background:"+b.c+"'></i></div>"+
-      "<div class='pl' style='margin:3px 0 0'><span>"+b.txt+"</span></div></div>";
+      "<div class='pb'><i style='width:"+pct+"%;background:"+b.c+"'></i>"+mark+"</div>"+
+      "<div class='pl' style='margin:3px 0 0'><span>"+b.txt+"</span>"+delta+"</div></div>";
   }).join("");
 }
 /*__LOGIC_END__*/

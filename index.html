@@ -72,11 +72,6 @@ h1 .range{color:#8E8E88;font-weight:500}
   background:var(--ink);color:#fff;padding:3px 8px;letter-spacing:.06em}
 .badge.off{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .badge small{font-weight:500;opacity:.65}
-.pills{margin-top:6px;display:flex;flex-wrap:wrap;gap:3px}
-.pill{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);
-  background:var(--paper2);border:1px solid var(--line);padding:2px 6px}
-.pill.warn{color:var(--ink);background:var(--acc);border-color:var(--acc);font-weight:600}
-.pill.miss{color:#fff;background:var(--muted);border-color:var(--muted)}
 .cal-body{display:grid;grid-template-columns:64px repeat(7,1fr)}
 .gutter{position:relative;height:calc(var(--slot)*var(--rows,76))}
 .skyband{position:absolute;right:6px;top:0;width:4px;height:100%;opacity:.9}
@@ -115,7 +110,6 @@ h1 .range{color:#8E8E88;font-weight:500}
   .day-head .dow{font-size:11px}
   .day-head .dt{font-size:20px}
   .badge{font-size:11px}
-  .pill{font-size:10px}
   .hlabel{font-size:11px}
   .blk{font-size:12px;left:5px;right:5px;padding:3px 10px}
   .blk .t{font-size:10px}
@@ -164,7 +158,6 @@ const NEWSCHED=U(2026,8,10);
 const NS2=U(2026,8,17); // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
-const MOCK_SAT=new Set([U(2027,1,9),U(2027,1,23),U(2027,2,6),U(2027,2,13),U(2027,2,20)]); // full mock: 270 min (2x135)
 const TRL11=U(2026,8,24); // TRL opens 11:00 · weekday blocks shift +15, up to (not incl.) the 17:00 study block
 const W15=t=>(t>=TRL11?15:0);
 function studyLoc(t){ if(t>=TRL11) return TRL_HOLS.has(t)?" (Home)":" (TRL)";
@@ -187,18 +180,7 @@ const RUN_KM={
   [U(2026,10,19)]:5,[U(2026,10,22)]:5,[U(2026,10,24)]:18,
   [U(2026,10,27)]:5,[U(2026,10,29)]:5,[U(2026,10,31)]:8
 };
-const EVENTS={
-  [U(2026,8,6)]:{txt:"Buy: Electric Island · Sep 6",warn:true},
-  [U(2026,8,31)]:{txt:"TIFF public tickets · 12:00",warn:true},
-  [U(2026,9,6)]:{txt:"Electric Island · PAWSA · Fort York · 14:30-22:00",warn:true},
-  [U(2026,9,10)]:{txt:"TIFF ’26 begins (to Sep 20)"},
-  [U(2026,9,18)]:{txt:"Kensington Jazz Fest begins (to Sep 20)"},
-  [U(2026,9,19)]:{txt:"Kensington Jazz Fest · Kensington Market"},
-  [U(2026,9,20)]:{txt:"TIFF ’26 final day · Kensington Jazz Fest final day"},
-  [U(2026,10,3)]:{txt:"Nuit Blanche · 19:00-07:00 · free"}
-};
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
-const OBRAS=U(2026,8,15);
 const mm=(h,m)=>h*60+(m||0);
 function dow(t){ const d=new Date(t).getUTCDay(); return d===0?7:d; }
 function fmt(t){ const d=new Date(t); return String(d.getUTCDate()).padStart(2,"0")+"/"+String(d.getUTCMonth()+1).padStart(2,"0"); }
@@ -235,6 +217,32 @@ function shortBlocked(t,repo){
   const prev=t-DAY;
   return (dow(prev)===6 && RUN_KM[prev]!=null) || repo.has(prev);
 }
+// OFF days are fully free: a short run landing on one moves to the nearest
+// weekday that has a workout, no run of its own, and is not adjacent to a long run.
+function runMoves(tl,repo){
+  const to=new Map();
+  const busy=(t,src)=>t!==src&&(RUN_KM[t]!=null||to.has(t));
+  const ok=(t,src)=>t>=ANCHOR&&t<=PLAN_END&&tl[t]&&tl[t].ficha!=="OFF"&&dow(t)<=5
+    &&!busy(t,src)&&!busy(t-DAY,src)&&!busy(t+DAY,src)&&!shortBlocked(t,repo);
+  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
+    if(RUN_KM[t]==null||dow(t)===6) continue;      // long runs stay on Saturday
+    if(!tl[t]||tl[t].ficha!=="OFF") continue;       // only runs landing on a free day
+    if(shortBlocked(t,repo)) continue;              // was meant to be suppressed anyway
+    const okLoose=(x,src)=>x>=ANCHOR&&x<=PLAN_END&&tl[x]&&tl[x].ficha!=="OFF"&&dow(x)<=5
+      &&!busy(x,src)&&!shortBlocked(x,repo)&&!(dow(x+DAY)===6&&RUN_KM[x+DAY]!=null);
+    let dst=null;
+    for(let d=1;d<=3&&dst===null;d++){
+      if(ok(t-d*DAY,t)) dst=t-d*DAY;
+      else if(ok(t+d*DAY,t)) dst=t+d*DAY;
+    }
+    for(let d=1;d<=3&&dst===null;d++){          // fallback: allow a neighbouring short run
+      if(okLoose(t-d*DAY,t)) dst=t-d*DAY;
+      else if(okLoose(t+d*DAY,t)) dst=t+d*DAY;
+    }
+    if(dst!==null) to.set(dst,{src:t,km:RUN_KM[t]});
+  }
+  return to;
+}
 const B=(s,e,label,cat,sub)=>({s,e,label,cat,sub:sub||null});
 function markable(b,type,t){ b.mark={type,k:key(t)+(type==="w"?"":type==="short"?"_short":"_long")}; return b; }
 function eveningWeekday(t){ if(t>=NS2) return [
@@ -262,24 +270,19 @@ function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm
   return B3_HOLS.has(t)
   ? Object.assign(B(a,b,"Optional Work"+locSfx(t),"trabalho","B3 closed"),{dashed:true})
   : B(a,b,"Work Window"+locSfx(t),"trabalho");}
-function blocksFor(t,tl,repo,marks){
+function blocksFor(t,tl,repo,marks,moved){
   const info=tl[t]; if(!info) return null;
   const f=info.ficha, d=dow(t), blocks=[];
   const rs=k2=>marks.r[k2]||0;
+  const mv=(moved&&moved.get(t))||null;
+  const RKM=(RUN_KM[t]!=null?RUN_KM[t]:(mv?mv.km:null));
+  const RSUB=mv?"moved from free day":null;
   const sh=(t>=NEWSCHED?120:0);
   if(d<=5){
     if(f==="OFF"){
       const o=(t>=NS2?165:sh)+W15(t);
-      const hasRun=(RUN_KM[t]!=null&&!shortBlocked(t,repo));
-      // free day: corrida entra cedo, antes do QBank, que permanece no horario original
-      const wStart=hasRun?mm(3,15)+o:mm(4,0)+o;
-      blocks.push(B(wStart,wStart+15,"Wake-up","rotina"));
-      if(hasRun){
-        const b=markable(B(wStart+15,wStart+60,"Treadmill Short Run · "+RUN_KM[t]+" km @ 10-10.5 km/h","corrida","free day"),"short",t);
-        const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
-        blocks.push(b);
-      }
-      blocks.push(B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
+      blocks.push(B(mm(4,0)+o,mm(4,15)+o,"Wake-up","rotina"),
+        B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
         B(mm(4,45)+o,mm(5,0)+o,"Shower","rotina"),
         B(mm(5,0)+o,mm(5,15)+o,"Dressing + Prep","rotina"),
         B(mm(5,15)+o,mm(7,30)+o,"CFA · 35 cumulative QBank, timed · 60/40","estudo"),
@@ -287,8 +290,8 @@ function blocksFor(t,tl,repo,marks){
     } else if(info.missed){
       const ms=(t>=NS2?120:sh)+W15(t);
       blocks.push(Object.assign(markable(B(mm(5,0)+ms,mm(7,30)+ms,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
-      if(RUN_KM[t]!=null&&!shortBlocked(t,repo)){
-        const b=markable(B(mm(7,30)+ms,mm(8,15)+ms,"Treadmill Short Run · "+RUN_KM[t]+" km @ 10-10.5 km/h","corrida"),"short",t);
+      if(RKM!=null&&!shortBlocked(t,repo)){
+        const b=markable(B(mm(7,30)+ms,mm(8,15)+ms,"Treadmill Short Run · "+RKM+" km @ 10-10.5 km/h","corrida",RSUB),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
       }
@@ -297,8 +300,8 @@ function blocksFor(t,tl,repo,marks){
       const g=(GYM_LATE.has(t)?60:0)+W15(t);
       blocks.push(B(mm(5,30)+g,mm(7,0)+g,"Wake-up + Prep · bed, shower, pre-workout, meds, bags, transit, locker","rotina"),
         Object.assign(markable(B(mm(7,0)+g,mm(9,0)+g,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-      if(RUN_KM[t]!=null&&!shortBlocked(t,repo)){
-        const b=markable(B(mm(9,0)+g,mm(9,45)+g,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
+      if(RKM!=null&&!shortBlocked(t,repo)){
+        const b=markable(B(mm(9,0)+g,mm(9,45)+g,"Treadmill Short Run · "+(RKM??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
       } else {
@@ -313,8 +316,8 @@ function blocksFor(t,tl,repo,marks){
         B(mm(4,30)+late,mm(4,45)+late,"Shower","rotina"),
         B(mm(4,45)+late,mm(5,0)+late,"Dressing + Prep + Transit","rotina"),
         Object.assign(markable(B(mm(5,0)+late,mm(6,30)+late,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-      if(RUN_KM[t]!=null&&!shortBlocked(t,repo)){
-        const b=markable(B(mm(6,30)+late,mm(7,15)+late,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
+      if(RKM!=null&&!shortBlocked(t,repo)){
+        const b=markable(B(mm(6,30)+late,mm(7,15)+late,"Treadmill Short Run · "+(RKM??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b,B(mm(7,15)+late,mm(7,30)+late,"Shower","rotina"));
       } else {
@@ -339,8 +342,8 @@ function blocksFor(t,tl,repo,marks){
         const lb=markable(B(me,me+90,"Street Long Run · make-up @ 9-9.6 km/h","corrida","make-up"),"long",t);
         const sl=rs(lb.mark.k); if(sl===1)lb.done=true; if(sl===2)lb.missed=true;
         blocks.push(lb);
-      } else if(RUN_KM[t]!=null&&!shortBlocked(t,repo)){
-        const b=markable(B(me,me+45,"Treadmill Short Run · "+RUN_KM[t]+" km @ 10-10.5 km/h","corrida"),"short",t);
+      } else if(RKM!=null&&!shortBlocked(t,repo)){
+        const b=markable(B(me,me+45,"Treadmill Short Run · "+RKM+" km @ 10-10.5 km/h","corrida",RSUB),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
       }
@@ -391,8 +394,8 @@ function blocksFor(t,tl,repo,marks){
           const lb=markable(B(mm(11,30),mm(13,0),"Street Long Run · make-up @ 9-9.6 km/h","corrida","make-up"),"long",t);
           const stl=rs(lb.mark.k); if(stl===1)lb.done=true; if(stl===2)lb.missed=true;
           blocks.push(lb); endR=mm(13,0);
-        } else if(RUN_KM[t]!=null&&!shortBlocked(t,repo)){
-          const b=markable(B(mm(11,30),mm(12,15),"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
+        } else if(RKM!=null&&!shortBlocked(t,repo)){
+          const b=markable(B(mm(11,30),mm(12,15),"Treadmill Short Run · "+(RKM??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
           const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
           blocks.push(b);
         } else {
@@ -406,8 +409,8 @@ function blocksFor(t,tl,repo,marks){
         B(mm(5,30)+ws,mm(5,45)+ws,"Shower","rotina"),
         B(mm(5,45)+ws,mm(6,0)+ws,"Dressing + Prep + Transit","rotina"),
         Object.assign(markable(B(mm(6,0)+ws,mm(7,30)+ws,"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
-      if(RUN_KM[t]!=null&&!shortBlocked(t,repo)){
-        const b=markable(B(mm(7,30)+ws,mm(8,15)+ws,"Treadmill Short Run · "+(RUN_KM[t]??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
+      if(RKM!=null&&!shortBlocked(t,repo)){
+        const b=markable(B(mm(7,30)+ws,mm(8,15)+ws,"Treadmill Short Run · "+(RKM??"5-7.5")+" km @ 10-10.5 km/h","corrida"),"short",t);
         const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
         blocks.push(b);
       } else {
@@ -423,25 +426,6 @@ function blocksFor(t,tl,repo,marks){
       B(mm(20,0)+sh,mm(22,0)+sh,"Sleep","sono"));
   }
   return blocks;
-}
-function notesFor(t,tl,repo){
-  const info=tl[t]; if(!info) return [];
-  const f=info.ficha, d=dow(t), out=[];
-  if(info.missed) out.push({txt:"workout "+f+" slides",miss:true});
-  if(d===6&&f==="C"&&!info.missed) out.push({txt:"legs + long run",warn:true});
-  if(d===6&&f==="OFF") out.push({txt:"long run · fresh legs"});
-  if(d===7&&f==="OFF") out.push({txt:repo.has(t)?"free + make-up long run":"100% free day"});
-  if(GYM_LATE.has(t)) out.push({txt:"Avant opens 6:00 (holiday)",warn:true});
-  if(TRL_CLOSED.has(t)) out.push({txt:"TRL closed all day \u00b7 study at home",warn:true});
-  else if(t>=TRL_START&&t<=TRL_END&&d<=5) out.push({txt:"TRL \u00b7 9:00-20:30"});
-  if(t===U(2026,8,24)) out.push({txt:"TRL reduced hours from today (11:00)",warn:true});
-  if(t>=NEWSCHED&&d===6) out.push(MOCK_SAT.has(t)
-    ? {txt:"MOCK EXAM · ~4h30 · exam conditions",warn:true}
-    : {txt:"CFA study · see kaplan.html (topic quiz / checkpoint / mock)"});
-  if(EVENTS[t]) out.push(EVENTS[t]);
-  if(B3_HOLS.has(t)) out.push({txt:"B3 closed"});
-  if(t===PLAN_END) out.push({txt:"return flight",warn:true});
-  return out;
 }
 function offPlanLabel(t){
   if(t===U(2026,7,30)) return "GRU-BOG-YYZ flight";
@@ -563,7 +547,7 @@ function cycleMark(store,k){
   if(next===0) delete store[k]; else store[k]=next;
 }
 function render(){
-  const tl=buildTimeline(marks), repo=longRepo(marks,tl);
+  const tl=buildTimeline(marks), repo=longRepo(marks,tl), moved=runMoves(tl,repo);
   const head=document.getElementById("calHead"), body=document.getElementById("calBody");
   head.innerHTML=""; body.innerHTML="";
   const wknum=Math.round((monday-FIRST_MON)/DAY/7);
@@ -581,13 +565,13 @@ function render(){
     let badge= !info?"" : info.ficha==="OFF"
       ? "<span class='badge off'>OFF</span>"
       : "<span class='badge'"+(info.missed?" style='opacity:.45'":"")+">"+info.ficha+" <small>"+MUSC[info.ficha]+"</small></span>";
-    const pills=notesFor(t,tl,repo).map(n=>"<span class='pill"+(n.warn?" warn":"")+(n.miss?" miss":"")+"'>"+n.txt+"</span>").join("");
+
     head.insertAdjacentHTML("beforeend",
-      "<div class='day-head"+(isToday?" today":"")+"'><div class='dow'>"+DOWS[i]+"</div><div class='dt'>"+fmt(t)+"</div>"+badge+"<div class='pills'>"+pills+"</div></div>");
+      "<div class='day-head"+(isToday?" today":"")+"'><div class='dow'>"+DOWS[i]+"</div><div class='dt'>"+fmt(t)+"</div>"+badge+"</div>");
   }
   let mnS=Infinity, mxE=-Infinity;
   for(let i=0;i<7;i++){
-    const bl=blocksFor(monday+i*DAY,tl,repo,marks);
+    const bl=blocksFor(monday+i*DAY,tl,repo,marks,moved);
     if(!bl) continue;
     for(const b of bl){ if(b.s<mnS)mnS=b.s; if(b.e>mxE)mxE=b.e; }
   }
@@ -605,7 +589,7 @@ function render(){
   g+="</div>";
   body.insertAdjacentHTML("beforeend",g);
   for(let i=0;i<7;i++){
-    const t=monday+i*DAY, blocks=blocksFor(t,tl,repo,marks);
+    const t=monday+i*DAY, blocks=blocksFor(t,tl,repo,marks,moved);
     const isToday=t===tUTC;
     const col=document.createElement("div");
     col.className="day-col"+(isToday?" today":"");

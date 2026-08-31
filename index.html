@@ -68,6 +68,7 @@ h1 .range{color:#8E8E88;font-weight:500}
 .day-head .dt{font-size:18px;font-weight:700;margin:3px 0 7px;letter-spacing:-.02em}
 .day-head.today .dt{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;
   padding:0 8px;background:var(--acc);color:var(--ink);margin:2px 0 6px}
+.day-head .badge{display:flex;width:fit-content}
 .badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
   background:var(--ink);color:#fff;padding:3px 8px;letter-spacing:.06em}
 .badge.off{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
@@ -440,13 +441,18 @@ function sunTimes(mondayT){
   const sr=363+x*(478-363), ss=1244+x*(1087-1244);
   return {sr,ss};
 }
-function statsFor(marks){
-  const c=v=>Object.values(v).reduce((a,s)=>(a[s]=(a[s]||0)+1,a),{});
+// upTo (optional "YYYY-MM-DD"): count only marks on or before that day
+function statsFor(marks,upTo){
+  const c=v=>Object.entries(v).reduce((a,[k,s])=>{
+    if(upTo&&k.slice(0,10)>upTo) return a;
+    a[s]=(a[s]||0)+1; return a;
+  },{});
   const w=c(marks.w), r=c(marks.r);
   return {wOk:w[1]||0,wMiss:w[2]||0,rOk:r[1]||0,rMiss:r[2]||0};
 }
-// expected-to-date reads the SAME timeline the calendar renders (slides included),
-// capped by the season totals so the marker never passes 100%
+// expected-to-date reads the SAME timeline the calendar renders (slides included).
+// "end" is the last SETTLED day (yesterday): the day in progress counts on neither
+// side, so the delta shows consolidated debt only. Capped by the season totals.
 function plannedToDate(end,tl,repo,moved){
   let wk=0, rn=0;
   for(let t=ANCHOR;t<=end&&t<=PLAN_END;t+=DAY){
@@ -486,15 +492,21 @@ function progressBars(marks,tl,repo,moved){
   const totalDays=Math.round((PLAN_END-ANCHOR)/DAY)+1;
   const elapsed=Math.min(totalDays,Math.max(0,Math.round((today-ANCHOR)/DAY)+1));
   const pl=plannedCounts(), st=statsFor(marks), sp=studyProgress();
+  // workouts/running: settled = up to yesterday, so the day in progress counts on
+  // neither side and doing today's session leaves the delta unchanged.
+  const yest=Math.min(PLAN_END,Math.max(ANCHOR-DAY,today-DAY));
+  const stS=statsFor(marks,key(yest));
+  const ptd=plannedToDate(yest,tl,repo,moved);
+  // study: kaplan marks carry no date, so today's ticks cannot be separated out.
+  // Reference stays on today, which never overstates progress.
   const clamped=Math.min(PLAN_END,Math.max(ANCHOR,today));
-  const ptd=plannedToDate(clamped,tl,repo,moved);
   const ki=Math.min(KAPLAN_CUM.length-1,Math.max(0,Math.round((clamped-ANCHOR)/DAY)));
   const bars=[
     {lab:"season",   v:elapsed,   n:totalDays, c:"var(--acc)",       txt:elapsed+"/"+totalDays+" d"},
     {lab:"study (full plan)",    v:sp.done, n:sp.total, c:"var(--acc)", exp:KAPLAN_CUM[ki],
      txt:sp.done+"/"+sp.total+(sp.seen?"":" \u00b7 tick in kaplan.html")},
-    {lab:"workouts", v:st.wOk,    n:pl.wk, c:"var(--acc)",  exp:ptd.wk, txt:st.wOk+"/"+pl.wk},
-    {lab:"running",  v:st.rOk,    n:pl.rn, c:"var(--acc)", exp:ptd.rn, txt:st.rOk+"/"+pl.rn}
+    {lab:"workouts", v:st.wOk, vS:stS.wOk, n:pl.wk, c:"var(--acc)",  exp:ptd.wk, txt:st.wOk+"/"+pl.wk},
+    {lab:"running",  v:st.rOk, vS:stS.rOk, n:pl.rn, c:"var(--acc)", exp:ptd.rn, txt:st.rOk+"/"+pl.rn}
   ];
   return bars.map(b=>{
     const pct=b.n?Math.min(100,Math.round(b.v/b.n*1000)/10):0;
@@ -503,7 +515,7 @@ function progressBars(marks,tl,repo,moved){
       const ep=Math.min(100,Math.max(0,b.exp/b.n*100));
       mark="<u style='left:"+ep+"%' title='expected today: "+b.exp+"/"+b.n+"'></u>";
       foot=b.txt+" \u00b7 exp "+ep.toFixed(1)+"%";
-      const d=b.v-b.exp;
+      const d=(b.vS!=null?b.vS:b.v)-b.exp;
       delta=d===0?"<em class='good'>on track</em>"
         :"<em class='"+(d<0?"bad":"good")+"'>"+(d>0?"+":"")+d+"</em>";
     }

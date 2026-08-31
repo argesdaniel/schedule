@@ -492,11 +492,24 @@ function progressBars(marks,tl,repo,moved){
   const totalDays=Math.round((PLAN_END-ANCHOR)/DAY)+1;
   const elapsed=Math.min(totalDays,Math.max(0,Math.round((today-ANCHOR)/DAY)+1));
   const pl=plannedCounts(), st=statsFor(marks), sp=studyProgress();
-  // workouts/running: settled = up to yesterday, so the day in progress counts on
-  // neither side and doing today's session leaves the delta unchanged.
+  // workouts/running: settled history up to yesterday, plus today only if it has been
+  // explicitly marked. An unmarked today counts on neither side (the day is still open);
+  // a done or not-done mark is a decision already taken, so it counts immediately.
   const yest=Math.min(PLAN_END,Math.max(ANCHOR-DAY,today-DAY));
+  const tk=key(today), decided=(v)=>v===1||v===2;
   const stS=statsFor(marks,key(yest));
   const ptd=plannedToDate(yest,tl,repo,moved);
+  if(today>=ANCHOR&&today<=PLAN_END&&tl[today]){
+    if(decided(marks.w[tk])){
+      if(tl[today].ficha!=="OFF") ptd.wk=Math.min(pl.wk,ptd.wk+1);
+      if(marks.w[tk]===1) stS.wOk++;
+    }
+    const rk=marks.r[tk+"_long"]!=null?tk+"_long":(marks.r[tk+"_short"]!=null?tk+"_short":null);
+    if(rk&&decided(marks.r[rk])){
+      ptd.rn=Math.min(pl.rn,ptd.rn+1);
+      if(marks.r[rk]===1) stS.rOk++;
+    }
+  }
   // study: kaplan marks carry no date, so today's ticks cannot be separated out.
   // Reference stays on today, which never overstates progress.
   const clamped=Math.min(PLAN_END,Math.max(ANCHOR,today));

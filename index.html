@@ -445,18 +445,19 @@ function statsFor(marks){
   const w=c(marks.w), r=c(marks.r);
   return {wOk:w[1]||0,wMiss:w[2]||0,rOk:r[1]||0,rMiss:r[2]||0};
 }
-function plannedToDate(end){
+// expected-to-date reads the SAME timeline the calendar renders (slides included),
+// capped by the season totals so the marker never passes 100%
+function plannedToDate(end,tl,repo,moved){
   let wk=0, rn=0;
-  const seq=["C","D","A","B","OFF"]; let idx=0;
-  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
-    const f=seq[idx%5]; idx++;
-    if(t>end) continue;
-    const d=dow(t);
-    if(f!=="OFF") wk++;
-    if(d===6) rn++;
-    else if(RUN_KM[t]!=null && !(dow(t-DAY)===6 && RUN_KM[t-DAY]!=null)) rn++;
+  for(let t=ANCHOR;t<=end&&t<=PLAN_END;t+=DAY){
+    if(!tl[t]) continue;
+    if(tl[t].ficha!=="OFF") wk++;
+    if(dow(t)===6) rn++;
+    else if(dow(t)===7) { if(repo.has(t)) rn++; }
+    else if(tl[t].ficha!=="OFF" && (RUN_KM[t]!=null||moved.has(t)) && !shortBlocked(t,repo)) rn++;
   }
-  return {wk,rn};
+  const cap=plannedCounts();
+  return {wk:Math.min(wk,cap.wk), rn:Math.min(rn,cap.rn)};
 }
 function plannedCounts(){
   let wk=0, rn=0;
@@ -480,13 +481,13 @@ function studyProgress(){
   }catch(e){}
   return {done:n,total:KAPLAN_ALL,seen};
 }
-function progressBars(marks){
+function progressBars(marks,tl,repo,moved){
   const today=todayUTC();
   const totalDays=Math.round((PLAN_END-ANCHOR)/DAY)+1;
   const elapsed=Math.min(totalDays,Math.max(0,Math.round((today-ANCHOR)/DAY)+1));
   const pl=plannedCounts(), st=statsFor(marks), sp=studyProgress();
   const clamped=Math.min(PLAN_END,Math.max(ANCHOR,today));
-  const ptd=plannedToDate(clamped);
+  const ptd=plannedToDate(clamped,tl,repo,moved);
   const ki=Math.min(KAPLAN_CUM.length-1,Math.max(0,Math.round((clamped-ANCHOR)/DAY)));
   const bars=[
     {lab:"season",   v:elapsed,   n:totalDays, c:"var(--acc)",       txt:elapsed+"/"+totalDays+" d"},
@@ -556,7 +557,7 @@ function render(){
   const range=String(d0.getUTCDate()).padStart(2,"0")+" "+MESES[d0.getUTCMonth()]+" - "+String(d6.getUTCDate()).padStart(2,"0")+" "+MESES[d6.getUTCMonth()];
   document.getElementById("weekTitle").innerHTML=(wknum===0?"Week 0 · arrival":"Week "+wknum)+" <span class='range'>"+range+"</span>";
   document.getElementById("sunInfo").textContent="daylight (approx.): "+hhmm(sr)+" - "+hhmm(ss);
-  document.getElementById("stats").innerHTML=progressBars(marks);
+  document.getElementById("stats").innerHTML=progressBars(marks,tl,repo,moved);
   head.insertAdjacentHTML("beforeend","<div class='day-head' style='border:0'></div>");
   const tUTC=todayUTC();
   for(let i=0;i<7;i++){

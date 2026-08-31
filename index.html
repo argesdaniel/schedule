@@ -270,8 +270,16 @@ function blocksFor(t,tl,repo,marks){
   if(d<=5){
     if(f==="OFF"){
       const o=(t>=NS2?165:sh)+W15(t);
-      blocks.push(B(mm(4,0)+o,mm(4,15)+o,"Wake-up","rotina"),
-        B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
+      const hasRun=(RUN_KM[t]!=null&&!shortBlocked(t,repo));
+      // free day: corrida entra cedo, antes do QBank, que permanece no horario original
+      const wStart=hasRun?mm(3,15)+o:mm(4,0)+o;
+      blocks.push(B(wStart,wStart+15,"Wake-up","rotina"));
+      if(hasRun){
+        const b=markable(B(wStart+15,wStart+60,"Treadmill Short Run · "+RUN_KM[t]+" km @ 10-10.5 km/h","corrida","free day"),"short",t);
+        const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
+        blocks.push(b);
+      }
+      blocks.push(B(mm(4,15)+o,mm(4,45)+o,"Breakfast","refeicao"),
         B(mm(4,45)+o,mm(5,0)+o,"Shower","rotina"),
         B(mm(5,0)+o,mm(5,15)+o,"Dressing + Prep","rotina"),
         B(mm(5,15)+o,mm(7,30)+o,"CFA · 35 cumulative QBank, timed · 60/40","estudo"),

@@ -233,13 +233,18 @@ function shortBlocked(t,repo,marks){
 // weekday that has a workout, no run of its own, and is not adjacent to a long run.
 function runMoves(tl,repo,marks){
   const to=new Map();
-  const busy=(t,src)=>t!==src&&!runSkipped(marks,t)&&(RUN_KM[t]!=null||to.has(t));
+  // pass 1: which scheduled runs cannot stay where they are
+  const srcs=[];
+  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
+    if(RUN_KM[t]==null||dow(t)===6) continue;
+    if((!tl[t]||tl[t].ficha==="OFF")||shortBlocked(t,repo,marks)) srcs.push(t);
+  }
+  const vacated=new Set(srcs);
+  // a day is busy only if it still holds a run: vacated source days are free again
+  const busy=(t,src)=>t!==src&&!runSkipped(marks,t)&&!vacated.has(t)&&(RUN_KM[t]!=null||to.has(t));
   const ok=(t,src)=>t>=ANCHOR&&t<=PLAN_END&&tl[t]&&tl[t].ficha!=="OFF"&&dow(t)<=5
     &&!busy(t,src)&&!busy(t-DAY,src)&&!busy(t+DAY,src)&&!shortBlocked(t,repo,marks);
-  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
-    if(RUN_KM[t]==null||dow(t)===6) continue;      // long runs stay on Saturday
-    if(!tl[t]||tl[t].ficha!=="OFF") continue;       // only runs landing on a free day
-    if(shortBlocked(t,repo,marks)) continue;        // was meant to be suppressed anyway
+  for(const t of srcs){   // pass 2: assign a destination to each
     const okLoose=(x,src)=>x>=ANCHOR&&x<=PLAN_END&&tl[x]&&tl[x].ficha!=="OFF"&&dow(x)<=5
       &&!busy(x,src)&&!shortBlocked(x,repo,marks)&&!(dow(x+DAY)===6&&RUN_KM[x+DAY]!=null);
     let dst=null;

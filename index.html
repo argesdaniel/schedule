@@ -355,15 +355,13 @@ function blocksFor(t,tl,repo,marks,moved){
         B(t>=NS2?mm(8,15):mm(7,0)+ws,t>=NS2?mm(9,30):mm(7,30)+ws,"Coffee + Prep","refeicao"));
     } else if(info.missed){
       const me=(t>=NS2?mm(9,30):mm(7,30)+ws);
+      const hasRepo=repo.has(t);
       blocks.push(Object.assign(markable(B(t>=NS2?mm(8,0):mm(6,0)+ws,me,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
+      // Saturday carries the long run only; the block below emits it. Never a short run here.
       if(hasRepo){
         const lb=markable(B(me,me+90,(actualKm(marks,key(t)+"_long")!=null?"Street Long Run · make-up · "+actualKm(marks,key(t)+"_long")+" km done":"Street Long Run · make-up @ 9-9.6 km/h"),"corrida","make-up"),"long",t);
         const sl=rs(lb.mark.k); if(sl===1)lb.done=true; if(sl===2)lb.missed=true;
         blocks.push(lb);
-      } else if(RKM!=null&&!shortBlocked(t,repo,marks)){
-        const b=markable(B(me,me+45,runLabel("Treadmill Short Run",RKM,actualKm(marks,key(t)+"_short")),"corrida",RSUB),"short",t);
-        const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
-        blocks.push(b);
       }
     } else {
       if(t>=NS2){

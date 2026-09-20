@@ -359,7 +359,7 @@ function blocksFor(t,tl,repo,marks,moved){
       blocks.push(Object.assign(markable(B(t>=NS2?mm(8,0):mm(6,0)+ws,me,"Workout "+f+" not done · rest","treino"),"w",t),{missed:true}));
       // Saturday carries the long run only; the block below emits it. Never a short run here.
       if(hasRepo){
-        const lb=markable(B(me,me+90,(actualKm(marks,key(t)+"_long")!=null?"Street Long Run · make-up · "+actualKm(marks,key(t)+"_long")+" km done":"Street Long Run · make-up @ 9-9.6 km/h"),"corrida","make-up"),"long",t);
+        const lb=markable(B(me,me+90,longLabel("Street Long Run \u00b7 make-up",marks,t),"corrida","make-up"),"long",t);
         const sl=rs(lb.mark.k); if(sl===1)lb.done=true; if(sl===2)lb.missed=true;
         blocks.push(lb);
       }
@@ -393,7 +393,7 @@ function blocksFor(t,tl,repo,marks,moved){
     const hasRepo=repo.has(t);
     if(f==="OFF"){
       if(hasRepo){
-        const lb=markable(B(mm(7,30)+ws,mm(9,0)+ws,(actualKm(marks,key(t)+"_long")!=null?"Street Long Run · make-up · "+actualKm(marks,key(t)+"_long")+" km done":"Street Long Run · make-up @ 9-9.6 km/h"),"corrida","fresh legs"),"long",t);
+        const lb=markable(B(mm(7,30)+ws,mm(9,0)+ws,longLabel("Street Long Run \u00b7 make-up",marks,t),"corrida","fresh legs"),"long",t);
         const st=rs(lb.mark.k); if(st===1)lb.done=true; if(st===2)lb.missed=true;
         blocks.push(B(mm(7,0)+ws,mm(7,30)+ws,"Coffee + Prep","refeicao"),
           lb);
@@ -407,7 +407,7 @@ function blocksFor(t,tl,repo,marks,moved){
           Object.assign(markable(B(mm(9,30),mm(11,30),"Workout "+f+" · "+MUSC[f]+"","treino"),"w",t),{done:!!info.done}));
         let endR=mm(12,15);
         if(hasRepo){
-          const lb=markable(B(mm(11,30),mm(13,0),(actualKm(marks,key(t)+"_long")!=null?"Street Long Run · make-up · "+actualKm(marks,key(t)+"_long")+" km done":"Street Long Run · make-up @ 9-9.6 km/h"),"corrida","make-up"),"long",t);
+          const lb=markable(B(mm(11,30),mm(13,0),longLabel("Street Long Run \u00b7 make-up",marks,t),"corrida","make-up"),"long",t);
           const stl=rs(lb.mark.k); if(stl===1)lb.done=true; if(stl===2)lb.missed=true;
           blocks.push(lb); endR=mm(13,0);
         } else if(RKM!=null&&!shortBlocked(t,repo,marks)){
@@ -443,17 +443,18 @@ function blocksFor(t,tl,repo,marks,moved){
   }
   if(marks.r[xk]===1 && !blocks.some(b=>b.cat==="corrida"&&!b.missed)){
     const akm=actualKm(marks,xk);
-    // encaixa na primeira janela livre de 45 min antes do bloco de sono
-    const sl=blocks.filter(b=>b.s!=null).sort((a,b)=>a.s-b.s);
-    const sono=sl.find(b=>b.cat==="sono");
-    const lim=sono?sono.s:mm(23,0);
-    let st=null,en=null;
-    for(let i=0;i<sl.length&&st===null;i++){
-      const ini=sl[i].e, fim=Math.min((i+1<sl.length?sl[i+1].s:lim),lim);
-      if(ini>=mm(6,0)&&fim-ini>=30){ st=ini; en=Math.min(ini+45,fim); }
-    }
-    if(st===null){ en=lim; st=lim-30; }
-    const eb=markable(B(st,en,"Extra Run"+(akm!=null?" \u00b7 "+akm+" km done":""),"corrida","extra"),"extra",t);
+    // mesma posicao de uma corrida normal: logo apos o treino, ou de manha
+    // ocupa o slot de sauna/curta do dia, no mesmo horario de uma corrida prevista
+    const sa=blocks.find(b=>b.cat==="sauna");
+    const lr=blocks.filter(b=>b.cat==="corrida").pop();
+    let st,en;
+    const gapAfter=b=>{ const nx=blocks.filter(x=>x.s!=null&&x.cat!=="sono"&&x.s>=b.e).sort((x,y)=>x.s-y.s)[0];
+      return (nx?nx.s:b.e+45)-b.e; };
+    if(lr&&gapAfter(lr)>=30){ st=lr.e; en=st+Math.min(45,gapAfter(lr)); }
+    else if(sa){ st=sa.s; en=sa.e; blocks.splice(blocks.indexOf(sa),1); }
+    else if(lr){ st=lr.s; en=lr.e; blocks.splice(blocks.indexOf(lr),1); }
+    else { const tr=blocks.filter(b=>b.cat==="treino").pop(); st=tr?tr.e:mm(9,15); en=st+45; }
+    const eb=markable(B(st,en,"Treadmill Short Run"+(akm!=null?" \u00b7 "+akm+" km done":""),"corrida","off-plan day"),"extra",t);
     eb.done=true; blocks.push(eb);
   }
   return blocks;
@@ -474,6 +475,12 @@ function sunTimes(mondayT){
 // upTo (optional "YYYY-MM-DD"): count only marks on or before that day
 // actual distance run, when recorded: marks.km["YYYY-MM-DD_short|_long|_extra"] = km
 function actualKm(marks,k){ return (marks.km&&marks.km[k]!=null)?marks.km[k]:null; }
+// make-up: mostra km feito, ou km alvo quando ainda pendente
+function longLabel(base,marks,t){
+  const k=key(t)+"_long", a=actualKm(marks,k);
+  if(a==null) return base+" @ 9-9.6 km/h";
+  return base+" \u00b7 "+a+(marks.r[k]===1?" km done":" km target");
+}
 function runLabel(base,plannedKm,actual){
   return actual!=null ? base+" \u00b7 "+plannedKm+" km plan \u00b7 "+actual+" km done"
                       : base+" \u00b7 "+plannedKm+" km @ 10-10.5 km/h";

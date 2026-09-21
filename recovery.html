@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0D0D0D">
+<title>CFA · Recovery week</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23BEEA32%22%2F%3E%3Cpath%20d%3D%22M14%2016%20L32%2032%20L14%2048%20Z%20M32%2016%20L50%2032%20L32%2048%20Z%22%20fill%3D%22%230D0D0D%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D0D0D; --ink2:#232320; --paper:#FFFFFF; --paper2:#F7F7F5;
+  --line:#E2E2DF; --line2:#EFEFEC; --dim:#7A7A75; --dim2:#9B9B95;
+  --acc:#BEEA32; --acc-soft:#F6FCE2; --acc-deep:#637A1A;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:'Archivo',-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+a{color:var(--acc-deep)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+.mast{background:var(--ink);color:#fff;padding:14px 0 15px}
+.ctx{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+h1{font-weight:700;font-size:22px;letter-spacing:-.02em;line-height:1.15;margin:3px 0 4px;color:#fff}
+h1 .thin{font-weight:500;color:#8E8E88}
+.sub{margin:0;color:#8E8E88;font-family:var(--mono);font-size:10.5px;line-height:1.6;max-width:84ch}
+.sub a{color:var(--acc)}
+
+.counters{background:var(--ink2);border-bottom:1px solid #2E2E2B}
+.counters .wrap{display:flex;flex-wrap:wrap;gap:8px 36px;align-items:center;padding-top:10px;padding-bottom:10px}
+.counters b{display:block;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--acc);white-space:nowrap}
+.counters span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8E8E88}
+.pg{flex:1;min-width:180px;max-width:320px}
+.plab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8E8E88;margin-bottom:4px}
+.plab b{display:inline;color:#fff;font-size:11px;letter-spacing:0}
+.pb{height:5px;background:#3A3A36}
+.pb i{display:block;height:100%;background:var(--acc);width:0;transition:width .4s ease}
+
+.rules{margin:18px 0 0;padding:9px 12px;background:var(--paper2);border-left:3px solid var(--acc);font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--dim)}
+.rules b{color:var(--ink);font-weight:600}
+.note{margin:10px 0 0;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.note[hidden]{display:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:18px 0 8px}
+.day{border:1px solid var(--line);background:#fff;display:flex;flex-direction:column}
+.day.today{border:2px solid var(--ink)}
+.dh{display:flex;align-items:baseline;gap:10px;padding:9px 12px;background:var(--paper2);border-bottom:1px solid var(--line)}
+.day.today .dh{background:var(--acc)}
+.dname{font-weight:700;font-size:15px}
+.ddate{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.day.today .ddate{color:var(--ink)}
+.dtot{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:13px}
+.dsub{display:flex;justify-content:space-between;gap:8px;padding:6px 12px;font-family:var(--mono);font-size:10.5px;color:var(--dim);border-bottom:1px solid var(--line2)}
+.dsub .cnt{white-space:nowrap}
+.day.clear .dsub .cnt{color:var(--acc-deep);font-weight:600}
+ul{list-style:none;margin:0;padding:2px 0}
+.it{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:9px;align-items:start;padding:6px 12px;border-bottom:1px solid var(--line2)}
+.it:last-child{border-bottom:none}
+.ch{font-family:var(--mono);font-weight:700;font-size:9px;letter-spacing:.07em;text-transform:uppercase;text-align:center;padding:2px 0;margin-top:1px;border:1px solid var(--ink);color:var(--ink)}
+.chN{background:var(--acc)}
+.lab{font-size:12.5px;line-height:1.4}
+.lab small{display:block;font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:1px}
+.min{font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap;padding-top:1px}
+.it.skip .lab{color:var(--dim)}
+.it.done{background:var(--acc-soft)}
+.it.done .lab{color:var(--acc-deep);text-decoration:line-through;text-decoration-color:rgba(99,122,26,.45)}
+.it.done .min{color:var(--acc-deep)}
+
+footer{padding:18px 0 44px;color:var(--dim2);font-family:var(--mono);font-size:10.5px;line-height:1.7}
+
+@media (max-width:620px){
+  .wrap{padding:0 14px}
+  .grid{grid-template-columns:1fr}
+  .counters .wrap{gap:8px 22px}
+}
+@media (prefers-reduced-motion:reduce){.pb i{transition:none}}
+@media print{.counters,.note{display:none}.day{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="ctx">CFA Level I &middot; FSA recovery</div>
+    <h1>Recovery week <span class="thin">Sep 22 &ndash; 27</span></h1>
+    <p class="sub">Clears every activity due through Sep 27, so Monday Sep 28 starts with zero debt. Tick activities in <a href="kaplan.html">kaplan.html</a> &mdash; this page reads the same marks.</p>
+  </div>
+</header>
+
+<div class="counters">
+  <div class="wrap">
+    <div><b id="c-plan">&mdash;</b><span>planned</span></div>
+    <div><b id="c-left">&mdash;</b><span>left</span></div>
+    <div><b id="c-done">&mdash;</b><span>activities done</span></div>
+    <div class="pg">
+      <div class="plab"><span>recovery progress</span><b id="c-pct">0.0%</b></div>
+      <div class="pb"><i id="c-bar"></i></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <p class="rules"><b>Class</b> is budgeted at 1.5&times;; skipping one by the gate turns into slack. 34.1 (leases) and 35.2 (deferred taxes) may need 1&times;, and Thursday is light to absorb it. <b>Skip</b> rows get ticked in kaplan.html without doing them.</p>
+  <p class="note" id="note" hidden>No marks found. Open this page on the same site as kaplan.html to see your progress.</p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <div class="wrap">recovery.html &middot; plan for Sep 22&ndash;27 &middot; read-only mirror of the kaplan.v1 marks &middot; <a href="kaplan.html">kaplan.html</a> is where you tick</div>
+</footer>
+
+<script>
+var PLAN=[{"d":"2026-09-22","sub":"R30 · R31 · R32","items":[{"id":"a0224","k":"X","l":"28.4 · Earnings Per Share","m":0,"n":"R28 QBank 90%"},{"id":"a0227","k":"X","l":"28.5 · Ratios & Common-Size Income Statements","m":0,"n":"R28 QBank 90%"},{"id":"a0233","k":"X","l":"29.1 · Intangible Assets & Marketable Securities","m":0,"n":"if R29 QBank ≥70%"},{"id":"a0236","k":"X","l":"29.2 · Common-Size Balance Sheets","m":0,"n":"if R29 QBank ≥70%"},{"id":"a0240","k":"X","l":"OFF block, Sep 15","m":0,"n":"done as the Sep 16 custom quiz"},{"id":"a0272","k":"X","l":"Weekly review, Sep 19","m":0,"n":"not recoverable"},{"id":"a0244","k":"Q","l":"30.1–30.2 · Module Quiz","m":25,"n":""},{"id":"a0246","k":"M","l":"30.3 · Investing/Financing CF & IFRS-GAAP Differences","m":20,"n":""},{"id":"a0247","k":"Q","l":"30.3 · Investing/Financing CF & IFRS-GAAP Differences","m":30,"n":""},{"id":"a0248","k":"B","l":"Reading 30","m":25,"n":""},{"id":"a0250","k":"M","l":"31.1 · Analyzing Statements of Cash Flows II","m":30,"n":""},{"id":"a0251","k":"Q","l":"31.1 · Analyzing Statements of Cash Flows II","m":10,"n":""},{"id":"a0252","k":"B","l":"Reading 31","m":15,"n":""},{"id":"a0254","k":"M","l":"32.1 · Inventory Measurement","m":20,"n":""},{"id":"a0256","k":"M","l":"32.2 · Inflation Impact on FIFO & LIFO","m":20,"n":""},{"id":"a0257","k":"Q","l":"32.1–32.2 · Module Quiz","m":25,"n":""},{"id":"a0258","k":"N","l":"32.3 · Presentation & Disclosure","m":25,"n":""},{"id":"a0259","k":"M","l":"32.3 · Presentation & Disclosure","m":20,"n":""},{"id":"a0260","k":"Q","l":"32.3 · Presentation & Disclosure","m":15,"n":""},{"id":"a0261","k":"B","l":"Reading 32","m":20,"n":""}],"t":300},{"d":"2026-09-23","sub":"R33 · R34","items":[{"id":"a0262","k":"N","l":"33.1 · Intangible Long-Lived Assets","m":10,"n":""},{"id":"a0263","k":"M","l":"33.1 · Intangible Long-Lived Assets","m":20,"n":""},{"id":"a0264","k":"Q","l":"33.1 · Intangible Long-Lived Assets","m":10,"n":""},{"id":"a0265","k":"N","l":"33.2 · Impairment & Derecognition","m":20,"n":""},{"id":"a0266","k":"M","l":"33.2 · Impairment & Derecognition","m":20,"n":""},{"id":"a0267","k":"Q","l":"33.2 · Impairment & Derecognition","m":20,"n":""},{"id":"a0268","k":"N","l":"33.3 · Long-Term Asset Disclosures","m":15,"n":""},{"id":"a0269","k":"M","l":"33.3 · Long-Term Asset Disclosures","m":20,"n":""},{"id":"a0270","k":"Q","l":"33.3 · Long-Term Asset Disclosures","m":15,"n":""},{"id":"a0271","k":"B","l":"Reading 33","m":20,"n":""},{"id":"a0273","k":"N","l":"34.1 · Leases","m":40,"n":""},{"id":"a0274","k":"M","l":"34.1 · Leases","m":20,"n":""},{"id":"a0275","k":"Q","l":"34.1 · Leases","m":25,"n":""},{"id":"a0276","k":"N","l":"34.2 · Deferred Compensation & Disclosures","m":35,"n":""},{"id":"a0277","k":"M","l":"34.2 · Deferred Compensation & Disclosures","m":20,"n":""},{"id":"a0278","k":"Q","l":"34.2 · Deferred Compensation & Disclosures","m":10,"n":""},{"id":"a0279","k":"B","l":"Reading 34","m":20,"n":""}],"t":340},{"d":"2026-09-24","sub":"R35","items":[{"id":"a0280","k":"N","l":"35.1 · Accounting Profit vs Taxable Income","m":25,"n":""},{"id":"a0281","k":"M","l":"35.1 · Accounting Profit vs Taxable Income","m":20,"n":""},{"id":"a0282","k":"Q","l":"35.1 · Accounting Profit vs Taxable Income","m":20,"n":""},{"id":"a0283","k":"N","l":"35.2 · Deferred Tax Assets & Liabilities","m":20,"n":""},{"id":"a0284","k":"M","l":"35.2 · Deferred Tax Assets & Liabilities","m":20,"n":""},{"id":"a0285","k":"Q","l":"35.2 · Deferred Tax Assets & Liabilities","m":15,"n":""},{"id":"a0286","k":"N","l":"35.3 · Tax Rates & Disclosures","m":20,"n":""},{"id":"a0287","k":"M","l":"35.3 · Tax Rates & Disclosures","m":20,"n":""},{"id":"a0288","k":"Q","l":"35.3 · Tax Rates & Disclosures","m":15,"n":""},{"id":"a0289","k":"B","l":"Reading 35","m":25,"n":""}],"t":200},{"d":"2026-09-25","sub":"OFF block · R36","items":[{"id":"a0304","k":"B","l":"Cumulative QBank · 35 questions, 90 s each · 8:00–10:15","m":135,"n":""},{"id":"a0290","k":"N","l":"36.1 · Reporting Quality","m":30,"n":""},{"id":"a0291","k":"M","l":"36.1 · Reporting Quality","m":20,"n":""},{"id":"a0292","k":"Q","l":"36.1 · Reporting Quality","m":25,"n":""},{"id":"a0293","k":"N","l":"36.2 · Accounting Choices & Estimates","m":20,"n":""},{"id":"a0294","k":"M","l":"36.2 · Accounting Choices & Estimates","m":20,"n":""},{"id":"a0295","k":"N","l":"36.3 · Warning Signs","m":10,"n":""},{"id":"a0296","k":"M","l":"36.3 · Warning Signs","m":20,"n":""},{"id":"a0297","k":"Q","l":"36.2–36.3 · Module Quiz","m":10,"n":""},{"id":"a0298","k":"B","l":"Reading 36","m":50,"n":""}],"t":340},{"d":"2026-09-26","sub":"R37, part 1","items":[{"id":"a0299","k":"N","l":"37.1 · Introduction to Financial Ratios","m":25,"n":""},{"id":"a0300","k":"M","l":"37.1 · Introduction to Financial Ratios","m":20,"n":""},{"id":"a0301","k":"N","l":"37.2 · Financial Ratios, Part 1","m":20,"n":""},{"id":"a0302","k":"M","l":"37.2 · Financial Ratios, Part 1","m":20,"n":""},{"id":"a0303","k":"N","l":"37.3 · Financial Ratios, Part 2","m":35,"n":""},{"id":"a0305","k":"M","l":"37.3 · Financial Ratios, Part 2","m":20,"n":""},{"id":"a0306","k":"Q","l":"37.1–37.3 · Module Quiz","m":35,"n":""},{"id":"a0313","k":"X","l":"Weekly review, Sep 26","m":0,"n":"cumulative done on Friday"}],"t":175},{"d":"2026-09-27","sub":"R37, part 2","items":[{"id":"a0307","k":"N","l":"37.4 · DuPont Analysis","m":20,"n":""},{"id":"a0308","k":"M","l":"37.4 · DuPont Analysis","m":20,"n":""},{"id":"a0309","k":"N","l":"37.5 · Industry-Specific Financial Ratios","m":10,"n":""},{"id":"a0310","k":"M","l":"37.5 · Industry-Specific Financial Ratios","m":20,"n":""},{"id":"a0311","k":"Q","l":"37.4–37.5 · Module Quiz","m":15,"n":""},{"id":"a0312","k":"B","l":"Reading 37","m":40,"n":""}],"t":125}];
+(function(){
+  'use strict';
+  var done={}, found=false;
+  try{
+    var raw=localStorage.getItem('kaplan.v1');
+    if(raw){var p=JSON.parse(raw); if(p&&p.done){done=p.done; found=true;}}
+  }catch(e){}
+  if(!found) document.getElementById('note').hidden=false;
+
+  var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var KT={N:'notes',M:'class',Q:'quiz',B:'qbank',X:'skip'};
+  function pd(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]);}
+  function hm(m){return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0');}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var now=new Date(), today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+
+  var plan=0,left=0,n=0,nd=0,html='';
+  PLAN.forEach(function(day){
+    var dd=pd(day.d), dn=0;
+    var rows=day.items.map(function(it){
+      var isDone=!!done[it.id];
+      n++; if(isDone){nd++;dn++;}
+      plan+=it.m; if(!isDone) left+=it.m;
+      var cls='it'+(it.k==='X'?' skip':'')+(isDone?' done':'');
+      return '<li class="'+cls+'"><span class="ch ch'+it.k+'">'+KT[it.k]+'</span>'+
+        '<span class="lab">'+esc(it.l)+(it.n?'<small>'+esc(it.n)+'</small>':'')+'</span>'+
+        '<span class="min">'+(it.m?hm(it.m):'')+'</span></li>';
+    }).join('');
+    var clear=dn===day.items.length;
+    html+='<section class="day'+(day.d===today?' today':'')+(clear?' clear':'')+'">'+
+      '<div class="dh"><span class="dname">'+WD[dd.getDay()]+'</span><span class="ddate">'+MO[dd.getMonth()]+' '+dd.getDate()+'</span><span class="dtot">'+hm(day.t)+'</span></div>'+
+      '<div class="dsub"><span>'+esc(day.sub)+'</span><span class="cnt">'+(clear?'clear':dn+' / '+day.items.length)+'</span></div>'+
+      '<ul>'+rows+'</ul></section>';
+  });
+  document.getElementById('grid').innerHTML=html;
+  document.getElementById('c-plan').textContent=hm(plan);
+  document.getElementById('c-left').textContent=hm(left);
+  document.getElementById('c-done').textContent=nd+' / '+n;
+  var pct=n?nd/n*100:0;
+  document.getElementById('c-pct').textContent=pct.toFixed(1)+'%';
+  document.getElementById('c-bar').style.width=pct+'%';
+})();
+</script>
+</body>
+</html>

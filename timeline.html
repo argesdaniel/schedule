@@ -21,12 +21,12 @@
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{margin:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-.wrap{max-width:1123px;margin:0 auto;padding:0 44px}
+.wrap{max-width:1800px;margin:0 auto;padding:0 44px}
 a{color:var(--acc-deep)}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
 .mast{background:var(--ink);color:#fff}
-.mast .wrap{position:relative;padding-top:18px;padding-bottom:16px}
+.mast .wrap{position:relative;padding-top:15px;padding-bottom:13px}
 .ctx{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.14em;color:var(--acc)}
 h1{margin:5px 0 3px;font-weight:800;font-size:26px;letter-spacing:-.02em;line-height:1.1}
 .sub{font-family:var(--mono);font-size:10.5px;color:#8E8E88}
@@ -44,16 +44,16 @@ h1{margin:5px 0 3px;font-weight:800;font-size:26px;letter-spacing:-.02em;line-he
 .pb{height:5px;background:#3A3A36}
 .pb i{display:block;height:100%;width:0;background:var(--acc);transition:width .5s ease}
 
-.tlwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:14px 0 0}
-#tl{display:block;width:100%;min-width:1000px;height:auto}
+.tlwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:14px 0 0;margin:0 -44px}
+#tl{display:block}
 .legend{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#3A3A36;margin:12px 0 0}
 .lrow{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
 .lt{font-family:var(--mono);font-weight:600;font-size:9px;letter-spacing:.14em;color:var(--dim);width:56px}
 .legend span{white-space:nowrap;display:inline-flex;align-items:center}
 .sw{display:inline-block;width:18px;height:10px;margin-right:7px}
-.sect{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.14em;color:var(--dim);margin:30px 0 8px}
+.sect{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.14em;color:var(--dim);margin:22px 0 8px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.card{border:1.5px solid var(--ink);padding:14px 16px 14px;min-height:150px;position:relative;display:flex;flex-direction:column}
+.card{border:1.5px solid var(--ink);padding:13px 16px 13px;min-height:132px;position:relative;display:flex;flex-direction:column}
 .card .dt{font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.04em}
 .card .nm{font-weight:800;font-size:21px;letter-spacing:-.01em;margin-top:8px;line-height:1.15}
 .card .ds{font-size:12px;color:#5A5A55;margin-top:6px;line-height:1.4}
@@ -64,10 +64,11 @@ h1{margin:5px 0 3px;font-weight:800;font-size:26px;letter-spacing:-.02em;line-he
 .card.exam .in{color:var(--acc)}
 .card.late{border-style:dashed}
 .card.late .in{color:var(--ink)}
-footer{margin:34px 0 0;border-top:1px solid var(--line)}
+footer{margin:26px 0 0;border-top:1px solid var(--line)}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding-top:14px;padding-bottom:40px;font-family:var(--mono);font-size:9.5px;color:var(--dim2);line-height:1.7}
 @media (max-width:720px){
   .wrap{padding:0 16px}
+  .tlwrap{margin:0 -16px}
   .count{position:static;text-align:left;margin-top:12px}
   .count b{font-size:32px}
   h1{font-size:21px}
@@ -106,7 +107,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2
 </div>
 
 <main class="wrap">
-  <div class="tlwrap"><svg id="tl" viewBox="0 0 1123 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Linha do tempo da temporada CFA Level I, de 3 de agosto de 2026 a 26 de fevereiro de 2027"></svg></div>
+  <div class="tlwrap"><svg id="tl" width="1123" height="386" viewBox="0 0 1123 386" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Linha do tempo da temporada CFA Level I, de 3 de agosto de 2026 a 26 de fevereiro de 2027"></svg></div>
   <div class="legend">
     <div class="lrow"><span class="lt">FAIXA</span>
       <span><i class="sw" style="background:#BEEA32;opacity:.4"></i>Já passou</span>
@@ -198,7 +199,8 @@ const EXAM_CARD=['2027-02-26','a0769','Prova','08:30 · Belo Horizonte · passap
 (function(){
 'use strict';
 const NS='http://www.w3.org/2000/svg', svg=document.getElementById('tl');
-const X0=44, X1=1079, P=(X1-X0)/DAYS, BT=212, BB=278;
+const BT=186, BB=252, H=386;
+let X0=44, X1=1079, P=(X1-X0)/DAYS, W=1123, SC=1, BAD=0;
 const C={ink:'#0D0D0D',acc:'#BEEA32',deep:'#637A1A',soft:'#F6FCE2',dim:'#7A7A75',grid:'#EDEDE9',buf:'#EFEFEC',past:'#9B9B95',past2:'#B4B4AE'};
 const MS=86400000;
 const pd=s=>{const a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]);};
@@ -218,6 +220,9 @@ function readMarks(){
 }
 
 function render(){
+  const avail=document.querySelector('.tlwrap').clientWidth, px=Math.max(1000,avail);
+  SC=Math.min(1.1,Math.max(1,px/1250)); W=px/SC; const pad=(avail>=px?(window.innerWidth<=720?16:44):44)/SC; X0=pad; X1=W-pad; P=(X1-X0)/DAYS; BAD=0;
+  svg.setAttribute('width',Math.round(px)); svg.setAttribute('height',Math.round(H*SC)); svg.setAttribute('viewBox','0 0 '+W.toFixed(1)+' '+H);
   const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   const T=Math.round((today-S0)/MS);                 // today's day index
   const marks=readMarks();
@@ -276,29 +281,21 @@ function render(){
     el('circle',{cx,cy:BT,r:4.5,fill:done||late?'#FFFFFF':C.acc,stroke:done?C.past:C.ink,'stroke-width':1.2,'stroke-dasharray':late?'2 1.5':'none'});
     tx(code,{x:cx,y:BT-18,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:done?C.past:C.ink});
   });
-  // today
-  const inSeason=T>=0&&T<=di(EXAM);
-  if(inSeason){
-    const tX=xc(T);
-    el('line',{x1:tX,y1:BT-4,x2:tX,y2:BB+6,stroke:C.ink,'stroke-width':2.2});
-    el('rect',{x:tX-19,y:BB+6,width:38,height:15,fill:C.ink});
-    tx('hoje',{x:tX,y:BB+17,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:C.acc});
-  }
   // flags
   function layout(list,side){
-    const NL=4, LH=side==='top'?28:32;
+    const NL=side==='top'?3:4, LH=side==='top'?28:32;
     const flags=list.map(([k,a,b,nm,key,id,dlabel])=>{
       const d0=di(a), d1=b?di(b):null;
       const st=status(a,b,id);
-      const dtxt=(dlabel||(b?rangeTxt(a,b):dm(a)))+(st==='late'?' · pendente':'');
+      const dtxt=dlabel||(b?rangeTxt(a,b):dm(a));
       const mx=k==='R'?x((d0+d1)/2):xc(d0);
       const strong=key>0&&st!=='done';
-      const w=Math.max(measure(dtxt,MONO,600,9),measure(nm,SANS,strong?700:500,strong?12:11.5))+12;
+      const w=Math.max(measure(dtxt,MONO,600,9),measure(nm,SANS,key>0?700:500,key>0?12:11.5))+12;   // measured at the widest style so the layout never shifts over time
       return {k,d0,d1,dtxt,nm,key,st,mx,w,strong};
     }).sort((p,q)=>q.mx-p.mx);
     const placed=[];
     const fits=(f,L)=>{
-      if(f.x0<X0-8||f.x1>1112) return false;
+      if(f.x0<X0-8||f.x1>W-11) return false;
       if(side==='top'){ for(const [s] of CLOSES){ const cx=xc(di(s)); if(f.mx>cx-9&&f.mx<cx+9) return false; } }
       for(const g of placed){
         if(g.lane===L && !(f.x1+8<g.x0||f.x0>g.x1+8)) return false;
@@ -309,11 +306,11 @@ function render(){
     flags.forEach(f=>{
       let ok=false;
       for(let L=0;L<NL&&!ok;L++){
-        const right=f.key===2||f.mx+f.w>1110;
+        const right=f.key===2||f.mx+f.w>W-13;
         f.x0=right?f.mx-f.w:f.mx; f.x1=right?f.mx:f.mx+f.w; f.right=right;
         if(fits(f,L)){f.lane=L; ok=true;}
       }
-      if(!ok){f.lane=NL-1;}
+      if(!ok){f.lane=NL-1; BAD++;}
       placed.push(f);
     });
     placed.forEach(f=>{
@@ -341,6 +338,14 @@ function render(){
     });
   }
   layout(TOP,'top'); layout(BOT,'bot');
+  // today (drawn last, on top of any leader line)
+  const inSeason=T>=0&&T<=di(EXAM);
+  if(inSeason){
+    const tX=xc(T);
+    el('line',{x1:tX,y1:BT-4,x2:tX,y2:BB+6,stroke:C.ink,'stroke-width':2.2});
+    el('rect',{x:tX-19,y:BB+6,width:38,height:15,fill:C.ink});
+    tx('hoje',{x:tX,y:BB+17,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:C.acc});
+  }
 
   // header + counters
   const ex=pd(EXAM), left=Math.round((ex-today)/MS);
@@ -387,11 +392,12 @@ const go=()=>render();
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go);
 window.addEventListener('storage',e=>{ if(e.key==='kaplan.v1') go(); });
 setInterval(go,30*60*1000);
-window.__render=go;
+let rt=null; window.addEventListener('resize',()=>{clearTimeout(rt); rt=setTimeout(go,150);});
+window.__render=go; window.__bad=()=>BAD;
 let scrolled=false;
 const focusToday=()=>{ if(scrolled) return; const w=document.querySelector('.tlwrap'); if(!w||w.scrollWidth<=w.clientWidth+2) return;
   const now=new Date(), t=Math.round((new Date(now.getFullYear(),now.getMonth(),now.getDate())-pd(START))/MS);
-  const r=w.scrollWidth/1123, tx=(44+(t+.5)*(1035/DAYS))*r; w.scrollLeft=Math.max(0,tx-w.clientWidth*.35); scrolled=true; };
+  const tx=(X0+(t+.5)*P)*SC; w.scrollLeft=Math.max(0,tx-w.clientWidth*.35); scrolled=true; };
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(focusToday,50));
 })();
 </script>

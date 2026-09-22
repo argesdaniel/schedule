@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D0D0D">
+<title>CFA · Linha do tempo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%23BEEA32%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%2229%22%20width%3D%2248%22%20height%3D%226%22%20fill%3D%22%230D0D0D%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2232%22%20r%3D%229%22%20fill%3D%22%230D0D0D%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D0D0D; --ink2:#232320; --paper:#FFFFFF; --paper2:#F7F7F5;
+  --line:#E2E2DF; --dim:#7A7A75; --dim2:#9B9B95;
+  --acc:#BEEA32; --acc-soft:#F6FCE2; --acc-deep:#637A1A;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:'Archivo',-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1123px;margin:0 auto;padding:0 44px}
+a{color:var(--acc-deep)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+.mast{background:var(--ink);color:#fff}
+.mast .wrap{position:relative;padding-top:18px;padding-bottom:16px}
+.ctx{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.14em;color:var(--acc)}
+h1{margin:5px 0 3px;font-weight:800;font-size:26px;letter-spacing:-.02em;line-height:1.1}
+.sub{font-family:var(--mono);font-size:10.5px;color:#8E8E88}
+.count{position:absolute;right:44px;top:14px;text-align:right}
+.count b{display:block;font-weight:800;font-size:40px;line-height:1;color:var(--acc);letter-spacing:-.02em}
+.count span{font-family:var(--mono);font-size:10px;color:#8E8E88;letter-spacing:.06em}
+
+.counters{background:var(--ink2);border-bottom:1px solid #2E2E2B}
+.counters .wrap{display:flex;flex-wrap:wrap;gap:8px 34px;align-items:center;padding-top:10px;padding-bottom:10px}
+.counters b{display:block;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--acc);white-space:nowrap}
+.counters span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8E8E88}
+.pg{flex:1;min-width:170px;max-width:280px}
+.plab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8E8E88;margin-bottom:4px}
+.plab b{display:inline;font-size:11px;color:#fff;letter-spacing:0}
+.pb{height:5px;background:#3A3A36}
+.pb i{display:block;height:100%;width:0;background:var(--acc);transition:width .5s ease}
+
+.tlwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:14px 0 0}
+#tl{display:block;width:100%;min-width:1000px;height:auto}
+.legend{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#3A3A36;margin:12px 0 0}
+.lrow{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.lt{font-family:var(--mono);font-weight:600;font-size:9px;letter-spacing:.14em;color:var(--dim);width:56px}
+.legend span{white-space:nowrap;display:inline-flex;align-items:center}
+.sw{display:inline-block;width:18px;height:10px;margin-right:7px}
+.sect{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.14em;color:var(--dim);margin:30px 0 8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{border:1.5px solid var(--ink);padding:14px 16px 14px;min-height:150px;position:relative;display:flex;flex-direction:column}
+.card .dt{font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.04em}
+.card .nm{font-weight:800;font-size:21px;letter-spacing:-.01em;margin-top:8px;line-height:1.15}
+.card .ds{font-size:12px;color:#5A5A55;margin-top:6px;line-height:1.4}
+.card .in{margin-top:auto;padding-top:12px;font-family:var(--mono);font-weight:600;font-size:11px}
+.card.next{background:var(--acc)}
+.card.exam{background:var(--ink);color:#fff}
+.card.exam .ds{color:var(--dim2)}
+.card.exam .in{color:var(--acc)}
+.card.late{border-style:dashed}
+.card.late .in{color:var(--ink)}
+footer{margin:34px 0 0;border-top:1px solid var(--line)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding-top:14px;padding-bottom:40px;font-family:var(--mono);font-size:9.5px;color:var(--dim2);line-height:1.7}
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  .count{position:static;text-align:left;margin-top:12px}
+  .count b{font-size:32px}
+  h1{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){.pb i{transition:none}}
+@media print{
+  @page{size:A4 landscape;margin:0}
+  .counters{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="ctx">CFA LEVEL I · TEMPORADA 2026–27</div>
+    <h1>Linha do tempo · temporada completa</h1>
+    <div class="sub">03 ago 2026 → 26 fev 2027 · Toronto → Belo Horizonte · prova às 08:30, Cultura Inglesa</div>
+    <div class="count"><b id="c-days">—</b><span id="c-week">—</span></div>
+  </div>
+</header>
+
+<div class="counters">
+  <div class="wrap">
+    <div><b id="c-day">—</b><span>dia da temporada</span></div>
+    <div class="pg">
+      <div class="plab"><span>temporada</span><b id="c-spct">—</b></div>
+      <div class="pb"><i id="c-sbar"></i></div>
+    </div>
+    <div class="pg">
+      <div class="plab"><span>atividades · kaplan.html</span><b id="c-apct">—</b></div>
+      <div class="pb"><i id="c-abar"></i></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="tlwrap"><svg id="tl" viewBox="0 0 1123 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Linha do tempo da temporada CFA Level I, de 3 de agosto de 2026 a 26 de fevereiro de 2027"></svg></div>
+  <div class="legend">
+    <div class="lrow"><span class="lt">FAIXA</span>
+      <span><i class="sw" style="background:#BEEA32;opacity:.4"></i>Já passou</span>
+      <span><i class="sw" style="background:#637A1A"></i>Recuperação</span>
+      <span><i class="sw" style="background:#BEEA32"></i>Conteúdo</span>
+      <span><i class="sw" style="background:#F6FCE2;outline:1px solid #637A1A;outline-offset:-1px"></i>Consolidação, semana leve</span>
+      <span><i class="sw" style="background:#0D0D0D"></i>Checkpoints e mocks</span>
+      <span><i class="sw" style="background:repeating-linear-gradient(-45deg,#CFCFCA 0 2px,#F7F7F5 2px 5px)"></i>Pausa e transição</span>
+      <span><i class="sw" style="background:#EFEFEC"></i>Buffer, rampa, taper</span>
+    </div>
+    <div class="lrow"><span class="lt">MARCOS</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#BEEA32;border:1.2px solid #0D0D0D;margin-right:7px"></i>Fechamento de tópico</span>
+      <span><i style="display:inline-block;width:8px;height:8px;background:#0D0D0D;transform:rotate(45deg);margin-right:8px"></i>Avaliação</span>
+      <span><i class="sw" style="background:#BEEA32"></i>Decisivo</span>
+      <span><i class="sw" style="background:#F6FCE2"></i>Em curso</span>
+      <span><i class="sw" style="border:1px dashed #0D0D0D"></i>Pendente</span>
+      <span><i class="sw" style="background:#fff;border:1px solid #B4B4AE"></i>Cumprido</span>
+    </div>
+  </div>
+  <div class="sect">PRÓXIMOS MARCOS DECISIVOS</div>
+  <div class="cards" id="cards"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>QM Quant · ECO Economics · CF Corporate Finance · EQ Equities · FI Fixed Income · ETH Ética · DER Derivatives · ALT Alternatives</span>
+    <span id="f-meta">—</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   DADOS — é aqui que a página é atualizada ao longo da temporada.
+   id = atividade correspondente no kaplan.html; quando ela é ticada lá,
+   o marco aparece como cumprido aqui. Sem id, o status segue só a data.
+   ============================================================ */
+const UPDATED='2026-09-22';
+const START='2026-08-03', EXAM='2027-02-26', DAYS=210, TOTAL_ACT=769;
+const SEG=[ // de, até (exclusivo), tipo, rótulos possíveis
+ ['2026-08-03','2026-09-22','con',['Quant · Economics · Corporate · FSA','Quant · Econ · Corporate · FSA','Quant → FSA']],
+ ['2026-09-22','2026-09-28','rec',[]],
+ ['2026-09-28','2026-10-26','con',['FSA · Equities · Fixed Income','Equities · Fixed Income','Equities · FI']],
+ ['2026-10-26','2026-10-30','soft',[]],['2026-10-30','2026-11-02','pause',[]],['2026-11-02','2026-11-07','soft',[]],
+ ['2026-11-07','2026-12-07','con',['Ética · Deriv · Alts · Portfolio','Deriv · Alts · Portfolio','BH · conteúdo II']],
+ ['2026-12-07','2026-12-12','buf',[]],['2026-12-12','2026-12-20','ink',['CP']],
+ ['2026-12-20','2027-01-04','pause',['Natal · recesso','Recesso']],['2027-01-04','2027-01-09','buf',[]],
+ ['2027-01-09','2027-02-22','ink',['Temporada de mocks','Mocks']],['2027-02-22','2027-02-26','buf',[]],['2027-02-26','2027-02-27','exam',[]]];
+const CITY=[['2026-08-03','2026-10-30','Toronto'],['2026-11-02','2027-03-01','Belo Horizonte']];
+const MONTHS=[['2026-08-03','agosto'],['2026-09-01','setembro'],['2026-10-01','outubro'],['2026-11-01','novembro'],['2026-12-01','dezembro'],['2027-01-01','janeiro 2027'],['2027-02-01','fevereiro']];
+const CLOSES=[ // fechamentos de tópico (sábados)
+ ['2026-08-26','QM','a0123'],['2026-09-05','ECO','a0203'],['2026-09-12','CF','a0231'],['2026-10-17','EQ','a0445'],['2026-10-24','FI','a0483'],
+ ['2026-11-14','ETH','a0578'],['2026-11-21','DER','a0633'],['2026-11-28','ALT','a0663']];
+// marcos acima da faixa: tipo P ponto / R período / X prova · data · fim · nome · decisivo(1) · id
+const TOP=[
+ ['P','2026-08-03',null,'Início do plano',0,null],
+ ['R','2026-09-22','2026-09-28','Recuperação',0,null],
+ ['P','2026-09-28',null,'Atraso zero',1,null],
+ ['R','2026-10-26','2026-11-02','Consolidação · voo',0,null],
+ ['R','2026-11-02','2026-11-07','Semana leve · Ética',0,null],
+ ['P','2026-12-05',null,'Conteúdo 100%',1,'a0672'],
+ ['R','2026-12-07','2026-12-12','Buffer · PSM',0,null],
+ ['R','2027-01-04','2027-01-09','Rampa',0,null],
+ ['P','2027-01-29',null,'PSM concluído',0,null],
+ ['R','2027-02-01','2027-02-13','Ética · passada 2',0,null],
+ ['X','2027-02-26',null,'Prova',2,'a0769','26/02 · 08:30']];
+// avaliações abaixo da faixa
+const BOT=[
+ ['P','2026-10-03',null,'Portão de FSA ≥70%',1,'a0364'],
+ ['P','2026-10-10',null,'Checkpoint 1',0,'a0409'],
+ ['P','2026-12-12',null,'Checkpoint 2',0,'a0681'],
+ ['P','2026-12-19',null,'Checkpoint 3',0,'a0689'],
+ ['P','2027-01-09',null,'Mock 1 · diagnóstico',1,'a0701'],
+ ['P','2027-01-23',null,'Mock 2',0,'a0717'],
+ ['P','2027-02-06',null,'Mock 3',0,'a0739'],
+ ['P','2027-02-13',null,'Mock 4',0,'a0753','13/02 CFAI'],
+ ['P','2027-02-20',null,'Mock 5',0,'a0762','20/02 CFAI']];
+// cartões: os três próximos + a prova
+const DECISIVE=[
+ ['2026-10-03','a0364','Portão de FSA','Topic Quiz ≥70% no tópico que decidiu 2023'],
+ ['2026-10-10','a0409','Checkpoint 1','R1–38 · a primeira prova longa'],
+ ['2026-12-05','a0672','Conteúdo 100%','Os 102 readings vistos'],
+ ['2026-12-19','a0689','Checkpoint 3','Fecha a fase de conteúdo'],
+ ['2027-01-09','a0701','Mock 1','Diagnóstico: começa a temporada de mocks'],
+ ['2027-02-13','a0753','Mock 4 · CFAI','A régua mais fiel à prova real'],
+ ['2027-02-20','a0762','Mock 5 · CFAI','O último simulado completo']];
+const EXAM_CARD=['2027-02-26','a0769','Prova','08:30 · Belo Horizonte · passaporte e BA II Plus'];
+
+/* ============================================================ */
+(function(){
+'use strict';
+const NS='http://www.w3.org/2000/svg', svg=document.getElementById('tl');
+const X0=44, X1=1079, P=(X1-X0)/DAYS, BT=212, BB=278;
+const C={ink:'#0D0D0D',acc:'#BEEA32',deep:'#637A1A',soft:'#F6FCE2',dim:'#7A7A75',grid:'#EDEDE9',buf:'#EFEFEC',past:'#9B9B95',past2:'#B4B4AE'};
+const MS=86400000;
+const pd=s=>{const a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2]);};
+const S0=pd(START);
+const di=s=>Math.round((pd(s)-S0)/MS);
+const x=d=>X0+d*P, xc=d=>X0+(d+.5)*P;
+const dm=s=>{const a=s.split('-');return a[2]+'/'+a[1];};
+const WD=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e}
+function tx(s,a,p){const e=el('text',a,p);e.textContent=s;return e}
+function measure(s,fam,w,sz){const t=tx(s,{x:-999,y:-999,'font-family':fam,'font-weight':w,'font-size':sz});const L=t.getComputedTextLength();t.remove();return L}
+const SANS="Archivo, Arial, sans-serif", MONO="'IBM Plex Mono', monospace";
+
+function readMarks(){
+  try{const raw=localStorage.getItem('kaplan.v1'); if(raw){const p=JSON.parse(raw); if(p&&p.done) return p.done;}}catch(e){}
+  return null;
+}
+
+function render(){
+  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const T=Math.round((today-S0)/MS);                 // today's day index
+  const marks=readMarks();
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const status=(date,end,id)=>{
+    const d0=di(date), d1=end?di(end)-1:d0;
+    if(id&&marks){ if(marks[id]) return 'done'; return d0<T?'late':'future'; }
+    if(d1<T) return 'done'; if(d0<=T&&T<=d1) return 'now'; return 'future';
+  };
+
+  // defs
+  const defs=el('defs',{});
+  const pat=el('pattern',{id:'hatch',width:5,height:5,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},defs);
+  el('rect',{width:5,height:5,fill:'#F7F7F5'},pat); el('rect',{width:2,height:5,fill:'#CFCFCA'},pat);
+
+  // city row
+  CITY.forEach(([a,b,n])=>{ const d0=di(a), d1=Math.min(di(b),DAYS);
+    el('rect',{x:x(d0),y:0,width:(d1-d0)*P-(d1<DAYS?2:0),height:14,fill:'#EFEFEC'});
+    tx(n,{x:x(d0)+6,y:10.5,'font-family':MONO,'font-weight':600,'font-size':9,fill:C.ink});
+  });
+  // weeks
+  const weeks=Math.ceil(DAYS/7), curW=Math.floor(T/7);
+  for(let k=0;k<weeks;k++){
+    const wx=x(7*k), ww=7*P, cur=k===curW, ex=k===weeks-1, past=k<curW;
+    el('rect',{x:wx,y:38,width:ww,height:22,fill:cur?C.acc:(ex?C.ink:(k%2?'#F7F7F5':'#FFFFFF'))});
+    tx('S'+(k+1),{x:wx+ww/2,y:53,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':10.5,fill:ex?C.acc:(past?'#A9A9A3':C.ink)});
+    const md=new Date(S0.getTime()+7*k*MS);
+    tx(String(md.getDate()).padStart(2,'0')+'/'+String(md.getMonth()+1).padStart(2,'0'),{x:wx+ww/2,y:72,'text-anchor':'middle','font-family':MONO,'font-size':8,fill:past?C.past2:C.dim});
+    el('line',{x1:wx,y1:38,x2:wx,y2:BB+6,stroke:C.grid,'stroke-width':.7});
+  }
+  el('line',{x1:X1,y1:38,x2:X1,y2:BB+6,stroke:C.grid,'stroke-width':.7});
+  el('rect',{x:X0,y:38,width:X1-X0,height:22,fill:'none',stroke:C.ink,'stroke-width':1});
+  MONTHS.forEach(([s,m])=>{ const d0=Math.max(di(s),0);
+    el('line',{x1:x(d0),y1:20,x2:x(d0),y2:38,stroke:C.ink,'stroke-width':1});
+    tx(m,{x:x(d0)+5,y:31,'font-family':SANS,'font-weight':700,'font-size':11,fill:C.ink});
+  });
+  // band
+  SEG.forEach(([a,b,c,labels])=>{
+    const d0=di(a), d1=di(b);
+    const fill={rec:C.deep,con:C.acc,soft:C.soft,pause:'url(#hatch)',buf:C.buf,ink:C.ink,exam:C.acc}[c];
+    el('rect',{x:x(d0),y:BT,width:(d1-d0)*P,height:BB-BT,fill});
+    if(c==='soft') el('rect',{x:x(d0)+.5,y:BT+.5,width:(d1-d0)*P-1,height:BB-BT-1,fill:'none',stroke:C.deep,'stroke-width':.8});
+    for(const l of labels){
+      const t=tx(l,{x:x(d0)+(d1-d0)*P/2,y:(BT+BB)/2+4.5,'text-anchor':'middle','font-family':SANS,'font-weight':700,'font-size':12,fill:c==='ink'?C.acc:(c==='rec'?'#fff':C.ink)});
+      if(t.getComputedTextLength()<=(d1-d0)*P-12) break; t.remove();
+    }
+  });
+  // the past fades: a veil from the start up to today
+  const vEnd=Math.max(0,Math.min(T,DAYS));
+  if(vEnd>0) el('rect',{x:X0,y:BT,width:vEnd*P,height:BB-BT,fill:'#FFFFFF',opacity:.58});
+  el('rect',{x:X0,y:BT,width:X1-X0,height:BB-BT,fill:'none',stroke:C.ink,'stroke-width':1});
+  // topic closes
+  CLOSES.forEach(([s,code,id])=>{
+    const cx=xc(di(s)), st=status(s,null,id), done=st==='done', late=st==='late';
+    el('line',{x1:cx,y1:BT-16,x2:cx,y2:BT,stroke:done?C.past2:C.ink,'stroke-width':.9,'stroke-dasharray':late?'2 2':'none'});
+    el('circle',{cx,cy:BT,r:4.5,fill:done||late?'#FFFFFF':C.acc,stroke:done?C.past:C.ink,'stroke-width':1.2,'stroke-dasharray':late?'2 1.5':'none'});
+    tx(code,{x:cx,y:BT-18,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:done?C.past:C.ink});
+  });
+  // today
+  const inSeason=T>=0&&T<=di(EXAM);
+  if(inSeason){
+    const tX=xc(T);
+    el('line',{x1:tX,y1:BT-4,x2:tX,y2:BB+6,stroke:C.ink,'stroke-width':2.2});
+    el('rect',{x:tX-19,y:BB+6,width:38,height:15,fill:C.ink});
+    tx('hoje',{x:tX,y:BB+17,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:C.acc});
+  }
+  // flags
+  function layout(list,side){
+    const NL=4, LH=side==='top'?28:32;
+    const flags=list.map(([k,a,b,nm,key,id,dlabel])=>{
+      const d0=di(a), d1=b?di(b):null;
+      const st=status(a,b,id);
+      const dtxt=(dlabel||(b?rangeTxt(a,b):dm(a)))+(st==='late'?' · pendente':'');
+      const mx=k==='R'?x((d0+d1)/2):xc(d0);
+      const strong=key>0&&st!=='done';
+      const w=Math.max(measure(dtxt,MONO,600,9),measure(nm,SANS,strong?700:500,strong?12:11.5))+12;
+      return {k,d0,d1,dtxt,nm,key,st,mx,w,strong};
+    }).sort((p,q)=>q.mx-p.mx);
+    const placed=[];
+    const fits=(f,L)=>{
+      if(f.x0<X0-8||f.x1>1112) return false;
+      if(side==='top'){ for(const [s] of CLOSES){ const cx=xc(di(s)); if(f.mx>cx-9&&f.mx<cx+9) return false; } }
+      for(const g of placed){
+        if(g.lane===L && !(f.x1+8<g.x0||f.x0>g.x1+8)) return false;
+        if(g.lane<L && f.mx>g.x0-3 && f.mx<g.x1+3) return false;
+        if(g.lane>L && g.mx>f.x0-3 && g.mx<f.x1+3) return false;
+      }
+      return true;};
+    flags.forEach(f=>{
+      let ok=false;
+      for(let L=0;L<NL&&!ok;L++){
+        const right=f.key===2||f.mx+f.w>1110;
+        f.x0=right?f.mx-f.w:f.mx; f.x1=right?f.mx:f.mx+f.w; f.right=right;
+        if(fits(f,L)){f.lane=L; ok=true;}
+      }
+      if(!ok){f.lane=NL-1;}
+      placed.push(f);
+    });
+    placed.forEach(f=>{
+      const top= side==='top' ? BT-30-26-f.lane*LH : BB+30+f.lane*LH;
+      const edge= side==='top' ? BT : BB, ly1= side==='top' ? top+26 : top;
+      const exam=f.key===2, done=f.st==='done', late=f.st==='late', now=f.st==='now';
+      const ink=done?C.past:C.ink;
+      const mid=(BT+BB)/2;
+      if(exam){
+        el('line',{x1:f.mx,y1:ly1,x2:f.mx,y2:mid-10,stroke:C.ink,'stroke-width':1.3});
+        el('circle',{cx:f.mx,cy:mid,r:10,fill:C.ink,stroke:C.acc,'stroke-width':3});
+      } else {
+        el('line',{x1:f.mx,y1:ly1,x2:f.mx,y2:side==='top'?edge-(f.k==='R'?6:0):edge,stroke:ink,'stroke-width':f.strong?1.3:.8,opacity:f.strong?1:(done?.45:.6),'stroke-dasharray':late?'3 2':'none'});
+        if(f.k==='R'){ const y=BT-6; el('line',{x1:x(f.d0)+1,y1:y,x2:x(f.d1)-1,y2:y,stroke:ink,'stroke-width':2.2});
+          el('line',{x1:x(f.d1)-1,y1:y-3,x2:x(f.d1)-1,y2:y+3,stroke:ink,'stroke-width':1.2}); }
+        else if(side==='top'){ el('circle',{cx:f.mx,cy:BT,r:f.strong?6:4.5,fill:f.strong?C.ink:(done||late?'#FFFFFF':C.acc),stroke:f.strong?C.acc:ink,'stroke-width':f.strong?2.2:1.2}); }
+        else { const s=f.strong?6.5:5; el('path',{d:`M${f.mx} ${BB-s} L${f.mx+s} ${BB} L${f.mx} ${BB+s} L${f.mx-s} ${BB} Z`,fill:done?'#FFFFFF':(f.strong?C.acc:C.ink),stroke:ink,'stroke-width':1.2}); }
+      }
+      const g=el('g',{});
+      el('rect',{x:f.x0,y:top,width:f.w,height:26,fill:exam?C.ink:(late?'#FFFFFF':(now?C.soft:(f.strong?C.acc:'#FFFFFF'))),
+        stroke:late?C.ink:'none','stroke-width':late?1:0,'stroke-dasharray':late?'3 2':'none'},g);
+      const tx0=f.right?f.x1-6:f.x0+6, anc=f.right?'end':'start';
+      tx(f.dtxt,{x:tx0,y:top+10,'text-anchor':anc,'font-family':MONO,'font-weight':600,'font-size':9,fill:exam?C.acc:(done?C.past2:(f.strong||late?C.ink:C.dim))},g);
+      tx(f.nm,{x:tx0,y:top+22.5,'text-anchor':anc,'font-family':SANS,'font-weight':f.strong?700:500,'font-size':f.strong?12:11.5,fill:exam?'#FFFFFF':(done?C.past:C.ink)},g);
+    });
+  }
+  layout(TOP,'top'); layout(BOT,'bot');
+
+  // header + counters
+  const ex=pd(EXAM), left=Math.round((ex-today)/MS);
+  document.getElementById('c-days').textContent= left>1?left+' dias':(left===1?'amanhã':(left===0?'hoje':'feito'));
+  const wk=Math.min(Math.max(curW+1,1),weeks);
+  document.getElementById('c-week').textContent= left>=0?'ATÉ A PROVA · SEMANA '+wk+' DE '+weeks:'TEMPORADA ENCERRADA';
+  const totalDays=di(EXAM)+1, dayN=Math.min(Math.max(T+1,0),totalDays);
+  document.getElementById('c-day').textContent=dayN+' / '+totalDays;
+  const sp=dayN/totalDays*100;
+  document.getElementById('c-spct').textContent=sp.toFixed(1).replace('.',',')+'%';
+  document.getElementById('c-sbar').style.width=sp+'%';
+  if(marks){ let n=0; for(const k in marks) if(marks[k]) n++;
+    const ap=n/TOTAL_ACT*100;
+    document.getElementById('c-apct').textContent=n+' / '+TOTAL_ACT+' · '+ap.toFixed(1).replace('.',',')+'%';
+    document.getElementById('c-abar').style.width=ap+'%';
+  } else { document.getElementById('c-apct').textContent='abra no site do kaplan.html'; }
+
+  // cards
+  const box=document.getElementById('cards'); box.innerHTML='';
+  const card=(it,cls,when)=>{ const [s,id,nm,ds]=it, d=pd(s);
+    const w=Math.floor(di(s)/7)+1;
+    const c=document.createElement('div'); c.className='card '+cls;
+    c.innerHTML='<div class="dt">'+WD[d.getDay()]+' '+dm(s)+' · S'+w+'</div><div class="nm"></div><div class="ds"></div><div class="in">'+when+'</div>';
+    c.querySelector('.nm').textContent=nm; c.querySelector('.ds').textContent=ds; box.appendChild(c); };
+  const inDays=s=>{const n=Math.round((pd(s)-today)/MS); return n>1?'em '+n+' dias':(n===1?'amanhã':(n===0?'hoje':'há '+(-n)+' dias'));};
+  const pend=[], next=[];
+  DECISIVE.forEach(it=>{ const [s,id]=it, n=Math.round((pd(s)-today)/MS), done=marks&&marks[id];
+    if(done) return;
+    if(n<0){ if(marks) pend.push(it); } else next.push(it); });
+  let shown=0;
+  pend.forEach(it=>{ if(shown<3){ card(it,'late','pendente · '+inDays(it[0])); shown++; } });
+  next.forEach(it=>{ if(shown<3){ card(it,shown===0&&!pend.length?'next':'',inDays(it[0])); shown++; } });
+  card(EXAM_CARD,'exam',left>=0?(left>1?'em '+left+' dias':(left===1?'amanhã':'hoje')):'feito');
+
+  const u=pd(UPDATED);
+  document.getElementById('f-meta').innerHTML='Semanas como no <a href="kaplan.html">kaplan.html</a> (S1 = 03/08) · dados atualizados em '+dm(UPDATED)+'/'+u.getFullYear()+' · hoje '+String(today.getDate()).padStart(2,'0')+'/'+String(today.getMonth()+1).padStart(2,'0');
+}
+function rangeTxt(a,b){
+  const s=pd(a), e0=pd(b), e=new Date(e0.getFullYear(),e0.getMonth(),e0.getDate()-1), z=n=>String(n).padStart(2,'0');
+  return s.getMonth()===e.getMonth() ? z(s.getDate())+'–'+z(e.getDate())+'/'+z(e.getMonth()+1)
+                                     : z(s.getDate())+'/'+z(s.getMonth()+1)+'–'+z(e.getDate())+'/'+z(e.getMonth()+1);
+}
+const go=()=>render();
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go);
+window.addEventListener('storage',e=>{ if(e.key==='kaplan.v1') go(); });
+setInterval(go,30*60*1000);
+window.__render=go;
+let scrolled=false;
+const focusToday=()=>{ if(scrolled) return; const w=document.querySelector('.tlwrap'); if(!w||w.scrollWidth<=w.clientWidth+2) return;
+  const now=new Date(), t=Math.round((new Date(now.getFullYear(),now.getMonth(),now.getDate())-pd(START))/MS);
+  const r=w.scrollWidth/1123, tx=(44+(t+.5)*(1035/DAYS))*r; w.scrollLeft=Math.max(0,tx-w.clientWidth*.35); scrolled=true; };
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(focusToday,50));
+})();
+</script>
+</body>
+</html>

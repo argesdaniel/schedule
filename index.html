@@ -167,9 +167,7 @@ const TRL11=U(2026,8,24); // TRL opens 11:00 · weekday blocks shift +15, up to 
 const W15=t=>(t>=TRL11?15:0);
 // one-off ficha overrides. Each block must be a permutation of the planned fichas,
 // so the cycle lines up again right after it.
-const FICHA_OVERRIDE={
-  [U(2026,9,23)]:"C", [U(2026,9,24)]:"D", [U(2026,9,25)]:"OFF"   // OFF moved Wed -> Fri
-};
+const FICHA_OVERRIDE={};
 function studyLoc(t){ if(t>=TRL11) return TRL_HOLS.has(t)?" (Home)":" (TRL)";
   return (t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t))?" (TRL)":" (Home)"; }
 const locSfx=t=>(t>=TRL11?studyLoc(t):"");

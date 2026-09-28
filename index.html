@@ -243,10 +243,11 @@ function runMoves(tl,repo,marks){
   const vacated=new Set(srcs);
   // a day is busy only if it still holds a run: vacated source days are free again
   const busy=(t,src)=>t!==src&&!runSkipped(marks,t)&&!vacated.has(t)&&(RUN_KM[t]!=null||to.has(t));
-  const ok=(t,src)=>t>=ANCHOR&&t<=PLAN_END&&tl[t]&&tl[t].ficha!=="OFF"&&dow(t)<=5
+  const wk=t=>t-(dow(t)-1)*DAY;                 // a run never leaves its own Mon-Sun week
+  const ok=(t,src)=>t>=ANCHOR&&t<=PLAN_END&&tl[t]&&tl[t].ficha!=="OFF"&&dow(t)<=5&&wk(t)===wk(src)
     &&!busy(t,src)&&!busy(t-DAY,src)&&!busy(t+DAY,src)&&!shortBlocked(t,repo,marks);
   for(const t of srcs){   // pass 2: assign a destination to each
-    const okLoose=(x,src)=>x>=ANCHOR&&x<=PLAN_END&&tl[x]&&tl[x].ficha!=="OFF"&&dow(x)<=5
+    const okLoose=(x,src)=>x>=ANCHOR&&x<=PLAN_END&&tl[x]&&tl[x].ficha!=="OFF"&&dow(x)<=5&&wk(x)===wk(src)
       &&!busy(x,src)&&!shortBlocked(x,repo,marks)&&!(dow(x+DAY)===6&&RUN_KM[x+DAY]!=null);
     let dst=null;
     for(let d=1;d<=3&&dst===null;d++){

@@ -144,12 +144,12 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2
    id = the matching activity in kaplan.html; once it is ticked there,
    the milestone shows as done here. Without an id, status follows the date only.
    ============================================================ */
-const UPDATED='2026-09-24';
+const UPDATED='2026-10-05';
 const START='2026-08-03', EXAM='2027-02-26', DAYS=210, TOTAL_ACT=769;
 const SEG=[ // from, to (exclusive), type, candidate labels
  ['2026-08-03','2026-09-22','con',['Quant · Economics · Corporate · FSA','Quant · Econ · Corporate · FSA','Quant → FSA']],
- ['2026-09-22','2026-10-05','rec',['Recovery','Recov.']],
- ['2026-10-05','2026-10-26','con',['Equities · Fixed Income','Equities · FI','Eq · FI']],
+ ['2026-09-22','2026-10-19','rec',['Recovery','Recov.']],
+ ['2026-10-19','2026-10-26','con',['Fixed Income','FI']],
  ['2026-10-26','2026-10-30','soft',[]],['2026-10-30','2026-11-02','pause',[]],['2026-11-02','2026-11-07','soft',[]],
  ['2026-11-07','2026-12-07','con',['Ethics · Deriv · Alts · Portfolio','Deriv · Alts · Portfolio','BH · content II']],
  ['2026-12-07','2026-12-12','buf',[]],['2026-12-12','2026-12-20','ink',['CP']],
@@ -163,8 +163,8 @@ const CLOSES=[ // topic closes (Saturdays)
 // milestones above the band: type P point / R range / X exam · date · end · name · decisive(1) · id
 const TOP=[
  ['P','2026-08-03',null,'Plan start',0,null],
- ['R','2026-09-22','2026-10-05','Recovery',0,null],
- ['P','2026-10-05',null,'Zero debt',1,null],
+ ['R','2026-09-22','2026-10-19','Recovery',0,null],
+ ['P','2026-10-19',null,'Zero debt',1,null],
  ['R','2026-10-26','2026-11-02','Consolidation · flight',0,null],
  ['R','2026-11-02','2026-11-07','Light week · Ethics',0,null],
  ['P','2026-12-05',null,'Content 100%',1,'a0672'],
@@ -175,7 +175,7 @@ const TOP=[
  ['X','2027-02-26',null,'Exam',2,'a0769','Feb 26 · 8:30']];
 // assessments below the band
 const BOT=[
- ['P','2026-10-03',null,'FSA gate ≥70%',1,'a0364'],
+ ['P','2026-10-07',null,'FSA gate ≥70%',1,'a0364'],
  ['P','2026-10-10',null,'Checkpoint 1',0,'a0409'],
  ['P','2026-12-12',null,'Checkpoint 2',0,'a0681'],
  ['P','2026-12-19',null,'Checkpoint 3',0,'a0689'],
@@ -186,7 +186,7 @@ const BOT=[
  ['P','2027-02-20',null,'Mock 5',0,'a0762','Feb 20 CFAI']];
 // cards: the next three + the exam
 const DECISIVE=[
- ['2026-10-03','a0364','FSA gate','Topic Quiz ≥70% on the topic that decided 2023'],
+ ['2026-10-07','a0364','FSA gate','Topic Quiz ≥70% on the topic that decided 2023'],
  ['2026-10-10','a0409','Checkpoint 1','R1–38 · the first long exam'],
  ['2026-12-05','a0672','Content 100%','All 102 readings covered'],
  ['2026-12-19','a0689','Checkpoint 3','Closes the content phase'],
@@ -251,7 +251,7 @@ function render(){
     el('rect',{x:wx,y:38,width:ww,height:22,fill:cur?C.acc:(ex?C.ink:(k%2?'#F7F7F5':'#FFFFFF'))});
     tx('W'+(k+1),{x:wx+ww/2,y:53,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':10.5,fill:ex?C.acc:(past?'#A9A9A3':C.ink)});
     const md=new Date(S0.getTime()+7*k*MS);
-    tx(MON[md.getMonth()]+' '+md.getDate(),{x:wx+ww/2,y:72,'text-anchor':'middle','font-family':MONO,'font-size':8,fill:past?C.past2:C.dim});
+    tx(MON[md.getMonth()]+' '+md.getDate(),{x:wx+ww/2,y:72,'text-anchor':'middle','font-family':MONO,'font-size':ww<38?7:8,fill:past?C.past2:C.dim});
     el('line',{x1:wx,y1:38,x2:wx,y2:BB+6,stroke:C.grid,'stroke-width':.7});
   }
   el('line',{x1:X1,y1:38,x2:X1,y2:BB+6,stroke:C.grid,'stroke-width':.7});
@@ -283,13 +283,15 @@ function render(){
     tx(code,{x:cx,y:BT-18,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:done?C.past:C.ink});
   });
   // flags
+  const CZ=CLOSES.map(([s,code])=>[xc(di(s)),measure(code,MONO,600,9.5)/2+2]);
   function layout(list,side){
     const NL=side==='top'?3:4, LH=side==='top'?28:32;
     const flags=list.map(([k,a,b,nm,key,id,dlabel])=>{
       const d0=di(a), d1=b?di(b):null;
       const st=status(a,b,id);
       const dtxt=dlabel||(b?rangeTxt(a,b):dm(a));
-      const mx=k==='R'?x((d0+d1)/2):xc(d0);
+      const onCode=X=>CZ.some(z=>X>z[0]-z[1]&&X<z[0]+z[1]);
+      const mx=k==='R'?(onCode(x(d0)+1)?x((d0+d1)/2):x(d0)+1):xc(d0);
       const strong=key>0&&st!=='done';
       const w=Math.max(measure(dtxt,MONO,600,9),measure(nm,SANS,key>0?700:500,key>0?12:11.5))+12;   // measured at the widest style so the layout never shifts over time
       return {k,d0,d1,dtxt,nm,key,st,mx,w,strong};
@@ -297,7 +299,7 @@ function render(){
     const placed=[];
     const fits=(f,L)=>{
       if(f.x0<X0-8||f.x1>W-11) return false;
-      if(side==='top'){ for(const [s] of CLOSES){ const cx=xc(di(s)); if(f.mx>cx-9&&f.mx<cx+9) return false; } }
+      if(side==='top'){ for(const z of CZ){ if(f.mx>z[0]-z[1]&&f.mx<z[0]+z[1]) return false; } }
       for(const g of placed){
         if(g.lane===L && !(f.x1+8<g.x0||f.x0>g.x1+8)) return false;
         if(g.lane<L && f.mx>g.x0-3 && f.mx<g.x1+3) return false;

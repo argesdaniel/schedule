@@ -168,7 +168,8 @@ const W15=t=>(t>=TRL11?15:0);
 // one-off ficha overrides. Each block must be a permutation of the planned fichas,
 // so the cycle lines up again right after it.
 const FICHA_OVERRIDE={
-  [U(2026,9,28)]:"OFF", [U(2026,9,29)]:"B"   // day off moved Tue -> Mon
+  [U(2026,9,28)]:"OFF", [U(2026,9,29)]:"B",  // day off moved Tue -> Mon
+  [U(2026,10,3)]:"OFF"                         // shoulders skipped (Fri), half-marathon Sat as the day off
 };
 function studyLoc(t){ if(t>=TRL11) return TRL_HOLS.has(t)?" (Home)":" (TRL)";
   return (t>=TRL_START&&t<=TRL_END&&!TRL_CLOSED.has(t))?" (TRL)":" (Home)"; }
@@ -183,10 +184,10 @@ const RUN_KM={
   [U(2026,9,5)]:12,[U(2026,9,7)]:5.5,[U(2026,9,9)]:5.5,[U(2026,9,12)]:14,
   [U(2026,9,14)]:5.5,[U(2026,9,17)]:5.5,[U(2026,9,19)]:16,[U(2026,9,22)]:10,
   [U(2026,9,24)]:7.5,[U(2026,9,26)]:12.5,[U(2026,9,29)]:7.5,[U(2026,10,1)]:7.5,
-  [U(2026,10,3)]:15,[U(2026,10,5)]:5,[U(2026,10,8)]:8,[U(2026,10,10)]:17,
-  [U(2026,10,13)]:5,[U(2026,10,15)]:7,[U(2026,10,17)]:18,[U(2026,10,19)]:5,
-  [U(2026,10,21)]:7,[U(2026,10,24)]:18,[U(2026,10,26)]:5,[U(2026,10,29)]:7,
-  [U(2026,10,31)]:18
+  [U(2026,10,3)]:15,[U(2026,10,5)]:5,[U(2026,10,8)]:10,[U(2026,10,10)]:15,
+  [U(2026,10,13)]:7.5,[U(2026,10,15)]:7.5,[U(2026,10,17)]:15,[U(2026,10,19)]:7.5,
+  [U(2026,10,20)]:7.5,[U(2026,10,24)]:15,[U(2026,10,28)]:7.5,[U(2026,10,29)]:7.5,
+  [U(2026,10,31)]:15
 };
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
 const mm=(h,m)=>h*60+(m||0);
@@ -291,6 +292,39 @@ function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm
   return B3_HOLS.has(t)
   ? Object.assign(B(a,b,"Optional Work"+locSfx(t),"trabalho","B3 closed"),{dashed:true})
   : B(a,b,"Work Window"+locSfx(t),"trabalho");}
+// From 05/10 (week 10): wake 4:00, Avant 5-9, street cafe 9-11, lunch 11-12, TRL 12:30-18,
+// dinner, shower, bed 20:00. Study and work live in a separate page, so only the places show here.
+const NS3=U(2026,10,5);
+function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
+  const rs=k=>marks.r[k]||0;
+  const hasRun=f!=="OFF"&&RKM!=null&&!shortBlocked(t,repo,marks);
+  const runMin=Math.min(90,Math.max(30,Math.round((parseFloat(RKM)||7.5)*6)));   // ~6 min/km on the treadmill
+  const run=(s,e)=>{ const b=markable(B(s,e,runLabel("Treadmill Short Run",RKM,actualKm(marks,key(t)+"_short")),"corrida",RSUB),"short",t);
+    const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true; return b; };
+  if(f==="OFF"){
+    blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Breakfast","rotina"));
+  } else {
+    blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Prep \u00b7 breakfast, pre-workout, transit","rotina"));
+    if(info.missed){
+      blocks.push(Object.assign(markable(B(mm(5,0),mm(6,30),"Workout "+f+" not done \u00b7 rest","treino"),"w",t),{missed:true}));
+      if(hasRun) blocks.push(run(mm(6,30),mm(6,30)+runMin),B(mm(6,30)+runMin,mm(7,0)+runMin,"Shower + Skincare","rotina"));
+    } else {
+      const re=mm(6,30)+runMin;
+      blocks.push(Object.assign(markable(B(mm(5,0),mm(6,30),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
+        hasRun?run(mm(6,30),re):B(mm(6,30),mm(7,15),"Dry Sauna","sauna"),
+        B(hasRun?re:mm(7,15),(hasRun?re:mm(7,15))+30,"Shower + Skincare","rotina"),
+        B(mm(8,30),mm(9,0),"Protein Smoothie","refeicao"));
+    }
+  }
+  const home=TRL_HOLS.has(t);
+  blocks.push(B(mm(9,0),mm(11,0),"Street Caf\u00e9","estudo"),
+    B(mm(11,0),mm(12,0),"Lunch","refeicao"),
+    B(mm(12,30),mm(18,0),home?"Home \u00b7 TRL closed":"TRL","estudo"),
+    B(mm(18,0),mm(19,0),"Dinner (Main Meal)","refeicao"),
+    B(mm(19,0),mm(19,30),"Shower","rotina"),
+    B(mm(19,30),mm(20,0),"Go to Bed","rotina"),
+    B(mm(20,0),mm(24,0),"Sleep","sono"));
+}
 function blocksFor(t,tl,repo,marks,moved){
   const info=tl[t]; if(!info) return null;
   const f=info.ficha, d=dow(t), blocks=[];
@@ -300,7 +334,9 @@ function blocksFor(t,tl,repo,marks,moved){
   const RKM=(RUN_KM[t]!=null?RUN_KM[t]:(mv?mv.km:null));
   const RSUB=mv?"moved from free day":null;
   const sh=(t>=NEWSCHED?120:0);
-  if(d<=5){
+  if(d<=5&&t>=NS3){
+    weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB);
+  } else if(d<=5){
     if(f==="OFF"){
       const o=(t>=NS2?165:sh)+W15(t);
       blocks.push(B(mm(4,0)+o,mm(4,15)+o,"Wake-up","rotina"),
@@ -457,7 +493,7 @@ function blocksFor(t,tl,repo,marks,moved){
     if(lr&&gapAfter(lr)>=30){ st=lr.e; en=st+Math.min(45,gapAfter(lr)); }
     else if(sa){ st=sa.s; en=sa.e; blocks.splice(blocks.indexOf(sa),1); }
     else if(lr){ st=lr.s; en=lr.e; blocks.splice(blocks.indexOf(lr),1); }
-    else { const tr=blocks.filter(b=>b.cat==="treino").pop(); st=tr?tr.e:mm(9,15); en=st+45; }
+    else { const tr=blocks.filter(b=>b.cat==="treino").pop(); st=tr?tr.e:(t>=NS3&&dow(t)<=5?mm(5,0):mm(9,15)); en=st+45; }
     const eb=markable(B(st,en,"Treadmill Short Run"+(akm!=null?" \u00b7 "+akm+" km done":""),"corrida","off-plan day"),"extra",t);
     eb.done=true; blocks.push(eb);
   }

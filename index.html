@@ -73,6 +73,10 @@ h1 .range{color:#8E8E88;font-weight:500}
   letter-spacing:.08em;padding:2px 7px;border:1px dashed var(--line2);color:var(--muted);background:transparent;cursor:pointer}
 .day-head .xrun:hover{border-color:var(--muted);color:var(--ink)}
 .day-head .xrun.on{border:1px solid var(--acc);background:var(--acc);color:var(--ink);font-weight:700}
+.day-head .restb{display:block;width:fit-content;margin-top:5px;font-family:'IBM Plex Mono',monospace;font-size:9px;
+  letter-spacing:.08em;padding:2px 7px;border:1px dashed var(--line2);color:var(--muted);background:transparent;cursor:pointer}
+.day-head .restb:hover{border-color:var(--muted);color:var(--ink)}
+.day-head .restb.on{border:1px solid var(--ink);background:var(--ink);color:var(--paper,#fff);font-weight:700}
 .badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
   background:var(--ink);color:#fff;padding:3px 8px;letter-spacing:.06em}
 .badge.off{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
@@ -160,7 +164,10 @@ const MUSC={C:"legs",D:"shoulders",A:"chest",B:"back"};
 const TRL_HOLS=new Set([U(2026,8,3),U(2026,9,7),U(2026,9,30),U(2026,10,12)]);
 const GYM_LATE=new Set([U(2026,8,3)]);
 const NEWSCHED=U(2026,8,10);
-const NS2=U(2026,8,17); // real measured durations, from week 3
+const NS2=U(2026,8,17);
+// From week 10 (05/10): workouts run in sequence with no automatic day off. Rest days are declared
+// by hand (mark 3) and push the planned workout to the next day. Weekly targets replace day-by-day.
+const NS3=U(2026,10,5), SEQ4=["C","D","A","B"], BASE_W=5, BASE_R=3; // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
 const TRL11=U(2026,8,24); // TRL opens 11:00 · weekday blocks shift +15, up to (not incl.) the 17:00 study block
@@ -185,8 +192,8 @@ const RUN_KM={
   [U(2026,9,14)]:5.5,[U(2026,9,17)]:5.5,[U(2026,9,19)]:16,[U(2026,9,22)]:10,
   [U(2026,9,24)]:7.5,[U(2026,9,26)]:12.5,[U(2026,9,29)]:7.5,[U(2026,10,1)]:7.5,
   [U(2026,10,3)]:15,[U(2026,10,5)]:5,[U(2026,10,8)]:10,[U(2026,10,10)]:15,
-  [U(2026,10,13)]:7.5,[U(2026,10,15)]:7.5,[U(2026,10,17)]:15,[U(2026,10,19)]:7.5,
-  [U(2026,10,20)]:7.5,[U(2026,10,24)]:15,[U(2026,10,28)]:7.5,[U(2026,10,29)]:7.5,
+  [U(2026,10,13)]:7.5,[U(2026,10,15)]:7.5,[U(2026,10,17)]:15,[U(2026,10,20)]:7.5,
+  [U(2026,10,22)]:7.5,[U(2026,10,24)]:15,[U(2026,10,27)]:7.5,[U(2026,10,29)]:7.5,
   [U(2026,10,31)]:15
 };
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
@@ -197,8 +204,16 @@ function key(t){ const d=new Date(t); return d.getUTCFullYear()+"-"+String(d.get
 // marks: {w:{"YYYY-MM-DD":1|2}, r:{"YYYY-MM-DD_short":1|2, "YYYY-MM-DD_long":1|2}}
 // 1 = done · 2 = not done. Only 2 in marks.w slides the cycle.
 function buildTimeline(marks){
-  const tl={}; let idx=0;
+  const tl={}; let idx=0, j=null;
   for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
+    if(t>=NS3){
+      if(j===null){ const p=(FICHA_OVERRIDE[t]!=null?FICHA_OVERRIDE[t]:SEQ[idx%5]); j=(p==="OFF")?0:SEQ4.indexOf(p); }
+      const st=marks.w[key(t)]||0, info={ficha:SEQ4[j%4]};
+      if(st===3){ info.ficha="OFF"; info.rest=true; }   // declared rest: this workout moves to the next day
+      else if(st===2){ info.missed=true; }              // not done: also moves, but counts as a miss
+      else { j++; if(st===1) info.done=true; }
+      tl[t]=info; continue;
+    }
     const planned=(FICHA_OVERRIDE[t]!=null?FICHA_OVERRIDE[t]:SEQ[idx%5]);
     const info={ficha:planned};
     if(planned==="OFF"){ idx++; }
@@ -294,7 +309,6 @@ function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm
   : B(a,b,"Work Window"+locSfx(t),"trabalho");}
 // From 05/10 (week 10): wake 4:00, Avant 5-9, street cafe 9-11, lunch 11-12, TRL 12:30-18,
 // dinner, shower, bed 20:00. Study and work live in a separate page, so only the places show here.
-const NS3=U(2026,10,5);
 function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   const rs=k=>marks.r[k]||0;
   const hasRun=f!=="OFF"&&RKM!=null&&!shortBlocked(t,repo,marks);
@@ -536,28 +550,60 @@ function statsFor(marks,upTo){
 // expected-to-date reads the SAME timeline the calendar renders (slides included).
 // "end" is the last SETTLED day (yesterday): the day in progress counts on neither
 // side, so the delta shows consolidated debt only. Capped by the season totals.
+function weekStart(t){ return t-(dow(t)-1)*DAY; }
+function nsDaysIn(m){ let n=0; for(let t=m;t<m+7*DAY;t+=DAY) if(t>=NS3&&t<=PLAN_END) n++; return n; }
+// lifting from NS3: BASE_W per week. Declared rest days are free up to (days in the week - BASE_W),
+// so resting never costs anything until the week can no longer reach the target.
+function nsExpectedW(end,marks){
+  let e=0;
+  for(let m=weekStart(NS3); m<=end&&m<=PLAN_END; m+=7*DAY){
+    const free=Math.max(0,nsDaysIn(m)-BASE_W);
+    let k=0, rest=0;
+    for(let t=Math.max(m,NS3); t<m+7*DAY&&t<=end&&t<=PLAN_END; t+=DAY){ k++; if(marks.w[key(t)]===3) rest++; }
+    e+=Math.min(BASE_W,Math.max(0,k-Math.min(rest,free)));
+  }
+  return e;
+}
+// running from NS3: BASE_R per completed week; the current week counts its run slots as they come
+function nsRunSlot(t,tl,repo,moved,marks){
+  if(!tl[t]) return 0;
+  if(dow(t)===6) return 1;
+  if(dow(t)===7) return repo.has(t)?1:0;
+  return (tl[t].ficha!=="OFF"&&(RUN_KM[t]!=null||moved.has(t))&&!shortBlocked(t,repo,marks))?1:0;
+}
+function nsExpectedR(end,tl,repo,moved,marks){
+  let e=0;
+  for(let m=weekStart(NS3); m<=end&&m<=PLAN_END; m+=7*DAY){
+    if(end>=Math.min(m+6*DAY,PLAN_END)){ e+=BASE_R; continue; }
+    let sl=0; for(let t=Math.max(m,NS3); t<=end; t+=DAY) sl+=nsRunSlot(t,tl,repo,moved,marks);
+    e+=Math.min(BASE_R,sl);
+  }
+  return e;
+}
 function plannedToDate(end,tl,repo,moved,marks){
   let wk=0, rn=0;
-  for(let t=ANCHOR;t<=end&&t<=PLAN_END;t+=DAY){
+  for(let t=ANCHOR;t<=end&&t<=PLAN_END&&t<NS3;t+=DAY){
     if(!tl[t]) continue;
     if(tl[t].ficha!=="OFF") wk++;
     if(dow(t)===6) rn++;
     else if(dow(t)===7) { if(repo.has(t)) rn++; }
     else if(tl[t].ficha!=="OFF" && (RUN_KM[t]!=null||moved.has(t)) && !shortBlocked(t,repo,marks)) rn++;
   }
+  if(end>=NS3){ wk+=nsExpectedW(end,marks); rn+=nsExpectedR(end,tl,repo,moved,marks); }
   const cap=plannedCounts();
   return {wk:Math.min(wk,cap.wk), rn:Math.min(rn,cap.rn)};
 }
 function plannedCounts(){
   let wk=0, rn=0;
   const seq=["C","D","A","B","OFF"]; let idx=0;
-  for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
+  for(let t=ANCHOR;t<=PLAN_END&&t<NS3;t+=DAY){
     const f=seq[idx%5]; idx++;
     const d=dow(t);
     if(f!=="OFF") wk++;
     if(d===6) rn++;                       // long run every Saturday
     else if(RUN_KM[t]!=null && !(dow(t-DAY)===6 && RUN_KM[t-DAY]!=null)) rn++;  // short runs follow RUN_KM dates, not the lifting cycle
   }
+  for(let m=weekStart(NS3); m<=PLAN_END; m+=7*DAY){ wk+=BASE_W; rn+=BASE_R; }
   return {wk,rn};
 }
 function studyProgress(){
@@ -582,7 +628,15 @@ function progressBars(marks,tl,repo,moved){
   const tk=key(today), decided=(v)=>v===1||v===2;
   const stS=statsFor(marks,key(yest));
   const ptd=plannedToDate(yest,tl,repo,moved,marks);
-  if(today>=ANCHOR&&today<=PLAN_END&&tl[today]){
+  if(today>=NS3&&today<=PLAN_END&&tl[today]){
+    // any decision about today (done, not done or rest) settles it on both sides
+    const pT=plannedToDate(today,tl,repo,moved,marks), wv=marks.w[tk];
+    if(wv===1||wv===2||wv===3) ptd.wk=pT.wk;
+    if(wv===1) stS.wOk++;
+    const rk=marks.r[tk+"_long"]!=null?tk+"_long":(marks.r[tk+"_short"]!=null?tk+"_short":null);
+    if(rk&&decided(marks.r[rk])){ ptd.rn=pT.rn; if(marks.r[rk]===1) stS.rOk++; }
+    if(marks.r[tk+"_extra"]===1) stS.rOk++;
+  } else if(today>=ANCHOR&&today<=PLAN_END&&tl[today]){
     if(decided(marks.w[tk])){
       if(tl[today].ficha!=="OFF") ptd.wk=Math.min(pl.wk,ptd.wk+1);
       if(marks.w[tk]===1) stS.wOk++;
@@ -673,18 +727,28 @@ function render(){
     const t=monday+i*DAY, info=tl[t];
     const isToday=t===tUTC;
     let badge= !info?"" : info.ficha==="OFF"
-      ? "<span class='badge off'>OFF</span>"
+      ? "<span class='badge off'>"+(info.rest?"REST":"OFF")+"</span>"
       : "<span class='badge'"+(info.missed?" style='opacity:.45'":"")+">"+info.ficha+" <small>"+MUSC[info.ficha]+"</small></span>";
 
+    // rest day (from week 10): declared by hand, pushes this day's workout to the next day
+    const rkk=key(t), rOn=marks.w[rkk]===3;
+    const restb=(info&&t>=NS3)
+      ? "<button class='restb"+(rOn?" on":"")+"' data-rk='"+rkk+"' title='"+(rOn?"rest day (tap: undo)":"mark as rest day")+"'>"+(rOn?"\u2713 rest day":"rest")+"</button>"
+      : "";
     // extra run: any day without a scheduled run can record one
     const hasRun=(blocksFor(t,tl,repo,marks,moved)||[]).some(b=>b.cat==="corrida");
     const xk=key(t)+"_extra", xOn=marks.r[xk]===1;
-    const xrun=(info&&!hasRun)
+    const xrun=(info&&!hasRun&&!info.rest)
       ? "<button class='xrun"+(xOn?" on":"")+"' data-xk='"+xk+"' title='"+(xOn?"extra run done (tap: remove)":"record an extra run")+"'>"+(xOn?"\u2713 extra run":"+ run")+"</button>"
       : "";
     head.insertAdjacentHTML("beforeend",
-      "<div class='day-head"+(isToday?" today":"")+"'><div class='dow'>"+DOWS[i]+"</div><div class='dt'>"+fmt(t)+"</div>"+badge+xrun+"</div>");
+      "<div class='day-head"+(isToday?" today":"")+"'><div class='dow'>"+DOWS[i]+"</div><div class='dt'>"+fmt(t)+"</div>"+badge+restb+xrun+"</div>");
   }
+  head.querySelectorAll(".restb").forEach(btn=>btn.addEventListener("click",ev=>{
+    ev.stopPropagation(); const k=btn.getAttribute("data-rk");
+    if(marks.w[k]===3) delete marks.w[k]; else marks.w[k]=3;
+    saveMarks(); render();
+  }));
   head.querySelectorAll(".xrun").forEach(btn=>btn.addEventListener("click",ev=>{
     ev.stopPropagation(); const k=btn.getAttribute("data-xk");
     if(marks.r[k]===1) delete marks.r[k]; else marks.r[k]=1;

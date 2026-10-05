@@ -312,7 +312,6 @@ function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm
 function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   const rs=k=>marks.r[k]||0;
   const hasRun=f!=="OFF"&&RKM!=null&&!shortBlocked(t,repo,marks);
-  const runMin=Math.min(90,Math.max(30,Math.round((parseFloat(RKM)||7.5)*6)));   // ~6 min/km on the treadmill
   const run=(s,e)=>{ const b=markable(B(s,e,runLabel("Treadmill Short Run",RKM,actualKm(marks,key(t)+"_short")),"corrida",RSUB),"short",t);
     const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true; return b; };
   if(f==="OFF"){
@@ -320,13 +319,13 @@ function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   } else {
     blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Prep \u00b7 breakfast, pre-workout, transit","rotina"));
     if(info.missed){
-      blocks.push(Object.assign(markable(B(mm(5,0),mm(6,30),"Workout "+f+" not done \u00b7 rest","treino"),"w",t),{missed:true}));
-      if(hasRun) blocks.push(run(mm(6,30),mm(6,30)+runMin),B(mm(6,30)+runMin,mm(7,0)+runMin,"Shower + Skincare","rotina"));
+      blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" not done \u00b7 rest","treino"),"w",t),{missed:true}));
+      if(hasRun) blocks.push(run(mm(7,0),mm(8,0)),B(mm(8,0),mm(8,30),"Shower + Skincare","rotina"));
     } else {
-      const re=mm(6,30)+runMin;
-      blocks.push(Object.assign(markable(B(mm(5,0),mm(6,30),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
-        hasRun?run(mm(6,30),re):B(mm(6,30),mm(7,15),"Dry Sauna","sauna"),
-        B(hasRun?re:mm(7,15),(hasRun?re:mm(7,15))+30,"Shower + Skincare","rotina"),
+      // Avant 5-9: 2h lifting, 1h run or sauna, 30 min shower, 30 min smoothie
+      blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
+        hasRun?run(mm(7,0),mm(8,0)):B(mm(7,0),mm(8,0),"Sauna","sauna"),
+        B(mm(8,0),mm(8,30),"Shower + Skincare","rotina"),
         B(mm(8,30),mm(9,0),"Protein Smoothie","refeicao"));
     }
   }
@@ -469,7 +468,7 @@ function blocksFor(t,tl,repo,marks,moved){
           const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true;
           blocks.push(b);
         } else {
-          blocks.push(B(mm(11,30),mm(12,15),"Dry Sauna","sauna"));
+          blocks.push(B(mm(11,30),mm(12,15),t>=NS3?"Sauna":"Dry Sauna","sauna"));
         }
         blocks.push(B(endR,endR+30,"Shower + Skincare","rotina"),
           B(endR+30,endR+45,"Protein Smoothie","refeicao"));

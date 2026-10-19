@@ -144,12 +144,13 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2
    id = the matching activity in kaplan.html; once it is ticked there,
    the milestone shows as done here. Without an id, status follows the date only.
    ============================================================ */
-const UPDATED='2026-10-19';
+const UPDATED='2026-10-05';
 const START='2026-08-03', EXAM='2027-02-26', DAYS=210, TOTAL_ACT=769;
 const SEG=[ // from, to (exclusive), type, candidate labels
  ['2026-08-03','2026-09-22','con',['Quant · Economics · Corporate · FSA','Quant · Econ · Corporate · FSA','Quant → FSA']],
- ['2026-09-22','2026-10-29','rec',['Recovery','Recov.']],
- ['2026-10-29','2026-11-02','pause',[]],['2026-11-02','2026-11-07','soft',[]],
+ ['2026-09-22','2026-10-19','rec',['Recovery','Recov.']],
+ ['2026-10-19','2026-10-26','con',['Fixed Income','FI']],
+ ['2026-10-26','2026-10-30','soft',[]],['2026-10-30','2026-11-02','pause',[]],['2026-11-02','2026-11-07','soft',[]],
  ['2026-11-07','2026-12-07','con',['Ethics · Deriv · Alts · Portfolio','Deriv · Alts · Portfolio','BH · content II']],
  ['2026-12-07','2026-12-12','buf',[]],['2026-12-12','2026-12-20','ink',['CP']],
  ['2026-12-20','2027-01-04','pause',['Christmas · recess','Recess']],['2027-01-04','2027-01-09','buf',[]],
@@ -157,14 +158,15 @@ const SEG=[ // from, to (exclusive), type, candidate labels
 const CITY=[['2026-08-03','2026-10-30','Toronto'],['2026-11-02','2027-03-01','Belo Horizonte']];
 const MONTHS=[['2026-08-03','August'],['2026-09-01','September'],['2026-10-01','October'],['2026-11-01','November'],['2026-12-01','December'],['2027-01-01','January 2027'],['2027-02-01','February']];
 const CLOSES=[ // topic closes (Saturdays)
- ['2026-08-26','QM','a0123'],['2026-09-05','ECO','a0203'],['2026-09-12','CF','a0231'],['2026-10-21','EQ','a0445'],['2026-10-24','FI','a0483'],
+ ['2026-08-26','QM','a0123'],['2026-09-05','ECO','a0203'],['2026-09-12','CF','a0231'],['2026-10-17','EQ','a0445'],['2026-10-24','FI','a0483'],
  ['2026-11-14','ETH','a0578'],['2026-11-21','DER','a0633'],['2026-11-28','ALT','a0663']];
 // milestones above the band: type P point / R range / X exam · date · end · name · decisive(1) · id
 const TOP=[
  ['P','2026-08-03',null,'Plan start',0,null],
- ['R','2026-09-22','2026-10-29','Recovery',0,null],
- ['P','2026-11-02',null,'Zero debt · Ethics',1,null],
- ['R','2026-10-25','2026-11-02','Consolidation · flight',0,null],
+ ['R','2026-09-22','2026-10-19','Recovery',0,null],
+ ['P','2026-10-19',null,'Zero debt',1,null],
+ ['R','2026-10-26','2026-11-02','Consolidation · flight',0,null],
+ ['R','2026-11-02','2026-11-07','Light week · Ethics',0,null],
  ['P','2026-12-05',null,'Content 100%',1,'a0672'],
  ['R','2026-12-07','2026-12-12','Buffer · PSM',0,null],
  ['R','2027-01-04','2027-01-09','Ramp',0,null],
@@ -174,7 +176,7 @@ const TOP=[
 // assessments below the band
 const BOT=[
  ['P','2026-10-08',null,'FSA gate ≥70%',1,'a0364'],
- ['P','2026-10-20',null,'Checkpoint 1',0,'a0409'],
+ ['P','2026-10-10',null,'Checkpoint 1',0,'a0409'],
  ['P','2026-12-12',null,'Checkpoint 2',0,'a0681'],
  ['P','2026-12-19',null,'Checkpoint 3',0,'a0689'],
  ['P','2027-01-09',null,'Mock 1 · diagnostic',1,'a0701'],
@@ -185,7 +187,7 @@ const BOT=[
 // cards: the next three + the exam
 const DECISIVE=[
  ['2026-10-08','a0364','FSA gate','Topic Quiz ≥70% on the topic that decided 2023'],
- ['2026-10-20','a0409','Checkpoint 1','R1–38 · the first long exam'],
+ ['2026-10-10','a0409','Checkpoint 1','R1–38 · the first long exam'],
  ['2026-12-05','a0672','Content 100%','All 102 readings covered'],
  ['2026-12-19','a0689','Checkpoint 3','Closes the content phase'],
  ['2027-01-09','a0701','Mock 1','Diagnostic: the mock season begins'],

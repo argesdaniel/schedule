@@ -158,7 +158,7 @@ h1 .range{color:#8E8E88;font-weight:500}
 /*__LOGIC_START__*/
 const DAY=86400000;
 const U=(y,m,d)=>Date.UTC(y,m-1,d);
-const ANCHOR=U(2026,8,2), PLAN_END=U(2026,10,31);
+const ANCHOR=U(2026,8,2), PLAN_END=U(2026,10,30);   // Sat 31: AV205 YYZ 0:40, flight home
 const SEQ=["C","D","A","B","OFF"];
 const MUSC={C:"legs",D:"shoulders",A:"chest",B:"back"};
 const TRL_HOLS=new Set([U(2026,8,3),U(2026,9,7),U(2026,9,30),U(2026,10,12)]);
@@ -167,7 +167,8 @@ const NEWSCHED=U(2026,8,10);
 const NS2=U(2026,8,17);
 // From week 10 (05/10): workouts run in sequence with no automatic day off. Rest days are declared
 // by hand (mark 3) and push the planned workout to the next day. Weekly targets replace day-by-day.
-const NS3=U(2026,10,5), SEQ4=["C","D","A","B"], BASE_W=5, BASE_R=3; // real measured durations, from week 3
+const NS3=U(2026,10,5), SEQ4=["C","D","A","B"], BASE_W=5, BASE_R=3;
+const LAST_LONG=U(2026,10,30);   // last long run moved to Friday: Saturday 31 is the flight home // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
 const TRL11=U(2026,8,24); // TRL opens 11:00 · weekday blocks shift +15, up to (not incl.) the 17:00 study block
@@ -194,7 +195,7 @@ const RUN_KM={
   [U(2026,10,3)]:15,[U(2026,10,5)]:5,[U(2026,10,8)]:10,[U(2026,10,10)]:15,
   [U(2026,10,13)]:7.5,[U(2026,10,15)]:7.5,[U(2026,10,17)]:15,[U(2026,10,20)]:7.5,
   [U(2026,10,22)]:7.5,[U(2026,10,24)]:15,[U(2026,10,27)]:7.5,[U(2026,10,29)]:7.5,
-  [U(2026,10,31)]:15
+  [U(2026,10,30)]:15
 };
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
 const mm=(h,m)=>h*60+(m||0);
@@ -255,7 +256,7 @@ function runMoves(tl,repo,marks){
   // pass 1: which scheduled runs cannot stay where they are
   const srcs=[];
   for(let t=ANCHOR;t<=PLAN_END;t+=DAY){
-    if(RUN_KM[t]==null||dow(t)===6) continue;
+    if(RUN_KM[t]==null||dow(t)===6||t===LAST_LONG) continue;   // long runs never move
     if((!tl[t]||tl[t].ficha==="OFF")||shortBlocked(t,repo,marks)) srcs.push(t);
   }
   const vacated=new Set(srcs);
@@ -311,16 +312,26 @@ function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm
 // dinner, shower, bed 20:00. Study and work live in a separate page, so only the places show here.
 function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   const rs=k=>marks.r[k]||0;
-  const hasRun=f!=="OFF"&&RKM!=null&&!shortBlocked(t,repo,marks);
+  const isLong=t===LAST_LONG&&RKM!=null;
+  const hasRun=!isLong&&f!=="OFF"&&RKM!=null&&!shortBlocked(t,repo,marks);
   const run=(s,e)=>{ const b=markable(B(s,e,runLabel("Treadmill Short Run",RKM,actualKm(marks,key(t)+"_short")),"corrida",RSUB),"short",t);
+    const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true; return b; };
+  const long=(s,e)=>{ const a=actualKm(marks,key(t)+"_long");
+    const b=markable(B(s,e,"Street Long Run \u00b7 "+RKM+(a!=null?" km plan \u00b7 "+a+" km done":" km @ 6:15-6:40/km"),"corrida",f==="OFF"?"fresh legs":"last long run"),"long",t);
     const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true; return b; };
   if(f==="OFF"){
     blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Breakfast","rotina"));
+    if(isLong) blocks.push(long(mm(7,0),mm(8,30)),B(mm(8,30),mm(9,0),"Shower + Skincare","rotina"));
   } else {
     blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Prep \u00b7 breakfast, pre-workout, transit","rotina"));
     if(info.missed){
       blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" not done \u00b7 rest","treino"),"w",t),{missed:true}));
-      if(hasRun) blocks.push(run(mm(7,0),mm(8,0)),B(mm(8,0),mm(8,30),"Shower + Skincare","rotina"));
+      if(isLong) blocks.push(long(mm(7,0),mm(8,30)),B(mm(8,30),mm(9,0),"Shower + Skincare","rotina"));
+      else if(hasRun) blocks.push(run(mm(7,0),mm(8,0)),B(mm(8,0),mm(8,30),"Shower + Skincare","rotina"));
+    } else if(isLong){
+      // last long run: 2h lifting, 1h30 run, 30 min shower
+      blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
+        long(mm(7,0),mm(8,30)), B(mm(8,30),mm(9,0),"Shower + Skincare","rotina"));
     } else {
       // Avant 5-9: 2h lifting, 1h run or sauna, 30 min shower, 30 min smoothie
       blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
@@ -333,10 +344,17 @@ function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   blocks.push(B(mm(9,0),mm(11,0),"Street Caf\u00e9","estudo"),
     B(mm(11,0),mm(12,0),"Lunch","refeicao"),
     B(mm(12,30),mm(18,0),home?"Home \u00b7 TRL closed":"TRL","estudo"),
-    B(mm(18,0),mm(19,0),"Dinner (Main Meal)","refeicao"),
-    B(mm(19,0),mm(19,30),"Shower","rotina"),
-    B(mm(19,30),mm(20,0),"Go to Bed","rotina"),
-    B(mm(20,0),mm(24,0),"Sleep","sono"));
+    B(mm(18,0),mm(19,0),"Dinner (Main Meal)","refeicao"));
+  if(t===PLAN_END){
+    // last evening: pack, check-out and the airport. AV205 leaves YYZ at 0:40 on Saturday
+    blocks.push(B(mm(19,0),mm(20,45),"Pack + Check-out","rotina"),
+      B(mm(20,45),mm(21,30),"Transit to YYZ \u00b7 Line 1 + UP Express","rotina"),
+      B(mm(21,30),mm(24,0),"YYZ \u00b7 check-in, security \u00b7 AV205 at 0:40","rotina"));
+  } else {
+    blocks.push(B(mm(19,0),mm(19,30),"Shower","rotina"),
+      B(mm(19,30),mm(20,0),"Go to Bed","rotina"),
+      B(mm(20,0),mm(24,0),"Sleep","sono"));
+  }
 }
 function blocksFor(t,tl,repo,marks,moved){
   const info=tl[t]; if(!info) return null;
@@ -430,7 +448,7 @@ function blocksFor(t,tl,repo,marks,moved){
     }
     const isC=(!info.missed&&f==="C");
     const LS=(t>=NS2?(info.missed||f==="OFF"?mm(9,30):mm(11,30)):mm(7,30)+ws);
-    const lb=markable(B(t>=NS2?LS:mm(7,30)+ws,(t>=NS2?LS+90:mm(9,0)+ws),(actualKm(marks,key(t)+"_long")!=null?(isC?"Long Run (easy)":"Street Long Run")+" · "+(RUN_KM[t]??"10-12")+" km plan · "+actualKm(marks,key(t)+"_long")+" km done":(isC?"Long Run (easy) · "+(RUN_KM[t]??"8-10")+" km @ 9 km/h":"Street Long Run · "+(RUN_KM[t]??"10-12")+" km @ 9-9.6 km/h")),"corrida",
+    const lb=markable(B(t>=NS2?LS:mm(7,30)+ws,(t>=NS2?LS+90:mm(9,0)+ws),(actualKm(marks,key(t)+"_long")!=null?(isC?"Long Run (easy)":"Street Long Run")+" · "+(RUN_KM[t]??"10-12")+" km plan · "+actualKm(marks,key(t)+"_long")+" km done":(isC?"Long Run (easy) · "+(RUN_KM[t]??"8-10")+" km @ 6:40/km":"Street Long Run · "+(RUN_KM[t]??"10-12")+" km @ 6:15-6:40/km")),"corrida",
       isC?"legs + long run":(f==="OFF"?"fresh legs":null)),"long",t);
     const st=rs(lb.mark.k); if(st===1)lb.done=true; if(st===2)lb.missed=true;
     blocks.push(lb);
@@ -516,6 +534,7 @@ function offPlanLabel(t){
   if(t===U(2026,7,30)) return "GRU-BOG-YYZ flight";
   if(t===U(2026,7,31)) return "arrival in Toronto";
   if(t===U(2026,8,1)) return "settling in · rest";
+  if(t===U(2026,10,31)) return "flight home \u00b7 AV205 YYZ 0:40 \u2192 BOG \u2192 GRU 16:15";
   if(t>PLAN_END) return "back in Brazil";
   return "pre-plan";
 }
@@ -531,12 +550,12 @@ function actualKm(marks,k){ return (marks.km&&marks.km[k]!=null)?marks.km[k]:nul
 // make-up: mostra km feito, ou km alvo quando ainda pendente
 function longLabel(base,marks,t){
   const k=key(t)+"_long", a=actualKm(marks,k);
-  if(a==null) return base+" @ 9-9.6 km/h";
+  if(a==null) return base+" @ 6:15-6:40/km";
   return base+" \u00b7 "+a+(marks.r[k]===1?" km done":" km target");
 }
 function runLabel(base,plannedKm,actual){
   return actual!=null ? base+" \u00b7 "+plannedKm+" km plan \u00b7 "+actual+" km done"
-                      : base+" \u00b7 "+plannedKm+" km @ 10-10.5 km/h";
+                      : base+" \u00b7 "+plannedKm+" km @ 5:43-6:00/km";
 }
 function statsFor(marks,upTo){
   const c=v=>Object.entries(v).reduce((a,[k,s])=>{
@@ -717,7 +736,14 @@ function render(){
   const {sr,ss}=sunTimes(monday);
   const d0=new Date(monday), d6=new Date(monday+6*DAY);
   const range=String(d0.getUTCDate()).padStart(2,"0")+" "+MESES[d0.getUTCMonth()]+" - "+String(d6.getUTCDate()).padStart(2,"0")+" "+MESES[d6.getUTCMonth()];
-  document.getElementById("weekTitle").innerHTML=(wknum===0?"Week 0 · arrival":"Week "+wknum)+" <span class='range'>"+range+"</span>";
+  // weekly running volume: plan (RUN_KM dates in this Mon-Sun week) and done (recorded km)
+  let kmPlan=0, kmDone=0;
+  for(let i=0;i<7;i++){ const t=monday+i*DAY; if(RUN_KM[t]!=null) kmPlan+=Number(RUN_KM[t]); }
+  for(const k in (marks.km||{})){ const d=k.slice(0,10), t=U(+d.slice(0,4),+d.slice(5,7),+d.slice(8,10));
+    if(t>=monday&&t<monday+7*DAY&&marks.r[k]===1) kmDone+=Number(marks.km[k]); }
+  const f1=x=>(Math.round(x*10)/10).toString().replace(/\.0$/,"");
+  const vol=kmPlan||kmDone ? " <span class='range'>\u00b7 run "+f1(kmPlan)+" km plan \u00b7 "+f1(kmDone)+" km done</span>" : "";
+  document.getElementById("weekTitle").innerHTML=(wknum===0?"Week 0 · arrival":"Week "+wknum)+" <span class='range'>"+range+"</span>"+vol;
   document.getElementById("sunInfo").textContent="daylight (approx.): "+hhmm(sr)+" - "+hhmm(ss);
   document.getElementById("stats").innerHTML=progressBars(marks,tl,repo,moved);
   head.insertAdjacentHTML("beforeend","<div class='day-head' style='border:0'></div>");

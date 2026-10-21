@@ -168,7 +168,8 @@ const NS2=U(2026,8,17);
 // From week 10 (05/10): workouts run in sequence with no automatic day off. Rest days are declared
 // by hand (mark 3) and push the planned workout to the next day. Weekly targets replace day-by-day.
 const NS3=U(2026,10,5), SEQ4=["C","D","A","B"], BASE_W=5, BASE_R=3;
-const LAST_LONG=U(2026,10,30);   // last long run moved to Friday: Saturday 31 is the flight home // real measured durations, from week 3
+const LAST_LONG=U(2026,10,30);
+const DAYS_OFF=new Set([U(2026,10,29),U(2026,10,30)]);   // last days: no work or study, training stays   // last long run moved to Friday: Saturday 31 is the flight home // real measured durations, from week 3
 const TRL_START=U(2026,8,13), TRL_END=U(2026,8,21); // full-access window before reduced hours
 const TRL_CLOSED=new Set([U(2026,8,18)]); // planned full-day renovation closure // Avant holiday hours: opens 6:00
 const TRL11=U(2026,8,24); // TRL opens 11:00 · weekday blocks shift +15, up to (not incl.) the 17:00 study block
@@ -341,9 +342,10 @@ function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
     }
   }
   const home=TRL_HOLS.has(t);
-  blocks.push(B(mm(9,0),mm(11,0),"Street Caf\u00e9","estudo"),
+  const off=DAYS_OFF.has(t);
+  blocks.push(B(mm(9,0),mm(11,0),off?"Day off":"Street Caf\u00e9",off?"rotina":"estudo"),
     B(mm(11,0),mm(12,0),"Lunch","refeicao"),
-    B(mm(12,30),mm(18,0),home?"Home \u00b7 TRL closed":"TRL","estudo"),
+    B(mm(12,30),mm(18,0),off?"Day off \u00b7 last days in Toronto":(home?"Home \u00b7 TRL closed":"TRL"),off?"rotina":"estudo"),
     B(mm(18,0),mm(19,0),"Dinner (Main Meal)","refeicao"));
   if(t===PLAN_END){
     // last evening: pack, check-out and the airport. AV205 leaves YYZ at 0:40 on Saturday

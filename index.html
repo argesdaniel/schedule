@@ -195,8 +195,7 @@ const RUN_KM={
   [U(2026,9,24)]:7.5,[U(2026,9,26)]:12.5,[U(2026,9,29)]:7.5,[U(2026,10,1)]:7.5,
   [U(2026,10,3)]:15,[U(2026,10,5)]:5,[U(2026,10,8)]:10,[U(2026,10,10)]:15,
   [U(2026,10,13)]:7.5,[U(2026,10,15)]:7.5,[U(2026,10,17)]:15,[U(2026,10,20)]:7.5,
-  [U(2026,10,22)]:7.5,[U(2026,10,24)]:15,[U(2026,10,27)]:7.5,[U(2026,10,29)]:7.5,
-  [U(2026,10,30)]:15
+  [U(2026,10,22)]:7.5,[U(2026,10,24)]:15,[U(2026,10,27)]:10,[U(2026,10,30)]:21.2
 };
 const B3_HOLS=new Set([U(2026,9,7),U(2026,10,12)]);
 const mm=(h,m)=>h*60+(m||0);
@@ -314,6 +313,7 @@ function workBlock(t){ const a=(t>=NS2?mm(14,45)+W15(t):mm(14,30)), b=(t>=NS2?mm
 function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   const rs=k=>marks.r[k]||0;
   const isLong=t===LAST_LONG&&RKM!=null;
+  const LE=mm(7,0)+Math.ceil(((parseFloat(RKM)||15)*5.6)/15)*15;   // long run end
   const hasRun=!isLong&&f!=="OFF"&&RKM!=null&&!shortBlocked(t,repo,marks);
   const run=(s,e)=>{ const b=markable(B(s,e,runLabel("Treadmill Short Run",RKM,actualKm(marks,key(t)+"_short")),"corrida",RSUB),"short",t);
     const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true; return b; };
@@ -322,17 +322,17 @@ function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
     const st=rs(b.mark.k); if(st===1)b.done=true; if(st===2)b.missed=true; return b; };
   if(f==="OFF"){
     blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Breakfast","rotina"));
-    if(isLong) blocks.push(long(mm(7,0),mm(8,30)),B(mm(8,30),mm(9,0),"Shower + Skincare","rotina"));
+    if(isLong) blocks.push(long(mm(7,0),LE),B(LE,LE+30,"Shower + Skincare","rotina"));
   } else {
     blocks.push(B(mm(4,0),mm(4,45),"Wake-up + Prep \u00b7 breakfast, pre-workout, transit","rotina"));
     if(info.missed){
       blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" not done \u00b7 rest","treino"),"w",t),{missed:true}));
-      if(isLong) blocks.push(long(mm(7,0),mm(8,30)),B(mm(8,30),mm(9,0),"Shower + Skincare","rotina"));
+      if(isLong) blocks.push(long(mm(7,0),LE),B(LE,LE+30,"Shower + Skincare","rotina"));
       else if(hasRun) blocks.push(run(mm(7,0),mm(8,0)),B(mm(8,0),mm(8,30),"Shower + Skincare","rotina"));
     } else if(isLong){
       // last long run: 2h lifting, 1h30 run, 30 min shower
       blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
-        long(mm(7,0),mm(8,30)), B(mm(8,30),mm(9,0),"Shower + Skincare","rotina"));
+        long(mm(7,0),LE),B(LE,LE+30,"Shower + Skincare","rotina"));
     } else {
       // Avant 5-9: 2h lifting, 1h run or sauna, 30 min shower, 30 min smoothie
       blocks.push(Object.assign(markable(B(mm(5,0),mm(7,0),"Workout "+f+" \u00b7 "+MUSC[f],"treino"),"w",t),{done:!!info.done}),
@@ -343,7 +343,8 @@ function weekdayNS3(t,f,info,blocks,repo,marks,RKM,RSUB){
   }
   const home=TRL_HOLS.has(t);
   const off=DAYS_OFF.has(t);
-  blocks.push(B(mm(9,0),mm(11,0),off?"Day off":"Street Caf\u00e9",off?"rotina":"estudo"),
+  const ms=isLong?Math.max(mm(9,0),LE+30):mm(9,0);
+  blocks.push(B(ms,mm(11,0),off?"Day off":"Street Caf\u00e9",off?"rotina":"estudo"),
     B(mm(11,0),mm(12,0),"Lunch","refeicao"),
     B(mm(12,30),mm(18,0),off?"Day off \u00b7 last days in Toronto":(home?"Home \u00b7 TRL closed":"TRL"),off?"rotina":"estudo"),
     B(mm(18,0),mm(19,0),"Dinner (Main Meal)","refeicao"));
@@ -574,13 +575,17 @@ function weekStart(t){ return t-(dow(t)-1)*DAY; }
 function nsDaysIn(m){ let n=0; for(let t=m;t<m+7*DAY;t+=DAY) if(t>=NS3&&t<=PLAN_END) n++; return n; }
 // lifting from NS3: BASE_W per week. Declared rest days are free up to (days in the week - BASE_W),
 // so resting never costs anything until the week can no longer reach the target.
+// weekly targets: a short week (the last one, cut by the flight) gets a proportional lifting target,
+// and running expects the runs actually planned that week (up to BASE_R)
+function nsTargetW(m){ const n=nsDaysIn(m); return n>=7?BASE_W:Math.round(BASE_W*n/7); }
+function nsTargetR(m){ let n=0; for(let t=m;t<m+7*DAY;t+=DAY) if(t>=NS3&&t<=PLAN_END&&RUN_KM[t]!=null) n++; return Math.min(BASE_R,n); }
 function nsExpectedW(end,marks){
   let e=0;
   for(let m=weekStart(NS3); m<=end&&m<=PLAN_END; m+=7*DAY){
-    const free=Math.max(0,nsDaysIn(m)-BASE_W);
+    const T=nsTargetW(m), free=Math.max(0,nsDaysIn(m)-T);
     let k=0, rest=0;
     for(let t=Math.max(m,NS3); t<m+7*DAY&&t<=end&&t<=PLAN_END; t+=DAY){ k++; if(marks.w[key(t)]===3) rest++; }
-    e+=Math.min(BASE_W,Math.max(0,k-Math.min(rest,free)));
+    e+=Math.min(T,Math.max(0,k-Math.min(rest,free)));
   }
   return e;
 }
@@ -594,13 +599,13 @@ function nsRunSlot(t,tl,repo,moved,marks){
 function nsExpectedR(end,tl,repo,moved,marks){
   let e=0;
   for(let m=weekStart(NS3); m<=end&&m<=PLAN_END; m+=7*DAY){
-    if(end>=Math.min(m+6*DAY,PLAN_END)){ e+=BASE_R; continue; }
+    if(end>=Math.min(m+6*DAY,PLAN_END)){ e+=nsTargetR(m); continue; }
     let sl=0; for(let t=Math.max(m,NS3); t<=end; t+=DAY) sl+=nsRunSlot(t,tl,repo,moved,marks);
-    e+=Math.min(BASE_R,sl);
+    e+=Math.min(nsTargetR(m),sl);
   }
   return e;
 }
-function plannedToDate(end,tl,repo,moved,marks){
+function plannedToDate(end,tl,repo,moved,marks,raw){
   let wk=0, rn=0;
   for(let t=ANCHOR;t<=end&&t<=PLAN_END&&t<NS3;t+=DAY){
     if(!tl[t]) continue;
@@ -610,7 +615,9 @@ function plannedToDate(end,tl,repo,moved,marks){
     else if(tl[t].ficha!=="OFF" && (RUN_KM[t]!=null||moved.has(t)) && !shortBlocked(t,repo,marks)) rn++;
   }
   if(end>=NS3){ wk+=nsExpectedW(end,marks); rn+=nsExpectedR(end,tl,repo,moved,marks); }
-  const cap=plannedCounts();
+  if(raw) return {wk,rn};
+  // the season total is the same count run to the last day, so "expected" and "total" never disagree
+  const cap=plannedToDate(PLAN_END,tl,repo,moved,marks,true);
   return {wk:Math.min(wk,cap.wk), rn:Math.min(rn,cap.rn)};
 }
 function plannedCounts(){
@@ -623,7 +630,7 @@ function plannedCounts(){
     if(d===6) rn++;                       // long run every Saturday
     else if(RUN_KM[t]!=null && !(dow(t-DAY)===6 && RUN_KM[t-DAY]!=null)) rn++;  // short runs follow RUN_KM dates, not the lifting cycle
   }
-  for(let m=weekStart(NS3); m<=PLAN_END; m+=7*DAY){ wk+=BASE_W; rn+=BASE_R; }
+  for(let m=weekStart(NS3); m<=PLAN_END; m+=7*DAY){ wk+=nsTargetW(m); rn+=nsTargetR(m); }
   return {wk,rn};
 }
 function studyProgress(){
@@ -640,7 +647,7 @@ function progressBars(marks,tl,repo,moved){
   const today=todayUTC();
   const totalDays=Math.round((PLAN_END-ANCHOR)/DAY)+1;
   const elapsed=Math.min(totalDays,Math.max(0,Math.round((today-ANCHOR)/DAY)+1));
-  const pl=plannedCounts(), st=statsFor(marks), sp=studyProgress();
+  const pl=plannedToDate(PLAN_END,tl,repo,moved,marks,true), st=statsFor(marks), sp=studyProgress();
   // workouts/running: settled history up to yesterday, plus today only if it has been
   // explicitly marked. An unmarked today counts on neither side (the day is still open);
   // a done or not-done mark is a decision already taken, so it counts immediately.

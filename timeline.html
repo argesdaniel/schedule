@@ -144,7 +144,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2
    id = the matching activity in kaplan.html; once it is ticked there,
    the milestone shows as done here. Without an id, status follows the date only.
    ============================================================ */
-const UPDATED='2026-11-11';
+const UPDATED='2026-11-16';
 const START='2026-08-03', EXAM='2027-02-26', DAYS=210, TOTAL_ACT=769;
 const SEG=[ // from, to (exclusive), type, candidate labels
  ['2026-08-03','2026-09-22','con',['Quant · Economics · Corporate · FSA','Quant · Econ · Corporate · FSA','Quant → FSA']],
@@ -158,14 +158,14 @@ const CITY=[['2026-08-03','2026-10-30','Toronto'],['2026-11-02','2027-03-01','La
 const MONTHS=[['2026-08-03','August'],['2026-09-01','September'],['2026-10-01','October'],['2026-11-01','November'],['2026-12-01','December'],['2027-01-01','January 2027'],['2027-02-01','February']];
 const CLOSES=[ // topic closes (Saturdays)
  ['2026-08-26','QM','a0123'],['2026-09-05','ECO','a0203'],['2026-09-12','CF','a0231'],['2026-10-17','EQ','a0445'],['2026-10-28','FI','a0483'],
- ['2026-11-19','ETH','a0578'],['2026-11-23','DER','a0633'],['2026-11-26','ALT','a0663']];
+ ['2026-11-21','ETH','a0578'],['2026-11-25','DER','a0633'],['2026-11-28','ALT','a0663']];
 // milestones above the band: type P point / R range / X exam · date · end · name · decisive(1) · id
 const TOP=[
  ['P','2026-08-03',null,'Plan start',0,null],
  ['R','2026-09-22','2026-11-01','Recovery',0,null],
  ['R','2026-10-26','2026-11-01','Repair · flight',0,null],
  ['P','2026-11-10',null,'Rebuilt plan',1,null],
- ['P','2026-12-02',null,'Content 100%',1,'a0672'],
+ ['P','2026-12-03',null,'Content 100%',1,'a0672'],
  ['R','2026-12-04','2026-12-09','São Paulo',0,null],
  ['R','2027-01-04','2027-01-09','Ramp',0,null],
  ['P','2027-01-29',null,'PSM complete',0,null],
@@ -186,7 +186,7 @@ const BOT=[
 const DECISIVE=[
  ['2026-10-08','a0364','FSA gate','Topic Quiz ≥70% on the topic that decided 2023'],
  ['2026-10-26','a0409','Checkpoint 1','R1–38 · the first long exam'],
- ['2026-12-02','a0672','Content 100%','All 102 readings covered, before São Paulo'],
+ ['2026-12-03','a0672','Content 100%','All 102 readings covered, before São Paulo'],
  ['2026-12-19','a0689','Checkpoint 3','Closes the content phase'],
  ['2027-01-09','a0701','Mock 1','Diagnostic: the mock season begins'],
  ['2027-02-13','a0753','Mock 4 · CFAI','The truest ruler for the real exam'],
@@ -274,19 +274,26 @@ function render(){
   if(vEnd>0) el('rect',{x:X0,y:BT,width:vEnd*P,height:BB-BT,fill:'#FFFFFF',opacity:.58});
   el('rect',{x:X0,y:BT,width:X1-X0,height:BB-BT,fill:'none',stroke:C.ink,'stroke-width':1});
   // topic closes
-  // codes too close to their neighbour lean apart: the left one ends at its dot, the right one starts at it
-  const CC=CLOSES.map(([s,code,id])=>({s,code,id,cx:xc(di(s)),hw:measure(code,MONO,600,9.5)/2,anc:'middle'}));
-  for(let n=1;n<CC.length;n++){ const a=CC[n-1], b=CC[n];
-    if(b.cx-b.hw<a.cx+a.hw+4){ a.anc='end'; b.anc='start'; } }
-  CC.forEach(({s,code,id,cx,anc})=>{
+  // codes that would overlap are laid side by side as one cluster, centred on the mean of their dots
+  const CC=CLOSES.map(([s,code,id])=>({s,code,id,cx:xc(di(s)),hw:measure(code,MONO,600,9.5)/2}));
+  const GAP=5; let CL=[];
+  CC.forEach(c=>{ CL.push({items:[c]});
+    for(;;){ const k=CL.length; if(k<2) break;
+      const lay=g=>{ const W=g.items.reduce((a,c)=>a+2*c.hw,0)+GAP*(g.items.length-1);
+                     const mid=g.items.reduce((a,c)=>a+c.cx,0)/g.items.length; return {L:mid-W/2,R:mid+W/2}; };
+      const a=lay(CL[k-2]), b=lay(CL[k-1]);
+      if(b.L<a.R+GAP){ CL[k-2]={items:CL[k-2].items.concat(CL[k-1].items)}; CL.pop(); } else break; } });
+  CL.forEach(g=>{ const W=g.items.reduce((a,c)=>a+2*c.hw,0)+GAP*(g.items.length-1);
+    let x=g.items.reduce((a,c)=>a+c.cx,0)/g.items.length-W/2;
+    g.items.forEach(c=>{ c.lx=x+c.hw; x+=2*c.hw+GAP; }); });
+  CC.forEach(({s,code,id,cx,lx})=>{
     const st=status(s,null,id), done=st==='done', late=st==='late';
-    const tx0=anc==='end'?cx+3:anc==='start'?cx-3:cx;
     el('line',{x1:cx,y1:BT-16,x2:cx,y2:BT,stroke:done?C.past2:C.ink,'stroke-width':.9,'stroke-dasharray':late?'2 2':'none'});
     el('circle',{cx,cy:BT,r:4.5,fill:done||late?'#FFFFFF':C.acc,stroke:done?C.past:C.ink,'stroke-width':1.2,'stroke-dasharray':late?'2 1.5':'none'});
-    tx(code,{x:tx0,y:BT-18,'text-anchor':anc,'font-family':MONO,'font-weight':600,'font-size':9.5,fill:done?C.past:C.ink});
+    tx(code,{x:lx,y:BT-18,'text-anchor':'middle','font-family':MONO,'font-weight':600,'font-size':9.5,fill:done?C.past:C.ink});
   });
   // flags
-  const CZ=CLOSES.map(([s,code])=>[xc(di(s)),measure(code,MONO,600,9.5)/2+2]);
+  const CZ=CC.map(c=>[c.lx,c.hw+2]);
   function layout(list,side){
     const NL=side==='top'?3:4, LH=side==='top'?28:32;
     const flags=list.map(([k,a,b,nm,key,id,dlabel])=>{

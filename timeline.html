@@ -144,28 +144,28 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2
    id = the matching activity in kaplan.html; once it is ticked there,
    the milestone shows as done here. Without an id, status follows the date only.
    ============================================================ */
-const UPDATED='2026-11-21';
+const UPDATED='2026-11-27';
 const START='2026-08-03', EXAM='2027-02-26', DAYS=210, TOTAL_ACT=769;
 const SEG=[ // from, to (exclusive), type, candidate labels
  ['2026-08-03','2026-09-22','con',['Quant · Economics · Corporate · FSA','Quant · Econ · Corporate · FSA','Quant → FSA']],
  ['2026-09-22','2026-11-01','rec',['Recovery','Recov.']],
  ['2026-11-01','2026-11-10','pause',[]],
- ['2026-11-10','2026-12-12','con',['Ethics · Deriv · Alts · Portfolio','Deriv · Alts · Portfolio','Content II']],
- ['2026-12-12','2026-12-27','ink',['Checkpoints','CP']],
+ ['2026-11-10','2026-12-17','con',['Ethics · Deriv · Alts · Portfolio','Deriv · Alts · Portfolio','Content II']],
+ ['2026-12-17','2026-12-27','ink',['Checkpoint 3','CP3']],
  ['2026-12-27','2027-01-09','buf',['Review · ramp','Review']],
  ['2027-01-09','2027-02-22','ink',['Mock season','Mocks']],['2027-02-22','2027-02-26','buf',[]],['2027-02-26','2027-02-27','exam',[]]];
 const CITY=[['2026-08-03','2026-10-30','Toronto'],['2026-11-02','2027-03-01','Lagoa Santa · Belo Horizonte']];
 const MONTHS=[['2026-08-03','August'],['2026-09-01','September'],['2026-10-01','October'],['2026-11-01','November'],['2026-12-01','December'],['2027-01-01','January 2027'],['2027-02-01','February']];
-const CLOSES=[ // topic closes (Saturdays)
+const CLOSES=[ // topic closes, in date order
  ['2026-08-26','QM','a0123'],['2026-09-05','ECO','a0203'],['2026-09-12','CF','a0231'],['2026-10-17','EQ','a0445'],['2026-10-28','FI','a0483'],
- ['2026-11-30','ETH','a0578'],['2026-12-03','DER','a0633'],['2026-12-07','ALT','a0663']];
+ ['2026-12-07','DER','a0633'],['2026-12-10','ALT','a0663'],['2026-12-21','ETH','a0676']];
 // milestones above the band: type P point / R range / X exam · date · end · name · decisive(1) · id
 const TOP=[
  ['P','2026-08-03',null,'Plan start',0,null],
  ['R','2026-09-22','2026-11-01','Recovery',0,null],
  ['R','2026-10-26','2026-11-01','Repair · flight',0,null],
  ['P','2026-11-10',null,'Rebuilt plan',1,null],
- ['P','2026-12-11',null,'Content 100%',1,'a0672'],
+ ['P','2026-12-16',null,'Content 100%',1,'a0672'],
  ['R','2027-01-04','2027-01-09','Ramp',0,null],
  ['P','2027-01-29',null,'PSM complete',0,null],
  ['R','2027-02-01','2027-02-13','Ethics · pass 2',0,null],
@@ -185,7 +185,7 @@ const BOT=[
 const DECISIVE=[
  ['2026-10-08','a0364','FSA gate','Topic Quiz ≥70% on the topic that decided 2023'],
  ['2026-10-26','a0409','Checkpoint 1','R1–38 · the first long exam'],
- ['2026-12-11','a0672','Content 100%','All 102 readings covered, the day before Checkpoint 2'],
+ ['2026-12-16','a0672','Content 100%','Last new reading closes · the Ethics cases of Reading 102 follow on Dec 18 and 21'],
  ['2026-12-26','a0689','Checkpoint 3','Closes the content phase'],
  ['2027-01-09','a0701','Mock 1','Diagnostic: the mock season begins'],
  ['2027-02-13','a0753','Mock 4 · CFAI','The truest ruler for the real exam'],
